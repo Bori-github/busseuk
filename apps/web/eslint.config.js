@@ -4,6 +4,7 @@ import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
 import tseslint from 'typescript-eslint'
 import { defineConfig, globalIgnores } from 'eslint/config'
+import fsdPlugin from 'eslint-plugin-fsd-lint'
 
 export default defineConfig([
   globalIgnores(['dist']),
@@ -17,6 +18,20 @@ export default defineConfig([
     ],
     languageOptions: {
       globals: globals.browser,
+    },
+  },
+  {
+    files: ['src/**/*.{ts,tsx}'],
+    ignores: ['src/main.tsx'],
+    plugins: { fsd: fsdPlugin },
+    rules: {
+      'fsd/forbidden-imports': 'error',
+      'fsd/no-relative-imports': 'error',
+      'fsd/no-public-api-sidestep': 'error',
+      'fsd/no-cross-slice-dependency': 'error',
+      'fsd/no-ui-in-business-logic': 'error',
+      'fsd/no-global-store-imports': 'error',
+      'fsd/ordered-imports': 'warn',
     },
   },
 ])
