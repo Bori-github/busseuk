@@ -1,10 +1,9 @@
 # 서울특별시 버스노선정보조회 API
 
 - **Base URL**: `http://ws.bus.go.kr/api/rest/busRouteInfo`
-- **인증**: `ServiceKey` 쿼리 파라미터 (필수, URL-Encode)
-- **응답 형식**: XML / JSON (`resultType=json`)
 - **갱신 주기**: 매일 새벽 5시
-- **제한**: 30TPS, 최대 응답 3MB
+- 인증·응답형식·제한 → [_auth-limits.md](_auth-limits.md)
+- 공통 응답 구조 → [_response-structure.md](_response-structure.md)
 
 **기본 호출 흐름**
 
@@ -233,14 +232,4 @@ GET /getRoutePath
 
 ## 오류 코드
 
-| 코드 | 설명 |
-| --- | --- |
-| `0` | 정상 |
-| `1` | 시스템 오류 |
-| `2` | 잘못된 쿼리 요청 (파라미터 확인) |
-| `3` | 정류소를 찾을 수 없음 |
-| `4` | 노선을 찾을 수 없음 |
-| `5` | 잘못된 위치 요청 (위/경도 좌표 확인) |
-| `6` | 실시간 정보 읽기 실패 (재시도) |
-| `7` | 경로 검색 결과 없음 |
-| `8` | 운행 종료 |
+→ [_error-codes.md](_error-codes.md)
