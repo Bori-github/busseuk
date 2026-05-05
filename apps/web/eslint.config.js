@@ -19,6 +19,15 @@ export default defineConfig([
     languageOptions: {
       globals: globals.browser,
     },
+    rules: {
+      'func-style': ['error', 'expression', { allowArrowFunctions: true }],
+    },
+  },
+  {
+    files: ['**/*.d.ts'],
+    rules: {
+      'func-style': 'off',
+    },
   },
   {
     files: ['src/**/*.{ts,tsx}'],
