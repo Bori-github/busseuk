@@ -2,6 +2,11 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Working Style
+
+- 변경은 한 번에 하나씩, 하나의 작은 커밋으로 쪼갤 수 있는 단위로 조절한다.
+- 여러 파일 수정이 필요한 경우 하나씩 나눠서 진행하고 확인받는다.
+
 ## Commands
 
 모든 명령은 루트(`busseuk/`)에서 실행합니다.
@@ -51,3 +56,5 @@ shared/    ← API 호출, 공통 유틸, UI 기본 요소
 **데이터 페칭**: TanStack Query v5. `main.tsx`에서 `QueryClient`를 전역 설정(`staleTime: 10s`, `retry: 1`)합니다.
 
 **CORS**: 서울 버스 API(`ws.bus.go.kr`)는 HTTP 전용으로 브라우저에서 직접 호출 시 CORS 오류가 발생합니다. 개발 환경에서는 `vite.config.ts`의 `server.proxy`로, 프로덕션에서는 별도 프록시 서버(Vercel Functions 등)로 처리합니다.
+
+**API 명세**: 서울 버스 API 상세 명세는 `.claude/docs/api/` 참고
