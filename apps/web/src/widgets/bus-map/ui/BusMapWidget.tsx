@@ -1,10 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { toast } from 'sonner';
 
 import { useUserLocation } from '@features/user-location';
 import { KakaoMap } from '@shared/ui/kakao';
 
 export const BusMapWidget = () => {
-  const { location } = useUserLocation();
+  const { location, error } = useUserLocation();
+
+  useEffect(() => {
+    if (error) toast.error(error);
+  }, [error]);
 
   const mapRef = useRef<kakao.maps.Map | null>(null);
   const userMarkerRef = useRef<kakao.maps.Marker | null>(null);
