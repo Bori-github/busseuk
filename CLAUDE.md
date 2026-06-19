@@ -36,7 +36,7 @@ pnpm --filter web build
 - `apps/web` — 메인 웹 앱 (React 19 + Vite 8 + TypeScript)
 - `packages/` — 공유 패키지 (현재 비어있음)
 
-**웹 개요**: 서울시 실시간 버스 위치 정보 서비스. 카카오맵 JS SDK로 지도를 렌더링하며, 서울 열린데이터광장 API로 버스 위치·정류장·도착 정보를 조회합니다.
+**웹 개요**: 서울시 실시간 버스 위치 정보 서비스. 네이버맵 JS SDK로 지도를 렌더링하며, 서울 열린데이터광장 API로 버스 위치·정류장·도착 정보를 조회합니다.
 
 **FSD (Feature-Sliced Design)**: `apps/web/src/`는 FSD 레이어 구조를 따릅니다. 상위 레이어는 하위 레이어만 참조할 수 있습니다.
 
