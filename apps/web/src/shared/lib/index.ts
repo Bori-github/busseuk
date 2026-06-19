@@ -1,2 +1,2 @@
-export { loadKakaoMapSDK } from './loadKakaoMapSDK';
+export { loadNaverMapSDK } from './loadNaverMapSDK';
 export { cn } from './cn';
