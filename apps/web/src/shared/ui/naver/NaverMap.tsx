@@ -15,7 +15,7 @@ interface NaverMapProps {
 
 export const NaverMap = ({
   center,
-  zoom = 16,
+  zoom = 17, // 버스 정류장 아이콘 노출 최소 줌 레벨
   onReady,
   className = 'w-full h-full',
 }: NaverMapProps) => {
