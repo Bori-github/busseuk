@@ -2,6 +2,8 @@ import { useEffect, useRef } from 'react';
 
 import { loadNaverMapSDK } from '@shared/lib';
 
+const NAVER_CUSTOM_STYLE_ID = '59272e0e-36d1-4a0e-a14a-122cf10d64b0';
+
 interface NaverMapProps {
   /** 지도 중심 좌표. 변경 시 panTo로 이동 */
   center: { lat: number; lng: number };
@@ -41,6 +43,8 @@ export const NaverMap = ({
             overlayType: 'bg.ol.ts.lko',
           }),
         }),
+        gl: true,
+        customStyleId: NAVER_CUSTOM_STYLE_ID,
       });
 
       mapRef.current = map;

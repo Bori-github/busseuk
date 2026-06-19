@@ -14,7 +14,7 @@ export const loadNaverMapSDK = (): Promise<void> => {
     };
 
     const script = document.createElement('script');
-    script.src = `https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=${ENV.NAVER_MAP_CLIENT_ID}&callback=${callbackName}`;
+    script.src = `https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=${ENV.NAVER_MAP_CLIENT_ID}&callback=${callbackName}&submodules=gl`;
     script.async = true;
     script.onerror = () => {
       sdkPromise = null;
