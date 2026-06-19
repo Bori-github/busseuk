@@ -1,0 +1,59 @@
+import { useEffect, useRef } from 'react';
+
+import { loadNaverMapSDK } from '@shared/lib';
+
+interface NaverMapProps {
+  /** 지도 중심 좌표. 변경 시 panTo로 이동 */
+  center: { lat: number; lng: number };
+  /** 네이버 줌 레벨 (최대 21, 클수록 확대). 기본값: 16 */
+  zoom?: number;
+  /** 지도 인스턴스 생성 완료 시 호출되는 콜백 */
+  onReady?: (map: naver.maps.Map) => void;
+  /** 지도 컨테이너 className. 기본값: 'w-full h-full' */
+  className?: string;
+}
+
+export const NaverMap = ({
+  center,
+  zoom = 16,
+  onReady,
+  className = 'w-full h-full',
+}: NaverMapProps) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<naver.maps.Map | null>(null);
+  const centerRef = useRef(center);
+
+  useEffect(() => {
+    centerRef.current = center;
+  }, [center]);
+
+  useEffect(() => {
+    loadNaverMapSDK().then(() => {
+      if (!containerRef.current || mapRef.current) return;
+
+      const latest = centerRef.current;
+      const map = new naver.maps.Map(containerRef.current, {
+        center: new naver.maps.LatLng(latest.lat, latest.lng),
+        zoom,
+        minZoom: 7,
+        mapTypes: new naver.maps.MapTypeRegistry({
+          normal: naver.maps.NaverStyleMapTypeOptions.getNormalMap({
+            overlayType: 'bg.ol.ts.lko',
+          }),
+        }),
+      });
+
+      mapRef.current = map;
+      onReady?.(map);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (!mapRef.current) return;
+
+    mapRef.current.panTo(new naver.maps.LatLng(center.lat, center.lng));
+  }, [center.lat, center.lng]);
+
+  return <div ref={containerRef} className={className} />;
+};
