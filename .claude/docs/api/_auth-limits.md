@@ -2,10 +2,10 @@
 
 ## 인증
 
-모든 엔드포인트에 `ServiceKey` 쿼리 파라미터가 필수입니다 (URL 인코딩).
+모든 엔드포인트에 `serviceKey` 쿼리 파라미터가 필수입니다 (URL 인코딩).
 
 ```
-GET /endpoint?ServiceKey={인증키}&resultType=json
+GET /endpoint?serviceKey={인증키}&resultType=json
 ```
 
 > `bus-position.md`의 버스위치 API만 `serviceKey`(소문자)를 사용합니다.

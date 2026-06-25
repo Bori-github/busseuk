@@ -41,7 +41,7 @@
 
 ```
 GET /getBusRouteList
-  ?ServiceKey={인증키}
+  ?serviceKey={인증키}
   &strSrch=3
   &resultType=json
 ```
@@ -50,7 +50,7 @@ GET /getBusRouteList
 
 | 파라미터 | 필수 | 설명 |
 | --- | --- | --- |
-| `ServiceKey` | ✅ | 인증키 |
+| `serviceKey` | ✅ | 인증키 |
 | `strSrch` | ✅ | 검색할 노선번호 (부분 검색 가능, 예: `3`) |
 | `resultType` | - | `xml` \| `json` (기본 xml) |
 
@@ -80,7 +80,7 @@ GET /getBusRouteList
 
 ```
 GET /getRouteInfo
-  ?ServiceKey={인증키}
+  ?serviceKey={인증키}
   &busRouteId=100100112
   &resultType=json
 ```
@@ -89,7 +89,7 @@ GET /getRouteInfo
 
 | 파라미터 | 필수 | 설명 |
 | --- | --- | --- |
-| `ServiceKey` | ✅ | 인증키 |
+| `serviceKey` | ✅ | 인증키 |
 | `busRouteId` | ✅ | 노선 시스템 ID (예: `100100112`) |
 | `resultType` | - | `xml` \| `json` |
 
@@ -140,7 +140,7 @@ GET /getRouteInfo
 
 ```
 GET /getStaionByRoute
-  ?ServiceKey={인증키}
+  ?serviceKey={인증키}
   &busRouteId=100100112
   &resultType=json
 ```
@@ -149,7 +149,7 @@ GET /getStaionByRoute
 
 | 파라미터 | 필수 | 설명 |
 | --- | --- | --- |
-| `ServiceKey` | ✅ | 인증키 |
+| `serviceKey` | ✅ | 인증키 |
 | `busRouteId` | ✅ | 노선 시스템 ID |
 | `resultType` | - | `xml` \| `json` |
 
@@ -207,7 +207,7 @@ GET /getStaionByRoute
 
 ```
 GET /getRoutePath
-  ?ServiceKey={인증키}
+  ?serviceKey={인증키}
   &busRouteId=100100112
   &resultType=json
 ```
@@ -216,7 +216,7 @@ GET /getRoutePath
 
 | 파라미터 | 필수 | 설명 |
 | --- | --- | --- |
-| `ServiceKey` | ✅ | 인증키 |
+| `serviceKey` | ✅ | 인증키 |
 | `busRouteId` | ✅ | 노선 시스템 ID |
 | `resultType` | - | `xml` \| `json` |
 
