@@ -1,19 +1,27 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { createUserMarkerIcon, NaverMap } from '@shared/ui/naver';
+import { createBusStopMarkerIcon, createUserMarkerIcon, NaverMap } from '@shared/ui/naver';
 
 interface Location {
   lat: number;
   lng: number;
 }
 
-interface BusMapWidgetProps {
-  location: Location;
+interface SelectedStation {
+  lat: number;
+  lng: number;
+  name: string;
 }
 
-export const BusMapWidget = ({ location }: BusMapWidgetProps) => {
+interface BusMapWidgetProps {
+  location: Location;
+  selectedStation?: SelectedStation | null;
+}
+
+export const BusMapWidget = ({ location, selectedStation }: BusMapWidgetProps) => {
   const mapRef = useRef<naver.maps.Map | null>(null);
   const userMarkerRef = useRef<naver.maps.Marker | null>(null);
+  const selectedMarkerRef = useRef<naver.maps.Marker | null>(null);
 
   const [mapReady, setMapReady] = useState(false);
 
@@ -49,6 +57,33 @@ export const BusMapWidget = ({ location }: BusMapWidgetProps) => {
       );
     }
   }, [mapReady, location]);
+
+  useEffect(() => {
+    if (!mapReady || !mapRef.current) return;
+
+    if (!selectedStation) {
+      selectedMarkerRef.current?.setMap(null);
+      selectedMarkerRef.current = null;
+      return;
+    }
+
+    const position = new naver.maps.LatLng(selectedStation.lat, selectedStation.lng);
+    const icon = createBusStopMarkerIcon({ name: selectedStation.name });
+
+    if (!selectedMarkerRef.current) {
+      selectedMarkerRef.current = new naver.maps.Marker({
+        map: mapRef.current,
+        position,
+        icon,
+      });
+    } else {
+      selectedMarkerRef.current.setPosition(position);
+      selectedMarkerRef.current.setIcon(icon);
+      selectedMarkerRef.current.setMap(mapRef.current);
+    }
+
+    mapRef.current.panTo(position);
+  }, [mapReady, selectedStation]);
 
   return <NaverMap center={location} onReady={handleMapReady} />;
 };
