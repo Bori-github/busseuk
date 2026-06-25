@@ -9,4 +9,5 @@ const get = (key: string): string => {
 export const ENV = {
   NAVER_MAP_CLIENT_ID: get('VITE_NAVER_MAP_CLIENT_ID'),
   BUS_API_SERVICE_KEY: get('VITE_BUS_API_SERVICE_KEY'),
+  BUS_API_BASE_URL: get('VITE_BUS_API_BASE_URL'),
 } as const;
