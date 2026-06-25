@@ -21,7 +21,7 @@ export const SearchOverlay = ({ onClose, onSelect }: SearchOverlayProps) => {
   const [query, setQuery] = useState('');
   const debouncedQuery = useDebounce(query, 300);
 
-  const { recentSearches, addRecentSearch } = useRecentSearches();
+  const { recentSearches, addRecentSearch, removeRecentSearch } = useRecentSearches();
 
   const hasQuery = debouncedQuery.trim().length >= 2;
   const isQuerySettled = query.trim() === debouncedQuery.trim();
@@ -77,7 +77,7 @@ export const SearchOverlay = ({ onClose, onSelect }: SearchOverlayProps) => {
 
       <div className="flex-1 overflow-y-auto pb-4">
         {!hasQuery && (
-          <RecentSearchList items={recentSearches} onSelect={handleSelectRecent} />
+          <RecentSearchList items={recentSearches} onSelect={handleSelectRecent} onRemove={removeRecentSearch} />
         )}
         {hasQuery && (
           <SearchList

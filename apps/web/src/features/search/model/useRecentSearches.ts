@@ -38,5 +38,14 @@ export const useRecentSearches = () => {
     });
   };
 
-  return { recentSearches, addRecentSearch };
+  const removeRecentSearch = (item: RecentSearchItem) => {
+    setRecentSearches((prev) => {
+      const key = dedupKey(item);
+      const next = prev.filter((i) => dedupKey(i) !== key);
+      save(next);
+      return next;
+    });
+  };
+
+  return { recentSearches, addRecentSearch, removeRecentSearch };
 };
