@@ -7,6 +7,5 @@ export const getStationsByNameQueryOptions = (query: string) =>
   queryOptions({
     queryKey: stationQueryKeys.searchByName(query),
     queryFn: () => getStationsByName(query),
-    enabled: query.trim().length >= 2,
     staleTime: 60_000, // 1분
   });
