@@ -1,29 +1,10 @@
-import type { RecentSearchItem, StationSearchItem } from '../model/types';
+import type { RecentSearchItem } from '../model/types';
+import { StationSearchItem } from './StationSearchItem';
 
 interface RecentSearchListProps {
   items: RecentSearchItem[];
   onSelect: (item: RecentSearchItem) => void;
 }
-
-const StationItem = ({
-  item,
-  onSelect,
-}: {
-  item: StationSearchItem;
-  onSelect: (item: RecentSearchItem) => void;
-}) => (
-  <li>
-    <button
-      onClick={() => onSelect(item)}
-      className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-gray-800"
-    >
-      <div>
-        <p className="text-sm font-semibold text-white">{item.stNm}</p>
-        <p className="text-xs text-gray-400">정류소 번호 {item.arsId}</p>
-      </div>
-    </button>
-  </li>
-);
 
 const renderItem = (
   item: RecentSearchItem,
@@ -32,10 +13,11 @@ const renderItem = (
   switch (item.type) {
     case 'station':
       return (
-        <StationItem
+        <StationSearchItem
           key={`station:${item.arsId}`}
-          item={item}
-          onSelect={onSelect}
+          stNm={item.stNm}
+          arsId={item.arsId}
+          onClick={() => onSelect(item)}
         />
       );
     case 'route':
