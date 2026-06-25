@@ -41,8 +41,8 @@ export const MapPage = () => {
             className="flex items-center gap-2 w-full rounded-full bg-black h-[40px] px-3 py-2 shadow-md"
           >
             <SearchIcon className="h-4 w-4 shrink-0 text-gray-400" />
-            <span className="flex-1 text-sm text-left text-gray-400">
-              정류소 검색
+            <span className={`flex-1 text-sm text-left ${selectedStation ? 'text-white' : 'text-gray-400'}`}>
+              {selectedStation ? selectedStation.stNm : '정류소 검색'}
             </span>
           </button>
         </div>
