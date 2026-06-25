@@ -1,6 +1,8 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
+import type { RecentSearchItem } from '../model/types';
 import { useRecentSearches } from '../model/useRecentSearches';
+import { RecentSearchList } from './RecentSearchList';
 import { SearchList } from './SearchList';
 
 import { getStationsByNameQueryOptions } from '@entities/station';
@@ -19,7 +21,7 @@ export const SearchOverlay = ({ onClose, onSelect }: SearchOverlayProps) => {
   const [query, setQuery] = useState('');
   const debouncedQuery = useDebounce(query, 300);
 
-  const { addRecentSearch } = useRecentSearches();
+  const { recentSearches, addRecentSearch } = useRecentSearches();
 
   const hasQuery = debouncedQuery.trim().length >= 2;
   const isQuerySettled = query.trim() === debouncedQuery.trim();
@@ -41,6 +43,12 @@ export const SearchOverlay = ({ onClose, onSelect }: SearchOverlayProps) => {
   const handleSelectStation = (station: StationSearchResult) => {
     addRecentSearch({ type: 'station', ...station });
     onSelect(station);
+  };
+
+  const handleSelectRecent = (item: RecentSearchItem) => {
+    if (item.type === 'station') {
+      handleSelectStation(item);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -67,7 +75,10 @@ export const SearchOverlay = ({ onClose, onSelect }: SearchOverlayProps) => {
         />
       </div>
 
-      <div className="flex-1 overflow-y-auto px-4 pb-4">
+      <div className="flex-1 overflow-y-auto pb-4">
+        {!hasQuery && (
+          <RecentSearchList items={recentSearches} onSelect={handleSelectRecent} />
+        )}
         {hasQuery && (
           <SearchList
             results={results}
