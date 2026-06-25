@@ -1,13 +1,15 @@
 import * as React from 'react';
 
-import { SearchIcon, XIcon } from '@shared/icons';
+import { XIcon } from '@shared/icons';
 
 interface InputSearchProps extends React.ComponentProps<'input'> {
   onClear?: () => void;
+  leadingButton?: React.ReactNode;
 }
 
 export const InputSearch = ({
   onClear,
+  leadingButton,
   onFocus,
   onBlur,
   value,
@@ -25,7 +27,7 @@ export const InputSearch = ({
 
   return (
     <div className="flex items-center gap-2 w-full rounded-full bg-black h-[40px] px-3 py-2 shadow-md">
-      <SearchIcon className="h-4 w-4 shrink-0 text-gray-400" />
+      {leadingButton && leadingButton}
       <input
         ref={ref}
         value={value}
