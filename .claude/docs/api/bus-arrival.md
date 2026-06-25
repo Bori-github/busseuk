@@ -69,7 +69,7 @@
 
 | 파라미터 | 필수 | 설명 |
 | --- | --- | --- |
-| `ServiceKey` | ✅ | 인증키 |
+| `serviceKey` | ✅ | 인증키 |
 | `busRouteId` | ✅ | 노선 ID (예: `100100118`) |
 | `resultType` | - | `xml` \| `json` (기본 xml) |
 
@@ -77,7 +77,7 @@
 
 ```
 GET /getArrInfoByRouteAll
-  ?ServiceKey={인증키}
+  ?serviceKey={인증키}
   &busRouteId=100100118
   &resultType=json
 ```
@@ -92,7 +92,7 @@ GET /getArrInfoByRouteAll
 
 | 파라미터 | 필수 | 설명 |
 | --- | --- | --- |
-| `ServiceKey` | ✅ | 인증키 |
+| `serviceKey` | ✅ | 인증키 |
 | `stId` | ✅ | 정류소 고유 ID (예: `112000001`) |
 | `busRouteId` | ✅ | 노선 ID (예: `100100118`) |
 | `ord` | ✅ | 정류소 순번 (예: `18`) |
@@ -102,7 +102,7 @@ GET /getArrInfoByRouteAll
 
 ```
 GET /getArrInfoByRoute
-  ?ServiceKey={인증키}
+  ?serviceKey={인증키}
   &stId=112000001
   &busRouteId=100100118
   &ord=18
@@ -149,7 +149,7 @@ GET /getArrInfoByRoute
 
 | 파라미터 | 필수 | 설명 |
 | --- | --- | --- |
-| `ServiceKey` | ✅ | 인증키 |
+| `serviceKey` | ✅ | 인증키 |
 | `stId` | ✅ | 정류소 고유 ID |
 | `busRouteId` | ✅ | 노선 ID |
 | `ord` | ✅ | 정류소 순번 |
@@ -161,7 +161,7 @@ GET /getArrInfoByRoute
 
 ```
 GET /getLowArrInfoByRoute
-  ?ServiceKey={인증키}
+  ?serviceKey={인증키}
   &stId=112000001
   &busRouteId=100100118
   &ord=18
@@ -178,7 +178,7 @@ GET /getLowArrInfoByRoute
 
 | 파라미터 | 필수 | 설명 |
 | --- | --- | --- |
-| `ServiceKey` | ✅ | 인증키 |
+| `serviceKey` | ✅ | 인증키 |
 | `stId` | ✅ | 정류소 고유 ID |
 | `resultType` | - | `xml` \| `json` |
 
@@ -188,7 +188,7 @@ GET /getLowArrInfoByRoute
 
 ```
 GET /getLowArrInfoByStId
-  ?ServiceKey={인증키}
+  ?serviceKey={인증키}
   &stId=112000001
   &resultType=json
 ```

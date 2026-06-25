@@ -17,7 +17,7 @@
 
 | 파라미터 | 필수 | 설명 |
 | --- | --- | --- |
-| `ServiceKey` | ✅ | 인증키 |
+| `serviceKey` | ✅ | 인증키 |
 | `stSrch` | ✅ | 정류소명 검색어 (예: `서부경찰서`) |
 | `resultType` | - | `xml` \| `json` (기본 xml) |
 
@@ -37,7 +37,7 @@
 
 ```
 GET /getLowStationByName
-  ?ServiceKey={인증키}
+  ?serviceKey={인증키}
   &stSrch=서부경찰서
   &resultType=json
 ```
@@ -52,7 +52,7 @@ GET /getLowStationByName
 
 | 파라미터 | 필수 | 설명 |
 | --- | --- | --- |
-| `ServiceKey` | ✅ | 인증키 |
+| `serviceKey` | ✅ | 인증키 |
 | `arsId` | ✅ | 정류소 번호 (예: `12121`) |
 | `resultType` | - | `xml` \| `json` |
 
@@ -72,7 +72,7 @@ GET /getLowStationByName
 
 ```
 GET /getRouteByStation
-  ?ServiceKey={인증키}
+  ?serviceKey={인증키}
   &arsId=12121
   &resultType=json
 ```
@@ -87,7 +87,7 @@ GET /getRouteByStation
 
 | 파라미터 | 필수 | 설명 |
 | --- | --- | --- |
-| `ServiceKey` | ✅ | 인증키 |
+| `serviceKey` | ✅ | 인증키 |
 | `tmX` | ✅ | 기준점 경도 WGS84 (예: `126.95584930`) |
 | `tmY` | ✅ | 기준점 위도 WGS84 (예: `37.53843986`) |
 | `radius` | ✅ | 검색 반경 (m, 예: `500`) |
@@ -111,7 +111,7 @@ GET /getRouteByStation
 
 ```
 GET /getStationByPos
-  ?ServiceKey={인증키}
+  ?serviceKey={인증키}
   &tmX=126.95584930
   &tmY=37.53843986
   &radius=500
@@ -130,7 +130,7 @@ GET /getStationByPos
 
 | 파라미터 | 필수 | 설명 |
 | --- | --- | --- |
-| `ServiceKey` | ✅ | 인증키 |
+| `serviceKey` | ✅ | 인증키 |
 | `stSrch` | ✅ | 정류소명 검색어 (**한글 URL 인코딩 필수**) |
 | `resultType` | - | `xml` \| `json` |
 
@@ -150,7 +150,7 @@ GET /getStationByPos
 
 ```
 GET /getStationByName
-  ?ServiceKey={인증키}
+  ?serviceKey={인증키}
   &stSrch=%EA%B0%80%EA%B3%A1%EC%B4%88%EA%B5%90
   &resultType=json
 ```
@@ -167,7 +167,7 @@ GET /getStationByName
 
 | 파라미터 | 필수 | 설명 |
 | --- | --- | --- |
-| `ServiceKey` | ✅ | 인증키 |
+| `serviceKey` | ✅ | 인증키 |
 | `arsId` | ✅ | 정류소 번호 (예: `12713`) |
 | `busRouteId` | ✅ | 노선 ID (예: `100100118`) |
 | `resultType` | - | `xml` \| `json` |
@@ -188,7 +188,7 @@ GET /getStationByName
 
 ```
 GET /getBustimeByStation
-  ?ServiceKey={인증키}
+  ?serviceKey={인증키}
   &arsId=12713
   &busRouteId=100100118
   &resultType=json
@@ -204,7 +204,7 @@ GET /getBustimeByStation
 
 | 파라미터 | 필수 | 설명 |
 | --- | --- | --- |
-| `ServiceKey` | ✅ | 인증키 |
+| `serviceKey` | ✅ | 인증키 |
 | `arsId` | ✅ | 정류소 번호 (예: `02105`) |
 | `resultType` | - | `xml` \| `json` |
 
@@ -242,7 +242,7 @@ GET /getBustimeByStation
 
 ```
 GET /getLowStationByUid
-  ?ServiceKey={인증키}
+  ?serviceKey={인증키}
   &arsId=02105
   &resultType=json
 ```
@@ -259,7 +259,7 @@ GET /getLowStationByUid
 
 | 파라미터 | 필수 | 설명 |
 | --- | --- | --- |
-| `ServiceKey` | ✅ | 인증키 |
+| `serviceKey` | ✅ | 인증키 |
 | `arsId` | ✅ | 정류소 번호 (예: `12121`) |
 | `resultType` | - | `xml` \| `json` |
 
@@ -309,7 +309,7 @@ GET /getLowStationByUid
 
 ```
 GET /getStationByUid
-  ?ServiceKey={인증키}
+  ?serviceKey={인증키}
   &arsId=12121
   &resultType=json
 ```
