@@ -33,14 +33,18 @@ export const RecentSearchList = ({
   onSelect,
   onRemove,
 }: RecentSearchListProps) => {
-  if (items.length === 0) return null;
-
   return (
     <div className="overflow-hidden">
       <p className="px-4 pt-3 pb-1 text-xs font-semibold text-gray-400">
         최근 검색
       </p>
-      <ul>{items.map((item) => renderItem(item, onSelect, onRemove))}</ul>
+      {items.length === 0 ? (
+        <p className="px-4 py-3 text-sm text-gray-400 text-center">
+          최근 검색 내역이 없습니다
+        </p>
+      ) : (
+        <ul>{items.map((item) => renderItem(item, onSelect, onRemove))}</ul>
+      )}
     </div>
   );
 };
