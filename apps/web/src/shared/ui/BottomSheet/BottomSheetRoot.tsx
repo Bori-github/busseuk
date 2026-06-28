@@ -9,6 +9,8 @@ import {
 } from 'react';
 import { createPortal } from 'react-dom';
 
+import { cn } from '@shared/lib';
+
 import {
   BottomSheetContext,
   DRAG_THRESHOLD,
@@ -27,6 +29,10 @@ export interface BottomSheetRootProps {
   children: ReactNode;
   /** peek 상태일 때 높이 (px). 미지정 시 50vh */
   peekHeight?: number;
+  /** 시트 패널에 추가할 클래스 (배경 등 테마 오버라이드) */
+  className?: string;
+  /** 드래그 핸들에 추가할 클래스 */
+  handleClassName?: string;
 }
 
 export const BottomSheetRoot = ({
@@ -35,6 +41,8 @@ export const BottomSheetRoot = ({
   onClose,
   children,
   peekHeight,
+  className,
+  handleClassName,
 }: BottomSheetRootProps) => {
   const titleId = useId();
   const [prevOpen, setPrevOpen] = useState(open);
@@ -246,7 +254,10 @@ export const BottomSheetRoot = ({
         aria-modal="false"
         aria-hidden={!open}
         aria-labelledby={titleId}
-        className="fixed bottom-0 left-0 right-0 z-20 flex flex-col bg-white shadow-lg"
+        className={cn(
+          'fixed bottom-0 left-0 right-0 z-20 flex flex-col bg-white shadow-lg',
+          className,
+        )}
         style={{
           height: `${currentHeight}px`,
           borderTopLeftRadius: showRoundedTop ? '1rem' : 0,
@@ -266,7 +277,10 @@ export const BottomSheetRoot = ({
           onPointerUp={handlePointerUp}
           onPointerCancel={handlePointerCancel}
         >
-          <div className="h-1 w-10 rounded-full bg-gray-300" aria-hidden />
+          <div
+            className={cn('h-1 w-10 rounded-full bg-gray-300', handleClassName)}
+            aria-hidden
+          />
         </div>
 
         {children}

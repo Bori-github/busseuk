@@ -81,10 +81,16 @@ export const StationInformationBottomSheet = ({
   };
 
   return (
-    <BottomSheet open={open} onOpenChange={onOpenChange} onClose={onClose}>
+    <BottomSheet
+      open={open}
+      onOpenChange={onOpenChange}
+      onClose={onClose}
+      className="bg-neutral-900 text-white"
+      handleClassName="bg-gray-600"
+    >
       <BottomSheet.Header>
         <BottomSheet.Title>{stationName}</BottomSheet.Title>
-        <BottomSheet.Close />
+        <BottomSheet.Close className="text-gray-400 hover:bg-white/10" />
       </BottomSheet.Header>
       <BottomSheet.Content>
         {/* TODO: Spinner 추가 */}
@@ -93,7 +99,7 @@ export const StationInformationBottomSheet = ({
         )}
         {!isLoading && isError && data.length === 0 && (
           <div className="flex flex-col items-center gap-3 px-4 py-8 text-center">
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-400">
               {getStationInformationErrorMessage(error)}
             </p>
             <button
@@ -101,7 +107,7 @@ export const StationInformationBottomSheet = ({
               onClick={() => refetch()}
               disabled={isFetching}
               className={cn(
-                'rounded-full bg-gray-900 px-4 py-2 text-sm font-medium text-white',
+                'rounded-full bg-white px-4 py-2 text-sm font-medium text-neutral-900',
                 'disabled:cursor-not-allowed disabled:opacity-50',
               )}
             >
@@ -122,7 +128,7 @@ export const StationInformationBottomSheet = ({
                 onClick={() => refetch()}
                 disabled={isFetching}
                 className={cn(
-                  'flex w-full items-center justify-center bg-amber-50 px-4 py-2 text-xs font-medium text-amber-700',
+                  'flex w-full items-center justify-center bg-amber-500/10 px-4 py-2 text-xs font-medium text-amber-300',
                   'disabled:opacity-60',
                 )}
               >
@@ -131,7 +137,7 @@ export const StationInformationBottomSheet = ({
                   : '최신 정보를 불러오지 못했어요 · 다시 시도'}
               </button>
             )}
-            <ul className="divide-y divide-gray-100">
+            <ul className="divide-y divide-white/10">
               {data.map((item) => {
                 const typeStyle = ROUTE_TYPE_STYLE[item.routeType];
                 const checked = selectedRouteIds.includes(item.busRouteId);
@@ -174,8 +180,8 @@ export const StationInformationBottomSheet = ({
                             className={cn(
                               'text-sm font-semibold',
                               isImminent(item.arrmsg1)
-                                ? 'text-red-500'
-                                : 'text-gray-900',
+                                ? 'text-red-400'
+                                : 'text-white',
                             )}
                           >
                             {item.arrmsg1}

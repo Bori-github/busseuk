@@ -107,7 +107,7 @@ describe('StationInformationBottomSheet', () => {
     renderSheet();
 
     await waitFor(() => {
-      expect(screen.getByText('곧 도착').className).toContain('text-red-500');
+      expect(screen.getByText('곧 도착').className).toContain('text-red-400');
     });
   });
 
