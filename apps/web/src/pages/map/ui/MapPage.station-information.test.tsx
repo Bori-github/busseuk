@@ -125,4 +125,35 @@ describe('MapPage station information', () => {
     const checkboxB = screen.getByRole('checkbox');
     expect(checkboxB).toHaveProperty('checked', false);
   });
+
+  it('정보 시트가 열린 상태에서 검색을 다시 열면 시트가 닫힌다', async () => {
+    vi.mocked(getStationInformation).mockResolvedValue([mockRoute()]);
+
+    renderMapPage();
+
+    await act(async () => {
+      screen.getByRole('button', { name: /정류소 검색/ }).click();
+    });
+    await act(async () => {
+      screen.getByRole('button', { name: 'select-station-a' }).click();
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('753')).toBeTruthy();
+    });
+    expect(
+      screen.getByRole('dialog', { hidden: true }).getAttribute('aria-hidden'),
+    ).toBe('false');
+
+    // 선택된 정류장명이 표시된 검색 버튼을 다시 클릭
+    await act(async () => {
+      screen.getByRole('button', { name: /A 정류장/ }).click();
+    });
+
+    // 검색 오버레이가 다시 뜨고, 정보 시트는 닫힌다
+    expect(screen.getByRole('button', { name: 'select-station-a' })).toBeTruthy();
+    expect(
+      screen.getByRole('dialog', { hidden: true }).getAttribute('aria-hidden'),
+    ).toBe('true');
+  });
 });

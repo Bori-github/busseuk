@@ -18,6 +18,11 @@ export const MapPage = () => {
   // TODO: 최대 5개 노선 선택 기능 추가
   const [selectedRouteIds, setSelectedRouteIds] = useState<string[]>([]);
 
+  const handleOpenSearch = () => {
+    setIsSearchOpen(true);
+    setIsStationInformationSheetOpen(false);
+  };
+
   const handleSelectStation = (station: StationSearchResult) => {
     setSelectedStation(station);
     setSelectedRouteIds([]);
@@ -58,7 +63,7 @@ export const MapPage = () => {
         <div className="absolute top-4 left-4 right-4 z-10">
           <button
             type="button"
-            onClick={() => setIsSearchOpen(true)}
+            onClick={handleOpenSearch}
             className="flex items-center gap-2 w-full rounded-full bg-black h-[40px] px-3 py-2 shadow-md"
           >
             <SearchIcon className="h-4 w-4 shrink-0 text-gray-400" />
