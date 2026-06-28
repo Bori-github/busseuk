@@ -18,5 +18,10 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     globals: true,
+    env: {
+      VITE_NAVER_MAP_CLIENT_ID: 'test-naver-client-id',
+      VITE_BUS_API_SERVICE_KEY: 'test-bus-service-key',
+      VITE_BUS_API_BASE_URL: 'http://localhost/api/bus',
+    },
   },
 })
