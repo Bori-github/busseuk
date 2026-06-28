@@ -6,6 +6,8 @@ import {
   BottomSheetTitle,
 } from './parts';
 
+export { PEEK_HEIGHT_RATIO } from './context';
+
 /**
  * 공통 바텀시트 컴포넌트 (항상 마운트)
  *

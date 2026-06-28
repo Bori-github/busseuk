@@ -6,6 +6,7 @@ import { useUserLocation } from '@features/user-location';
 
 import type { StationSearchResult } from '@entities/station';
 import { SearchIcon } from '@shared/icons';
+import { PEEK_HEIGHT_RATIO } from '@shared/ui';
 
 export const MapPage = () => {
   const { location } = useUserLocation();
@@ -56,6 +57,11 @@ export const MapPage = () => {
                 name: selectedStation.stNm,
               }
             : null
+        }
+        bottomInset={
+          isStationInformationSheetOpen
+            ? window.innerHeight * PEEK_HEIGHT_RATIO
+            : 0
         }
       />
 
