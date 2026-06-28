@@ -53,13 +53,24 @@ export const StationInformationBottomSheet = ({
   selectedRouteIds,
   onToggleRoute,
 }: StationInformationBottomSheetProps) => {
-  const { data = [], isLoading, isError, error, refetch, isFetching } =
-    useQuery({
-      ...getStationInformationQueryOptions(arsId),
-      enabled: open && Boolean(arsId),
-      refetchInterval: (query) =>
-        query.state.status === 'error' ? false : 15_000,
-    });
+  const {
+    data = [],
+    isLoading,
+    isError,
+    error,
+    refetch,
+    isFetching,
+  } = useQuery({
+    ...getStationInformationQueryOptions(arsId),
+    enabled: open && Boolean(arsId),
+    refetchInterval: (query) => {
+      // 초기 로드 실패(데이터 없음)면 자동 폴링을 멈추고 수동 재시도에 맡긴다.
+      // 데이터가 있는 상태의 백그라운드 실패는 일시적일 수 있으므로 폴링을 유지해 자동 회복시킨다.
+      const hasData = (query.state.data?.length ?? 0) > 0;
+      if (query.state.status === 'error' && !hasData) return false;
+      return 15_000;
+    },
+  });
 
   const handleToggle = (busRouteId: string, checked: boolean) => {
     if (checked && selectedRouteIds.length >= MAX_SELECTED_ROUTES) {
@@ -80,7 +91,7 @@ export const StationInformationBottomSheet = ({
         {isLoading && (
           <div className="space-y-1 p-3 text-sm text-gray-400">Loading...</div>
         )}
-        {!isLoading && isError && (
+        {!isLoading && isError && data.length === 0 && (
           <div className="flex flex-col items-center gap-3 px-4 py-8 text-center">
             <p className="text-sm text-gray-500">
               {getStationInformationErrorMessage(error)}
@@ -103,75 +114,92 @@ export const StationInformationBottomSheet = ({
             도착 정보가 없습니다
           </p>
         )}
-        {!isLoading && !isError && data.length > 0 && (
-          <ul className="divide-y divide-gray-100">
-            {data.map((item) => {
-              const typeStyle = ROUTE_TYPE_STYLE[item.routeType];
-              const checked = selectedRouteIds.includes(item.busRouteId);
+        {!isLoading && data.length > 0 && (
+          <>
+            {isError && (
+              <button
+                type="button"
+                onClick={() => refetch()}
+                disabled={isFetching}
+                className={cn(
+                  'flex w-full items-center justify-center bg-amber-50 px-4 py-2 text-xs font-medium text-amber-700',
+                  'disabled:opacity-60',
+                )}
+              >
+                {isFetching
+                  ? '최신 정보를 불러오는 중...'
+                  : '최신 정보를 불러오지 못했어요 · 다시 시도'}
+              </button>
+            )}
+            <ul className="divide-y divide-gray-100">
+              {data.map((item) => {
+                const typeStyle = ROUTE_TYPE_STYLE[item.routeType];
+                const checked = selectedRouteIds.includes(item.busRouteId);
 
-              return (
-                <li
-                  key={item.busRouteId}
-                  className="flex items-center gap-3 px-4 py-3"
-                >
-                  <input
-                    type="checkbox"
-                    checked={checked}
-                    onChange={(e) =>
-                      handleToggle(item.busRouteId, e.target.checked)
-                    }
-                    className="h-4 w-4 shrink-0 accent-blue-500"
-                  />
-                  <div className="flex shrink-0 flex-col items-center gap-0.5">
-                    <span
-                      className={cn(
-                        'rounded px-2 py-0.5 text-xs font-bold',
-                        typeStyle?.bg ?? 'bg-gray-400 text-white',
-                      )}
-                    >
-                      {item.busRouteAbrv}
-                    </span>
-                    {typeStyle && (
-                      <span className="text-[10px] text-gray-400">
-                        {typeStyle.label}
+                return (
+                  <li
+                    key={item.busRouteId}
+                    className="flex items-center gap-3 px-4 py-3"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={(e) =>
+                        handleToggle(item.busRouteId, e.target.checked)
+                      }
+                      className="h-4 w-4 shrink-0 accent-blue-500"
+                    />
+                    <div className="flex shrink-0 flex-col items-center gap-0.5">
+                      <span
+                        className={cn(
+                          'rounded px-2 py-0.5 text-xs font-bold',
+                          typeStyle?.bg ?? 'bg-gray-400 text-white',
+                        )}
+                      >
+                        {item.busRouteAbrv}
                       </span>
-                    )}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-xs text-gray-400">
-                      {item.adirection} 방면
-                    </p>
-                    <div className="mt-0.5 flex flex-col gap-0.5">
-                      {hasArrival(item.arrmsg1) && (
-                        <p
-                          className={cn(
-                            'text-sm font-semibold',
-                            isImminent(item.arrmsg1)
-                              ? 'text-red-500'
-                              : 'text-gray-900',
-                          )}
-                        >
-                          {item.arrmsg1}
-                        </p>
-                      )}
-                      {hasArrival(item.arrmsg2) && (
-                        <p
-                          className={cn(
-                            'text-xs',
-                            isImminent(item.arrmsg2)
-                              ? 'text-red-400'
-                              : 'text-gray-400',
-                          )}
-                        >
-                          {item.arrmsg2}
-                        </p>
+                      {typeStyle && (
+                        <span className="text-[10px] text-gray-400">
+                          {typeStyle.label}
+                        </span>
                       )}
                     </div>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-xs text-gray-400">
+                        {item.adirection} 방면
+                      </p>
+                      <div className="mt-0.5 flex flex-col gap-0.5">
+                        {hasArrival(item.arrmsg1) && (
+                          <p
+                            className={cn(
+                              'text-sm font-semibold',
+                              isImminent(item.arrmsg1)
+                                ? 'text-red-500'
+                                : 'text-gray-900',
+                            )}
+                          >
+                            {item.arrmsg1}
+                          </p>
+                        )}
+                        {hasArrival(item.arrmsg2) && (
+                          <p
+                            className={cn(
+                              'text-xs',
+                              isImminent(item.arrmsg2)
+                                ? 'text-red-400'
+                                : 'text-gray-400',
+                            )}
+                          >
+                            {item.arrmsg2}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          </>
         )}
       </BottomSheet.Content>
     </BottomSheet>
