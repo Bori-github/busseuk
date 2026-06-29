@@ -1,22 +1,19 @@
 import { toMeasuredHtmlIcon } from './htmlIcon';
-import { getRouteTypeColor } from './routeTypeColor';
 
 interface CreateBusMarkerIconOptions {
   /** 노선 번호 (예: 152) */
   routeName: string;
-  /** 노선 유형 코드 (1~6) */
-  routeType: string;
+  /** 배지 배경색 (hex) */
+  color: string;
   /** 진행 방면 (예: 화계사방면) */
   direction?: string;
 }
 
 export const createBusMarkerIcon = ({
   routeName,
-  routeType,
+  color,
   direction,
 }: CreateBusMarkerIconOptions): naver.maps.HtmlIcon => {
-  const color = getRouteTypeColor(routeType);
-
   const wrapper = document.createElement('div');
   Object.assign(wrapper.style, {
     display: 'flex',

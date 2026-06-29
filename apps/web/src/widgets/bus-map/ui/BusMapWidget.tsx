@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import type { BusPosition, RoutePathPoint } from '@entities/bus';
+import { getRouteTypeColor } from '@entities/bus';
 import {
   createBusMarkerIcon,
   createBusStopMarkerIcon,
   createUserMarkerIcon,
-  getRouteTypeColor,
   NaverMap,
 } from '@shared/ui/naver';
 
@@ -243,7 +243,7 @@ export const BusMapWidget = ({
     const next = new Map<string, naver.maps.LatLng>();
     const iconOptions = new Map<
       string,
-      { routeName: string; routeType: string; direction?: string }
+      { routeName: string; color: string; direction?: string }
     >();
 
     if (showBuses) {
@@ -256,7 +256,7 @@ export const BusMapWidget = ({
           next.set(bus.vehId, new naver.maps.LatLng(lat, lng));
           iconOptions.set(bus.vehId, {
             routeName: route.routeName,
-            routeType: route.routeType,
+            color: getRouteTypeColor(route.routeType),
             direction: route.direction,
           });
         }

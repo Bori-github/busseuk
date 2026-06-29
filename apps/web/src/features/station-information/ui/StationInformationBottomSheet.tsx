@@ -1,19 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
+import { getRouteTypeColor, getRouteTypeLabel } from '@entities/bus';
 import { getStationInformationQueryOptions } from '@entities/station';
 import { BusApiError } from '@shared/api';
 import { cn } from '@shared/lib';
 import { BottomSheet } from '@shared/ui';
-
-const ROUTE_TYPE_STYLE: Record<string, { bg: string; label: string }> = {
-  '1': { bg: 'bg-blue-600 text-white', label: '공항' },
-  '2': { bg: 'bg-green-400 text-white', label: '마을' },
-  '3': { bg: 'bg-blue-500 text-white', label: '간선' },
-  '4': { bg: 'bg-green-600 text-white', label: '지선' },
-  '5': { bg: 'bg-yellow-500 text-white', label: '순환' },
-  '6': { bg: 'bg-red-600 text-white', label: '광역' },
-};
 
 const MAX_SELECTED_ROUTES = 5;
 
@@ -147,7 +139,7 @@ export const StationInformationBottomSheet = ({
             )}
             <ul className="divide-y divide-white/10">
               {data.map((item) => {
-                const typeStyle = ROUTE_TYPE_STYLE[item.routeType];
+                const routeTypeLabel = getRouteTypeLabel(item.routeType);
                 const checked = selectedRouteIds.includes(item.busRouteId);
 
                 return (
@@ -173,16 +165,14 @@ export const StationInformationBottomSheet = ({
                     />
                     <div className="flex shrink-0 flex-col items-center gap-0.5">
                       <span
-                        className={cn(
-                          'rounded px-2 py-0.5 text-xs font-bold',
-                          typeStyle?.bg ?? 'bg-gray-400 text-white',
-                        )}
+                        className="rounded px-2 py-0.5 text-xs font-bold text-white"
+                        style={{ backgroundColor: getRouteTypeColor(item.routeType) }}
                       >
                         {item.busRouteAbrv}
                       </span>
-                      {typeStyle && (
+                      {routeTypeLabel && (
                         <span className="text-[10px] text-gray-400">
-                          {typeStyle.label}
+                          {routeTypeLabel}
                         </span>
                       )}
                     </div>
