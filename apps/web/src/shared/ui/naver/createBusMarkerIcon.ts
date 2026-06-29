@@ -1,3 +1,4 @@
+import { toMeasuredHtmlIcon } from './htmlIcon';
 import { getRouteTypeColor } from './routeTypeColor';
 
 interface CreateBusMarkerIconOptions {
@@ -63,25 +64,9 @@ export const createBusMarkerIcon = ({
     wrapper.appendChild(label);
   }
 
-  wrapper.style.visibility = 'hidden';
-  wrapper.style.position = 'fixed';
-  wrapper.style.top = '0';
-  wrapper.style.left = '0';
-  document.body.appendChild(wrapper);
-  const markerWidth = wrapper.offsetWidth;
-  const markerHeight = wrapper.offsetHeight;
-  const badgeHeight = badge.offsetHeight;
-  document.body.removeChild(wrapper);
-
-  wrapper.style.visibility = '';
-  wrapper.style.position = '';
-  wrapper.style.top = '';
-  wrapper.style.left = '';
-
-  return {
-    content: wrapper.outerHTML,
-    size: new window.naver.maps.Size(markerWidth, markerHeight),
-    // 배지 중심을 버스 위치 좌표에 맞춘다
-    anchor: new window.naver.maps.Point(markerWidth / 2, badgeHeight / 2),
-  };
+  // 배지 중심을 버스 위치 좌표에 맞춘다 (방면 라벨은 배지 아래에 매달린다)
+  return toMeasuredHtmlIcon(wrapper, ({ width }) => ({
+    x: width / 2,
+    y: badge.offsetHeight / 2,
+  }));
 };

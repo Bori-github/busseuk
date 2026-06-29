@@ -1,3 +1,5 @@
+import { toMeasuredHtmlIcon } from './htmlIcon';
+
 const ICON_SIZE = 24;
 const GAP = 4;
 
@@ -50,23 +52,9 @@ export const createBusStopMarkerIcon = ({
   wrapper.appendChild(icon);
   wrapper.appendChild(label);
 
-  wrapper.style.visibility = 'hidden';
-  wrapper.style.position = 'fixed';
-  wrapper.style.top = '0';
-  wrapper.style.left = '0';
-  document.body.appendChild(wrapper);
-  const markerWidth = wrapper.offsetWidth;
-  const markerHeight = wrapper.offsetHeight;
-  document.body.removeChild(wrapper);
-
-  wrapper.style.visibility = '';
-  wrapper.style.position = '';
-  wrapper.style.top = '';
-  wrapper.style.left = '';
-
-  return {
-    content: wrapper.outerHTML,
-    size: new window.naver.maps.Size(markerWidth, markerHeight),
-    anchor: new window.naver.maps.Point(markerWidth / 2, ICON_SIZE / 2),
-  };
+  // 원형 아이콘 중심을 정류장 좌표에 맞춘다 (이름 라벨은 아이콘 아래에 매달린다)
+  return toMeasuredHtmlIcon(wrapper, ({ width }) => ({
+    x: width / 2,
+    y: ICON_SIZE / 2,
+  }));
 };
