@@ -1,5 +1,7 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useQueries } from '@tanstack/react-query';
+import { toast } from 'sonner';
+
 import type { BusRouteWithPositions } from '@widgets/bus-map';
 import { BusMapWidget } from '@widgets/bus-map';
 import { SearchOverlay } from '@features/search';
@@ -57,6 +59,17 @@ export const MapPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [selectedRoutes, positionsUpdatedAt, pathsUpdatedAt],
   );
+
+  // 위치/경로 조회 실패는 빈 배열로 대체돼 지도에 조용히 묻히므로(=버스 없음과 구분 불가),
+  // 에러 상태로 전환될 때 토스트로 알린다. 폴링은 일시 장애 자동 회복을 위해 유지한다.
+  const hasBusDataError =
+    busPositionQueries.some((query) => query.isError) ||
+    routePathQueries.some((query) => query.isError);
+  useEffect(() => {
+    if (hasBusDataError) {
+      toast.error('실시간 버스 정보를 불러오지 못했습니다');
+    }
+  }, [hasBusDataError]);
 
   const handleOpenSearch = () => {
     setIsSearchOpen(true);
