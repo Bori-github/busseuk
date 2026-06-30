@@ -70,6 +70,21 @@ export const MapPage = () => {
     }
   }, [hasBusDataError]);
 
+  // 지도용 정류장 객체를 안정 참조로 메모이즈한다.
+  // 매 렌더 새 객체로 넘기면 BusMapWidget의 패닝 effect가 폴링 리렌더마다 재실행돼
+  // 사용자가 이동시킨 지도를 정류장으로 되돌리는 문제가 생긴다. (지도 센터 이동 정책 참고)
+  const selectedStationForMap = useMemo(
+    () =>
+      selectedStation
+        ? {
+            lat: parseFloat(selectedStation.tmY),
+            lng: parseFloat(selectedStation.tmX),
+            name: selectedStation.stNm,
+          }
+        : null,
+    [selectedStation],
+  );
+
   const handleOpenSearch = () => {
     setIsSearchOpen(true);
     setIsStationInformationSheetOpen(false);
@@ -100,15 +115,7 @@ export const MapPage = () => {
     <div className="relative w-full h-full">
       <BusMapWidget
         location={location}
-        selectedStation={
-          selectedStation
-            ? {
-                lat: parseFloat(selectedStation.tmY),
-                lng: parseFloat(selectedStation.tmX),
-                name: selectedStation.stNm,
-              }
-            : null
-        }
+        selectedStation={selectedStationForMap}
         busRoutes={busRoutes}
         bottomInset={
           isStationInformationSheetOpen
