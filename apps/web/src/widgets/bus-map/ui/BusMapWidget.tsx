@@ -163,34 +163,32 @@ export const BusMapWidget = ({
   );
 
   // 선택된 노선의 전체 경로를 폴리라인으로 렌더링한다.
-  // 버스 마커와 동일한 줌 임계값에서만 노출하고, busRouteId 기준으로 diff 한다.
+  // 노선선은 줌아웃 시 전체 경로 파악에 쓰이므로 줌과 무관하게 항상 표시하고, busRouteId 기준으로 diff 한다.
+  // (줌에 의존하지 않으므로 줌 변경 시 경로를 재파싱하지 않는다.)
   useEffect(() => {
     if (!mapReady || !mapRef.current) return;
 
     const map = mapRef.current;
     const polylines = routePathsRef.current;
-    const showPaths = zoom >= BUS_MARKER_MIN_ZOOM;
 
     const next = new Map<string, { path: naver.maps.LatLng[]; color: string }>();
 
-    if (showPaths) {
-      for (const route of routePaths) {
-        const path = route.path
-          .map((point) => {
-            const lat = parseCoord(point.gpsY);
-            const lng = parseCoord(point.gpsX);
-            if (lat === null || lng === null) return null;
-            return new naver.maps.LatLng(lat, lng);
-          })
-          .filter((latlng): latlng is naver.maps.LatLng => latlng !== null);
+    for (const route of routePaths) {
+      const path = route.path
+        .map((point) => {
+          const lat = parseCoord(point.gpsY);
+          const lng = parseCoord(point.gpsX);
+          if (lat === null || lng === null) return null;
+          return new naver.maps.LatLng(lat, lng);
+        })
+        .filter((latlng): latlng is naver.maps.LatLng => latlng !== null);
 
-        if (path.length < 2) continue;
+      if (path.length < 2) continue;
 
-        next.set(route.busRouteId, {
-          path,
-          color: getRouteTypeColor(route.routeType),
-        });
-      }
+      next.set(route.busRouteId, {
+        path,
+        color: getRouteTypeColor(route.routeType),
+      });
     }
 
     for (const [busRouteId, polyline] of polylines) {
@@ -220,7 +218,7 @@ export const BusMapWidget = ({
         );
       }
     }
-  }, [mapReady, routePaths, zoom]);
+  }, [mapReady, routePaths]);
 
   useEffect(() => {
     const polylines = routePathsRef.current;
