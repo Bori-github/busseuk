@@ -17,7 +17,8 @@ export const busPositionsQueryOptions = (busRouteId: string) =>
     queryKey: busQueryKeys.position(busRouteId),
     queryFn: () => getBusPositions(busRouteId),
     staleTime: 0,
-    refetchInterval: 15_000,
+    // 서울 버스 위치 API는 약 5초 주기로 갱신되므로 폴링도 5초로 맞춘다.
+    refetchInterval: 5_000,
   });
 
 export const routePathQueryOptions = (busRouteId: string) =>
