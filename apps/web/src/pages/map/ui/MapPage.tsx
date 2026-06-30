@@ -1,9 +1,15 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useQueries } from '@tanstack/react-query';
+import { toast } from 'sonner';
+
+import type { BusRouteWithPositions } from '@widgets/bus-map';
 import { BusMapWidget } from '@widgets/bus-map';
 import { SearchOverlay } from '@features/search';
+import type { SelectedRoute } from '@features/station-information';
 import { StationInformationBottomSheet } from '@features/station-information';
 import { useUserLocation } from '@features/user-location';
 
+import { busPositionsQueryOptions, routePathQueryOptions } from '@entities/bus';
 import type { StationSearchResult } from '@entities/station';
 import { SearchIcon } from '@shared/icons';
 import { PEEK_HEIGHT_RATIO } from '@shared/ui';
@@ -16,8 +22,68 @@ export const MapPage = () => {
   const [isStationInformationSheetOpen, setIsStationInformationSheetOpen] =
     useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  // TODO: 최대 5개 노선 선택 기능 추가
-  const [selectedRouteIds, setSelectedRouteIds] = useState<string[]>([]);
+  const [selectedRoutes, setSelectedRoutes] = useState<SelectedRoute[]>([]);
+
+  const selectedRouteIds = selectedRoutes.map((route) => route.busRouteId);
+
+  const busPositionQueries = useQueries({
+    queries: selectedRoutes.map((route) =>
+      busPositionsQueryOptions(route.busRouteId),
+    ),
+  });
+
+  const routePathQueries = useQueries({
+    queries: selectedRoutes.map((route) =>
+      routePathQueryOptions(route.busRouteId),
+    ),
+  });
+
+  // data는 react-query가 참조 안정성을 보장하므로, 갱신 시각으로 재계산 시점을 잡는다.
+  const positionsUpdatedAt = busPositionQueries
+    .map((query) => query.dataUpdatedAt)
+    .join(',');
+  const pathsUpdatedAt = routePathQueries
+    .map((query) => query.dataUpdatedAt)
+    .join(',');
+
+  const busRoutes = useMemo<BusRouteWithPositions[]>(
+    () =>
+      selectedRoutes.map((route, index) => ({
+        busRouteId: route.busRouteId,
+        routeName: route.busRouteAbrv,
+        routeType: route.routeType,
+        positions: busPositionQueries[index]?.data ?? [],
+        path: routePathQueries[index]?.data ?? [],
+      })),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [selectedRoutes, positionsUpdatedAt, pathsUpdatedAt],
+  );
+
+  // 위치/경로 조회 실패는 빈 배열로 대체돼 지도에 조용히 묻히므로(=버스 없음과 구분 불가),
+  // 에러 상태로 전환될 때 토스트로 알린다. 폴링은 일시 장애 자동 회복을 위해 유지한다.
+  const hasBusDataError =
+    busPositionQueries.some((query) => query.isError) ||
+    routePathQueries.some((query) => query.isError);
+  useEffect(() => {
+    if (hasBusDataError) {
+      toast.error('실시간 버스 정보를 불러오지 못했습니다');
+    }
+  }, [hasBusDataError]);
+
+  // 지도용 정류장 객체를 안정 참조로 메모이즈한다.
+  // 매 렌더 새 객체로 넘기면 BusMapWidget의 패닝 effect가 폴링 리렌더마다 재실행돼
+  // 사용자가 이동시킨 지도를 정류장으로 되돌리는 문제가 생긴다. (지도 센터 이동 정책 참고)
+  const selectedStationForMap = useMemo(
+    () =>
+      selectedStation
+        ? {
+            lat: parseFloat(selectedStation.tmY),
+            lng: parseFloat(selectedStation.tmX),
+            name: selectedStation.stNm,
+          }
+        : null,
+    [selectedStation],
+  );
 
   const handleOpenSearch = () => {
     setIsSearchOpen(true);
@@ -26,7 +92,7 @@ export const MapPage = () => {
 
   const handleSelectStation = (station: StationSearchResult) => {
     setSelectedStation(station);
-    setSelectedRouteIds([]);
+    setSelectedRoutes([]);
     setIsStationInformationSheetOpen(true);
     setIsSearchOpen(false);
   };
@@ -34,14 +100,14 @@ export const MapPage = () => {
   const handleStationInformationSheetClose = () => {
     setSelectedStation(null);
     setIsStationInformationSheetOpen(false);
-    setSelectedRouteIds([]);
+    setSelectedRoutes([]);
   };
 
-  const handleToggleRoute = (busRouteId: string) => {
-    setSelectedRouteIds((prev) =>
-      prev.includes(busRouteId)
-        ? prev.filter((id) => id !== busRouteId)
-        : [...prev, busRouteId],
+  const handleToggleRoute = (route: SelectedRoute) => {
+    setSelectedRoutes((prev) =>
+      prev.some((selected) => selected.busRouteId === route.busRouteId)
+        ? prev.filter((selected) => selected.busRouteId !== route.busRouteId)
+        : [...prev, route],
     );
   };
 
@@ -49,15 +115,8 @@ export const MapPage = () => {
     <div className="relative w-full h-full">
       <BusMapWidget
         location={location}
-        selectedStation={
-          selectedStation
-            ? {
-                lat: parseFloat(selectedStation.tmY),
-                lng: parseFloat(selectedStation.tmX),
-                name: selectedStation.stNm,
-              }
-            : null
-        }
+        selectedStation={selectedStationForMap}
+        busRoutes={busRoutes}
         bottomInset={
           isStationInformationSheetOpen
             ? window.innerHeight * PEEK_HEIGHT_RATIO

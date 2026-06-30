@@ -11,6 +11,8 @@ interface NaverMapProps {
   zoom?: number;
   /** 지도 인스턴스 생성 완료 시 호출되는 콜백 */
   onReady?: (map: naver.maps.Map) => void;
+  /** 줌 레벨 변경 시 호출되는 콜백. 생성 직후 초기 줌으로 1회 호출 */
+  onZoomChanged?: (zoom: number) => void;
   /** 지도 컨테이너 className. 기본값: 'w-full h-full' */
   className?: string;
 }
@@ -19,19 +21,29 @@ export const NaverMap = ({
   center,
   zoom = 17, // 버스 정류장 아이콘 노출 최소 줌 레벨
   onReady,
+  onZoomChanged,
   className = 'w-full h-full',
 }: NaverMapProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<naver.maps.Map | null>(null);
   const centerRef = useRef(center);
+  const onZoomChangedRef = useRef(onZoomChanged);
 
   useEffect(() => {
     centerRef.current = center;
   }, [center]);
 
   useEffect(() => {
+    onZoomChangedRef.current = onZoomChanged;
+  }, [onZoomChanged]);
+
+  useEffect(() => {
+    let disposed = false;
+    let zoomListener: ReturnType<typeof naver.maps.Event.addListener> | null =
+      null;
+
     loadNaverMapSDK().then(() => {
-      if (!containerRef.current || mapRef.current) return;
+      if (disposed || !containerRef.current || mapRef.current) return;
 
       const latest = centerRef.current;
       const map = new naver.maps.Map(containerRef.current, {
@@ -49,7 +61,23 @@ export const NaverMap = ({
 
       mapRef.current = map;
       onReady?.(map);
+
+      onZoomChangedRef.current?.(map.getZoom());
+      zoomListener = naver.maps.Event.addListener(
+        map,
+        'zoom_changed',
+        (level: number) => {
+          onZoomChangedRef.current?.(level);
+        },
+      );
     });
+
+    return () => {
+      disposed = true;
+      if (zoomListener) naver.maps.Event.removeListener(zoomListener);
+      mapRef.current?.destroy();
+      mapRef.current = null;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

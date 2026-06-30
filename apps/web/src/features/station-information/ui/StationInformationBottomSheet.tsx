@@ -1,19 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
+import { getRouteTypeColor, getRouteTypeLabel } from '@entities/bus';
 import { getStationInformationQueryOptions } from '@entities/station';
 import { BusApiError } from '@shared/api';
 import { cn } from '@shared/lib';
 import { BottomSheet } from '@shared/ui';
-
-const ROUTE_TYPE_STYLE: Record<string, { bg: string; label: string }> = {
-  '1': { bg: 'bg-blue-600 text-white', label: '공항' },
-  '2': { bg: 'bg-green-400 text-white', label: '마을' },
-  '3': { bg: 'bg-blue-500 text-white', label: '간선' },
-  '4': { bg: 'bg-green-600 text-white', label: '지선' },
-  '5': { bg: 'bg-yellow-500 text-white', label: '순환' },
-  '6': { bg: 'bg-red-600 text-white', label: '광역' },
-};
 
 const MAX_SELECTED_ROUTES = 5;
 
@@ -34,6 +26,14 @@ const getStationInformationErrorMessage = (error: unknown) => {
   return '도착 정보를 불러오지 못했습니다. 네트워크 연결을 확인해 주세요';
 };
 
+/** 지도 버스 마커 렌더링에 필요한, 선택된 노선의 메타 정보 */
+export interface SelectedRoute {
+  busRouteId: string;
+  busRouteAbrv: string;
+  routeType: string;
+  adirection: string;
+}
+
 interface StationInformationBottomSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -41,7 +41,7 @@ interface StationInformationBottomSheetProps {
   arsId: string;
   stationName: string;
   selectedRouteIds: string[];
-  onToggleRoute: (busRouteId: string) => void;
+  onToggleRoute: (route: SelectedRoute) => void;
 }
 
 export const StationInformationBottomSheet = ({
@@ -72,12 +72,12 @@ export const StationInformationBottomSheet = ({
     },
   });
 
-  const handleToggle = (busRouteId: string, checked: boolean) => {
+  const handleToggle = (route: SelectedRoute, checked: boolean) => {
     if (checked && selectedRouteIds.length >= MAX_SELECTED_ROUTES) {
       toast.error(`최대 ${MAX_SELECTED_ROUTES}개 노선까지 선택할 수 있습니다`);
       return;
     }
-    onToggleRoute(busRouteId);
+    onToggleRoute(route);
   };
 
   return (
@@ -139,7 +139,7 @@ export const StationInformationBottomSheet = ({
             )}
             <ul className="divide-y divide-white/10">
               {data.map((item) => {
-                const typeStyle = ROUTE_TYPE_STYLE[item.routeType];
+                const routeTypeLabel = getRouteTypeLabel(item.routeType);
                 const checked = selectedRouteIds.includes(item.busRouteId);
 
                 return (
@@ -151,22 +151,28 @@ export const StationInformationBottomSheet = ({
                       type="checkbox"
                       checked={checked}
                       onChange={(e) =>
-                        handleToggle(item.busRouteId, e.target.checked)
+                        handleToggle(
+                          {
+                            busRouteId: item.busRouteId,
+                            busRouteAbrv: item.busRouteAbrv,
+                            routeType: item.routeType,
+                            adirection: item.adirection,
+                          },
+                          e.target.checked,
+                        )
                       }
                       className="h-4 w-4 shrink-0 accent-blue-500"
                     />
                     <div className="flex shrink-0 flex-col items-center gap-0.5">
                       <span
-                        className={cn(
-                          'rounded px-2 py-0.5 text-xs font-bold',
-                          typeStyle?.bg ?? 'bg-gray-400 text-white',
-                        )}
+                        className="rounded px-2 py-0.5 text-xs font-bold text-white"
+                        style={{ backgroundColor: getRouteTypeColor(item.routeType) }}
                       >
                         {item.busRouteAbrv}
                       </span>
-                      {typeStyle && (
+                      {routeTypeLabel && (
                         <span className="text-[10px] text-gray-400">
-                          {typeStyle.label}
+                          {routeTypeLabel}
                         </span>
                       )}
                     </div>

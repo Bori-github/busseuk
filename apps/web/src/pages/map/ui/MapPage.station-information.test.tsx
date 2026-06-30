@@ -12,6 +12,15 @@ vi.mock('@entities/station/api/getStationInformation', () => ({
   getStationInformation: vi.fn(),
 }));
 
+vi.mock('@entities/bus/api/busPositionApi', () => ({
+  getBusPositions: vi.fn().mockResolvedValue([]),
+}));
+
+vi.mock('@entities/bus/api/busRouteApi', () => ({
+  getRoutePath: vi.fn().mockResolvedValue([]),
+  searchBusRoutes: vi.fn().mockResolvedValue([]),
+}));
+
 vi.mock('@widgets/bus-map', () => ({
   BusMapWidget: () => null,
 }));
