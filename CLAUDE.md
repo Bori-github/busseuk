@@ -71,3 +71,5 @@ shared/    ← API 호출, 공통 유틸, UI 기본 요소
 **CORS**: 서울 버스 API(`ws.bus.go.kr`)는 HTTP 전용으로 브라우저에서 직접 호출 시 CORS 오류가 발생합니다. 개발 환경에서는 `vite.config.ts`의 `server.proxy`로, 프로덕션에서는 별도 프록시 서버(Vercel Functions 등)로 처리합니다.
 
 **API 명세**: 서울 버스 API 상세 명세는 `.claude/docs/api/` 참고
+
+**지도 센터 이동 정책**: 센터(panTo)를 움직이는 규칙·금지 사례는 [.claude/docs/map-center-policy.md](.claude/docs/map-center-policy.md) 참고. 지도 센터링을 건드리기 전 확인.
