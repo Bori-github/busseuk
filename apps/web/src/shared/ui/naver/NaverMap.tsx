@@ -38,8 +38,12 @@ export const NaverMap = ({
   }, [onZoomChanged]);
 
   useEffect(() => {
+    let disposed = false;
+    let zoomListener: ReturnType<typeof naver.maps.Event.addListener> | null =
+      null;
+
     loadNaverMapSDK().then(() => {
-      if (!containerRef.current || mapRef.current) return;
+      if (disposed || !containerRef.current || mapRef.current) return;
 
       const latest = centerRef.current;
       const map = new naver.maps.Map(containerRef.current, {
@@ -59,10 +63,21 @@ export const NaverMap = ({
       onReady?.(map);
 
       onZoomChangedRef.current?.(map.getZoom());
-      naver.maps.Event.addListener(map, 'zoom_changed', (level: number) => {
-        onZoomChangedRef.current?.(level);
-      });
+      zoomListener = naver.maps.Event.addListener(
+        map,
+        'zoom_changed',
+        (level: number) => {
+          onZoomChangedRef.current?.(level);
+        },
+      );
     });
+
+    return () => {
+      disposed = true;
+      if (zoomListener) naver.maps.Event.removeListener(zoomListener);
+      mapRef.current?.destroy();
+      mapRef.current = null;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
