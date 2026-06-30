@@ -5,23 +5,12 @@ interface CreateBusMarkerIconOptions {
   routeName: string;
   /** 배지 배경색 (hex) */
   color: string;
-  /** 진행 방면 (예: 화계사방면) */
-  direction?: string;
 }
 
 export const createBusMarkerIcon = ({
   routeName,
   color,
-  direction,
 }: CreateBusMarkerIconOptions): naver.maps.HtmlIcon => {
-  const wrapper = document.createElement('div');
-  Object.assign(wrapper.style, {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: '2px',
-  });
-
   const badge = document.createElement('div');
   Object.assign(badge.style, {
     display: 'flex',
@@ -48,25 +37,10 @@ export const createBusMarkerIcon = ({
   const routeNameSpan = document.createElement('span');
   routeNameSpan.textContent = routeName;
   badge.appendChild(routeNameSpan);
-  wrapper.appendChild(badge);
 
-  if (direction) {
-    const label = document.createElement('span');
-    label.textContent = direction;
-    Object.assign(label.style, {
-      fontSize: '10px',
-      fontWeight: '600',
-      lineHeight: '1.2',
-      color: '#fff',
-      whiteSpace: 'nowrap',
-      textShadow: '0 1px 2px rgba(0,0,0,0.9), 0 2px 6px rgba(0,0,0,0.6)',
-    });
-    wrapper.appendChild(label);
-  }
-
-  // 배지 중심을 버스 위치 좌표에 맞춘다 (방면 라벨은 배지 아래에 매달린다)
-  return toMeasuredHtmlIcon(wrapper, ({ width }) => ({
+  // 배지 중심을 버스 위치 좌표에 맞춘다
+  return toMeasuredHtmlIcon(badge, ({ width, height }) => ({
     x: width / 2,
-    y: badge.offsetHeight / 2,
+    y: height / 2,
   }));
 };

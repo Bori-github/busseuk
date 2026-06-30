@@ -52,7 +52,6 @@ export const MapPage = () => {
         busRouteId: route.busRouteId,
         routeName: route.busRouteAbrv,
         routeType: route.routeType,
-        direction: route.adirection,
         positions: busPositionQueries[index]?.data ?? [],
         path: routePathQueries[index]?.data ?? [],
       })),

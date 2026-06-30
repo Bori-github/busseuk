@@ -35,8 +35,6 @@ export interface BusRouteWithPositions {
   routeName: string;
   /** 노선 유형 코드 (routeType) */
   routeType: string;
-  /** 진행 방면 (adirection) */
-  direction?: string;
   positions: BusPosition[];
   /** 노선 전체 경로 좌표 (폴리라인) */
   path?: RoutePathPoint[];
@@ -244,10 +242,7 @@ export const BusMapWidget = ({
     const showBuses = zoom >= BUS_MARKER_MIN_ZOOM;
 
     const next = new Map<string, naver.maps.LatLng>();
-    const iconOptions = new Map<
-      string,
-      { routeName: string; color: string; direction?: string }
-    >();
+    const iconOptions = new Map<string, { routeName: string; color: string }>();
 
     if (showBuses) {
       for (const route of busRoutes) {
@@ -260,7 +255,6 @@ export const BusMapWidget = ({
           iconOptions.set(bus.vehId, {
             routeName: route.routeName,
             color: getRouteTypeColor(route.routeType),
-            direction: route.direction,
           });
         }
       }
