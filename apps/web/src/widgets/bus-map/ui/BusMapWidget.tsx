@@ -155,7 +155,10 @@ export const BusMapWidget = ({
         .map((route) => ({
           busRouteId: route.busRouteId,
           routeType: route.routeType,
-          path: route.path as RoutePathPoint[],
+          // API 응답이 순번(no)대로 온다는 보장이 없어, 폴리라인이 지그재그가 되지 않도록 정렬한다.
+          path: [...(route.path as RoutePathPoint[])].sort(
+            (a, b) => Number(a.no) - Number(b.no),
+          ),
         })),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [pathSignature],
