@@ -2,7 +2,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import type { BusPosition, RoutePathPoint } from '@entities/bus';
 import { getRouteTypeColor } from '@entities/bus';
+import { buildRoutePolyline, projectToPolyline } from '@shared/lib';
+import type { LatLng, RoutePolyline } from '@shared/lib';
 import {
+  BUS_ARROW_SELECTOR,
   createBusMarkerIcon,
   createBusStopMarkerIcon,
   createUserMarkerIcon,
@@ -162,6 +165,24 @@ export const BusMapWidget = ({
     [pathSignature],
   );
 
+  // 노선별 투영용 폴리라인 캐시(누적거리 사전계산). 버스 raw GPS를 노선 위로 투영해
+  // heading(진행 방향)을 안정적으로 얻는 데 쓴다. routePaths가 바뀔 때만 재구성된다.
+  const routePolylines = useMemo(() => {
+    const polylines = new Map<string, RoutePolyline>();
+    for (const route of routePaths) {
+      const points = route.path.reduce<LatLng[]>((acc, point) => {
+        const lat = parseCoord(point.gpsY);
+        const lng = parseCoord(point.gpsX);
+        if (lat !== null && lng !== null) acc.push({ lat, lng });
+        return acc;
+      }, []);
+      if (points.length >= 2) {
+        polylines.set(route.busRouteId, buildRoutePolyline(points));
+      }
+    }
+    return polylines;
+  }, [routePaths]);
+
   // 선택된 노선의 전체 경로를 폴리라인으로 렌더링한다.
   // 노선선은 줌아웃 시 전체 경로 파악에 쓰이므로 줌과 무관하게 항상 표시하고, busRouteId 기준으로 diff 한다.
   // (줌에 의존하지 않으므로 줌 변경 시 경로를 재파싱하지 않는다.)
@@ -240,19 +261,28 @@ export const BusMapWidget = ({
     const showBuses = zoom >= BUS_MARKER_MIN_ZOOM;
 
     const next = new Map<string, naver.maps.LatLng>();
-    const iconOptions = new Map<string, { routeName: string; color: string }>();
+    const iconOptions = new Map<
+      string,
+      { routeName: string; color: string; heading?: number }
+    >();
 
     if (showBuses) {
       for (const route of busRoutes) {
+        const polyline = routePolylines.get(route.busRouteId);
         for (const bus of route.positions) {
           const lat = parseCoord(bus.gpsY);
           const lng = parseCoord(bus.gpsX);
           if (lat === null || lng === null) continue;
 
           next.set(bus.vehId, new naver.maps.LatLng(lat, lng));
+          // 노선 폴리라인이 있으면 raw GPS를 투영해 진행 방향을 얻는다(지터에 강함).
+          const heading = polyline
+            ? projectToPolyline(polyline, { lat, lng }).heading
+            : undefined;
           iconOptions.set(bus.vehId, {
             routeName: route.routeName,
             color: getRouteTypeColor(route.routeType),
+            heading,
           });
         }
       }
@@ -267,23 +297,35 @@ export const BusMapWidget = ({
 
     for (const [vehId, position] of next) {
       const existing = markers.get(vehId);
+      const options = iconOptions.get(vehId)!;
 
-      // 기존 마커는 위치만 갱신한다. 아이콘(노선번호·방면)은 vehId 동안 불변이므로
-      // 신규 마커에만 생성한다(P2: 매 갱신 아이콘 재생성·reflow 방지).
+      // 기존 마커는 위치를 갱신하고, 방향 화살표는 아이콘을 재생성하지 않고 DOM transform만
+      // 직접 바꿔 회전시킨다(P2: 매 갱신 아이콘 재생성·reflow 방지).
+      // 노선번호·색 등 나머지 아이콘 내용은 vehId 동안 불변이라 신규 마커에만 생성한다.
       if (existing) {
         existing.setPosition(position);
+        // 경로가 위치보다 늦게 도착하는 경우, 생성 시 숨겨둔 화살표를 이제 보이게 하고 회전시킨다.
+        if (options.heading !== undefined) {
+          const arrow = existing
+            .getElement()
+            ?.querySelector<HTMLElement>(BUS_ARROW_SELECTOR);
+          if (arrow) {
+            arrow.style.visibility = 'visible';
+            arrow.style.transform = `rotate(${options.heading}deg)`;
+          }
+        }
       } else {
         markers.set(
           vehId,
           new naver.maps.Marker({
             map,
             position,
-            icon: createBusMarkerIcon(iconOptions.get(vehId)!),
+            icon: createBusMarkerIcon(options),
           }),
         );
       }
     }
-  }, [mapReady, busRoutes, zoom]);
+  }, [mapReady, busRoutes, zoom, routePolylines]);
 
   useEffect(() => {
     const markers = busMarkersRef.current;
