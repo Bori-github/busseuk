@@ -75,6 +75,8 @@ interface BusMapWidgetProps {
   busRoutes?: BusRouteWithPositions[];
   /** 하단 오버레이(바텀시트 등)가 가리는 높이(px). 선택 정류장을 가려지지 않은 영역 중앙에 배치하기 위해 사용 */
   bottomInset?: number;
+  /** 버스 마커 노출 여부(줌 임계 이상) 변화를 상위에 알린다. 안 보일 때 위치 폴링을 끄기 위함. */
+  onBusVisibilityChange?: (visible: boolean) => void;
 }
 
 export const BusMapWidget = ({
@@ -82,6 +84,7 @@ export const BusMapWidget = ({
   selectedStation,
   busRoutes = [],
   bottomInset = 0,
+  onBusVisibilityChange,
 }: BusMapWidgetProps) => {
   const mapRef = useRef<naver.maps.Map | null>(null);
   const userMarkerRef = useRef<naver.maps.Marker | null>(null);
@@ -368,6 +371,12 @@ export const BusMapWidget = ({
   // 폴리라인이 있는 차량은 관측을 버퍼에 쌓고 rAF 루프가 지연 재생 보간으로 이동시키며,
   // 폴리라인이 없는 차량(경로 미로드)은 종전처럼 raw GPS로 즉시 배치한다.
   const showBuses = zoom >= BUS_MARKER_MIN_ZOOM;
+
+  // 마커 노출 여부가 바뀌면 상위에 알린다(안 보일 때 위치 폴링을 꺼 쿼터를 아끼기 위함).
+  useEffect(() => {
+    onBusVisibilityChange?.(showBuses);
+  }, [showBuses, onBusVisibilityChange]);
+
   useEffect(() => {
     if (!mapReady || !mapRef.current) return;
 
