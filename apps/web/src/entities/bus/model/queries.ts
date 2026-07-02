@@ -22,8 +22,9 @@ export const busPositionsQueryOptions = (busRouteId: string, enabled = true) =>
     staleTime: 0,
     // 서울 버스 위치 API는 약 5초 주기로 갱신되므로 폴링도 5초로 맞춘다.
     refetchInterval: 5_000,
-    // 탭 포커스 복귀 시 불필요한 추가 호출을 막는다(폴링만으로 충분).
-    refetchOnWindowFocus: false,
+    // refetchOnWindowFocus는 전역 기본값(true)을 따른다 — 포커스 복귀 시 즉시 갱신해
+    // 백그라운드 동안 정지·throttle됐던 마커를 바로 최신화한다. 폴링은 enabled 게이팅
+    // (버스 미노출 시 중단)으로 이미 제한돼 있어 추가 호출 부담은 미미하다.
   });
 
 export const routePathQueryOptions = (busRouteId: string) =>
