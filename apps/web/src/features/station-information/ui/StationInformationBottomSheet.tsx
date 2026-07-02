@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
+import type { SelectedRoute } from '@entities/bus';
 import { getRouteTypeColor, getRouteTypeLabel } from '@entities/bus';
 import { getStationInformationQueryOptions } from '@entities/station';
 import { BusApiError } from '@shared/api';
@@ -25,14 +26,6 @@ const getStationInformationErrorMessage = (error: unknown) => {
 
   return '도착 정보를 불러오지 못했습니다. 네트워크 연결을 확인해 주세요';
 };
-
-/** 지도 버스 마커 렌더링에 필요한, 선택된 노선의 메타 정보 */
-export interface SelectedRoute {
-  busRouteId: string;
-  busRouteAbrv: string;
-  routeType: string;
-  adirection: string;
-}
 
 interface StationInformationBottomSheetProps {
   open: boolean;
@@ -79,6 +72,10 @@ export const StationInformationBottomSheet = ({
     }
     onToggleRoute(route);
   };
+
+  // 선택 상한은 전역이라, 다른 정류장에서 이미 5개를 채웠으면 이 정류장의 미선택 노선도 고를 수 없다.
+  // 체크박스를 비활성화하고 안내를 노출해 "체크박스가 고장난 것처럼" 보이지 않게 한다.
+  const isAtMaxRoutes = selectedRouteIds.length >= MAX_SELECTED_ROUTES;
 
   return (
     <BottomSheet
@@ -137,10 +134,17 @@ export const StationInformationBottomSheet = ({
                   : '최신 정보를 불러오지 못했어요 · 다시 시도'}
               </button>
             )}
+            {isAtMaxRoutes && (
+              <p className="px-4 py-1 text-xs text-gray-400">
+                최대 {MAX_SELECTED_ROUTES}개까지 선택할 수 있어요. 다른 노선을
+                해제한 뒤 선택하세요.
+              </p>
+            )}
             <ul className="divide-y divide-white/10">
               {data.map((item) => {
                 const routeTypeLabel = getRouteTypeLabel(item.routeType);
                 const checked = selectedRouteIds.includes(item.busRouteId);
+                const isDisabled = !checked && isAtMaxRoutes;
 
                 return (
                   <li
@@ -150,23 +154,25 @@ export const StationInformationBottomSheet = ({
                     <input
                       type="checkbox"
                       checked={checked}
+                      disabled={isDisabled}
                       onChange={(e) =>
                         handleToggle(
                           {
                             busRouteId: item.busRouteId,
                             busRouteAbrv: item.busRouteAbrv,
                             routeType: item.routeType,
-                            adirection: item.adirection,
                           },
                           e.target.checked,
                         )
                       }
-                      className="h-4 w-4 shrink-0 accent-blue-500"
+                      className="h-4 w-4 shrink-0 accent-blue-500 disabled:cursor-not-allowed disabled:opacity-40"
                     />
                     <div className="flex shrink-0 flex-col items-center gap-0.5">
                       <span
                         className="rounded px-2 py-0.5 text-xs font-bold text-white"
-                        style={{ backgroundColor: getRouteTypeColor(item.routeType) }}
+                        style={{
+                          backgroundColor: getRouteTypeColor(item.routeType),
+                        }}
                       >
                         {item.busRouteAbrv}
                       </span>

@@ -1,4 +1,9 @@
-export type { BusRoute, BusPosition, RoutePathPoint } from './model/types'
+export type {
+  BusRoute,
+  BusPosition,
+  RoutePathPoint,
+  SelectedRoute,
+} from './model/types'
 export { busQueryKeys } from './model/queryKeys'
 export {
   busPositionsQueryOptions,

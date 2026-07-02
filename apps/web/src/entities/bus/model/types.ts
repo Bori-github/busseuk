@@ -15,6 +15,13 @@ export interface RoutePathPoint {
   gpsY: string
 }
 
+/** 사용자가 선택한 노선의 메타 정보. 지도 추적(busRouteId)·태그 표시(번호·유형)에 쓰인다. */
+export interface SelectedRoute {
+  busRouteId: string
+  busRouteAbrv: string
+  routeType: string
+}
+
 export interface BusPosition {
   vehId: string
   plainNo: string

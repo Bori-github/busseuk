@@ -5,14 +5,20 @@ import { toast } from 'sonner';
 import type { BusRouteWithPositions } from '@widgets/bus-map';
 import { BusMapWidget } from '@widgets/bus-map';
 import { SearchOverlay } from '@features/search';
-import type { SelectedRoute } from '@features/station-information';
+import { BusZoomHint, SelectedRouteTagList } from '@features/selected-routes';
 import { StationInformationBottomSheet } from '@features/station-information';
 import { useUserLocation } from '@features/user-location';
 
+import type { SelectedRoute } from '@entities/bus';
 import { busPositionsQueryOptions, routePathQueryOptions } from '@entities/bus';
 import type { StationSearchResult } from '@entities/station';
 import { SearchIcon } from '@shared/icons';
 import { PEEK_HEIGHT_RATIO } from '@shared/ui';
+
+/** 선택 노선 + 그 노선을 고른 정류장. 태그에서 해당 정류장 시트를 다시 열기 위해 함께 저장한다. */
+interface SelectedRouteItem extends SelectedRoute {
+  station: StationSearchResult;
+}
 
 export const MapPage = () => {
   const { location } = useUserLocation();
@@ -22,11 +28,14 @@ export const MapPage = () => {
   const [isStationInformationSheetOpen, setIsStationInformationSheetOpen] =
     useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [selectedRoutes, setSelectedRoutes] = useState<SelectedRoute[]>([]);
+  const [selectedRoutes, setSelectedRoutes] = useState<SelectedRouteItem[]>([]);
   // 버스 마커가 실제로 보일 때(줌 임계 이상)만 위치를 폴링해 공공데이터 호출을 아낀다.
   const [busesVisible, setBusesVisible] = useState(false);
 
   const selectedRouteIds = selectedRoutes.map((route) => route.busRouteId);
+
+  // 선택한 노선이 있는데 줌이 낮아 버스 마커가 안 보이면(=버스 없음과 구분 불가) 확대를 안내한다.
+  const shouldShowBusZoomHint = selectedRoutes.length > 0 && !busesVisible;
 
   const busPositionQueries = useQueries({
     queries: selectedRoutes.map((route) =>
@@ -94,7 +103,6 @@ export const MapPage = () => {
 
   const handleSelectStation = (station: StationSearchResult) => {
     setSelectedStation(station);
-    setSelectedRoutes([]);
     setIsStationInformationSheetOpen(true);
     setIsSearchOpen(false);
   };
@@ -102,15 +110,30 @@ export const MapPage = () => {
   const handleStationInformationSheetClose = () => {
     setSelectedStation(null);
     setIsStationInformationSheetOpen(false);
-    setSelectedRoutes([]);
   };
 
   const handleToggleRoute = (route: SelectedRoute) => {
-    setSelectedRoutes((prev) =>
-      prev.some((selected) => selected.busRouteId === route.busRouteId)
-        ? prev.filter((selected) => selected.busRouteId !== route.busRouteId)
-        : [...prev, route],
+    setSelectedRoutes((prev) => {
+      if (prev.some((selected) => selected.busRouteId === route.busRouteId)) {
+        return prev.filter(
+          (selected) => selected.busRouteId !== route.busRouteId,
+        );
+      }
+      // 추가(체크)는 정류장 시트가 열린 상태에서만 일어나므로 selectedStation이 존재한다.
+      if (!selectedStation) return prev;
+      return [...prev, { ...route, station: selectedStation }];
+    });
+  };
+
+  // 태그의 노선명을 누르면 그 노선을 고른 정류장의 도착정보 시트를 다시 연다.
+  const handleReopenStation = (route: SelectedRoute) => {
+    const item = selectedRoutes.find(
+      (selected) => selected.busRouteId === route.busRouteId,
     );
+    if (!item) return;
+    setSelectedStation(item.station);
+    setIsStationInformationSheetOpen(true);
+    setIsSearchOpen(false);
   };
 
   return (
@@ -128,7 +151,7 @@ export const MapPage = () => {
       />
 
       {!isSearchOpen && (
-        <div className="absolute top-4 left-4 right-4 z-10">
+        <div className="absolute top-4 left-4 right-4 z-10 flex flex-col gap-2">
           <button
             type="button"
             onClick={handleOpenSearch}
@@ -141,6 +164,12 @@ export const MapPage = () => {
               {selectedStation ? selectedStation.stNm : '정류소 검색'}
             </span>
           </button>
+          <SelectedRouteTagList
+            routes={selectedRoutes}
+            onRemove={handleToggleRoute}
+            onReopen={handleReopenStation}
+          />
+          {shouldShowBusZoomHint && <BusZoomHint />}
         </div>
       )}
 
