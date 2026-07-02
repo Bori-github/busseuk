@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import type { BusRouteWithPositions } from '@widgets/bus-map';
 import { BusMapWidget } from '@widgets/bus-map';
 import { SearchOverlay } from '@features/search';
+import { BusZoomHint, SelectedRouteTagList } from '@features/selected-routes';
 import { StationInformationBottomSheet } from '@features/station-information';
 import { useUserLocation } from '@features/user-location';
 
@@ -27,6 +28,9 @@ export const MapPage = () => {
   const [busesVisible, setBusesVisible] = useState(false);
 
   const selectedRouteIds = selectedRoutes.map((route) => route.busRouteId);
+
+  // 선택한 노선이 있는데 줌이 낮아 버스 마커가 안 보이면(=버스 없음과 구분 불가) 확대를 안내한다.
+  const shouldShowBusZoomHint = selectedRoutes.length > 0 && !busesVisible;
 
   const busPositionQueries = useQueries({
     queries: selectedRoutes.map((route) =>
@@ -94,7 +98,6 @@ export const MapPage = () => {
 
   const handleSelectStation = (station: StationSearchResult) => {
     setSelectedStation(station);
-    setSelectedRoutes([]);
     setIsStationInformationSheetOpen(true);
     setIsSearchOpen(false);
   };
@@ -102,7 +105,6 @@ export const MapPage = () => {
   const handleStationInformationSheetClose = () => {
     setSelectedStation(null);
     setIsStationInformationSheetOpen(false);
-    setSelectedRoutes([]);
   };
 
   const handleToggleRoute = (route: SelectedRoute) => {
@@ -128,7 +130,7 @@ export const MapPage = () => {
       />
 
       {!isSearchOpen && (
-        <div className="absolute top-4 left-4 right-4 z-10">
+        <div className="absolute top-4 left-4 right-4 z-10 flex flex-col gap-2">
           <button
             type="button"
             onClick={handleOpenSearch}
@@ -141,6 +143,11 @@ export const MapPage = () => {
               {selectedStation ? selectedStation.stNm : '정류소 검색'}
             </span>
           </button>
+          <SelectedRouteTagList
+            routes={selectedRoutes}
+            onRemove={handleToggleRoute}
+          />
+          {shouldShowBusZoomHint && <BusZoomHint />}
         </div>
       )}
 
