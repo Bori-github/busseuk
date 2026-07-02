@@ -43,6 +43,15 @@ const parseCoord = (value: string): number | null => {
   return Number.isNaN(parsed) || parsed === 0 ? null : parsed;
 };
 
+/** 노선 경로 점들을 유효 좌표(LatLng)만 파싱한다. 투영용 폴리라인·렌더 폴리라인의 단일 출처. */
+const parseRoutePath = (path: RoutePathPoint[]): LatLng[] =>
+  path.reduce<LatLng[]>((acc, point) => {
+    const lat = parseCoord(point.gpsY);
+    const lng = parseCoord(point.gpsX);
+    if (lat !== null && lng !== null) acc.push({ lat, lng });
+    return acc;
+  }, []);
+
 interface Location {
   lat: number;
   lng: number;
@@ -214,12 +223,7 @@ export const BusMapWidget = ({
   const routePolylines = useMemo(() => {
     const polylines = new Map<string, RoutePolyline>();
     for (const route of routePaths) {
-      const points = route.path.reduce<LatLng[]>((acc, point) => {
-        const lat = parseCoord(point.gpsY);
-        const lng = parseCoord(point.gpsX);
-        if (lat !== null && lng !== null) acc.push({ lat, lng });
-        return acc;
-      }, []);
+      const points = parseRoutePath(route.path);
       if (points.length >= 2) {
         polylines.set(route.busRouteId, buildRoutePolyline(points));
       }
@@ -239,19 +243,11 @@ export const BusMapWidget = ({
     const next = new Map<string, { path: naver.maps.LatLng[]; color: string }>();
 
     for (const route of routePaths) {
-      const path = route.path
-        .map((point) => {
-          const lat = parseCoord(point.gpsY);
-          const lng = parseCoord(point.gpsX);
-          if (lat === null || lng === null) return null;
-          return new naver.maps.LatLng(lat, lng);
-        })
-        .filter((latlng): latlng is naver.maps.LatLng => latlng !== null);
-
-      if (path.length < 2) continue;
+      const points = parseRoutePath(route.path);
+      if (points.length < 2) continue;
 
       next.set(route.busRouteId, {
-        path,
+        path: points.map((p) => new naver.maps.LatLng(p.lat, p.lng)),
         color: getRouteTypeColor(route.routeType),
       });
     }
