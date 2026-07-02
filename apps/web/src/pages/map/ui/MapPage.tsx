@@ -23,12 +23,14 @@ export const MapPage = () => {
     useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [selectedRoutes, setSelectedRoutes] = useState<SelectedRoute[]>([]);
+  // 버스 마커가 실제로 보일 때(줌 임계 이상)만 위치를 폴링해 공공데이터 호출을 아낀다.
+  const [busesVisible, setBusesVisible] = useState(false);
 
   const selectedRouteIds = selectedRoutes.map((route) => route.busRouteId);
 
   const busPositionQueries = useQueries({
     queries: selectedRoutes.map((route) =>
-      busPositionsQueryOptions(route.busRouteId),
+      busPositionsQueryOptions(route.busRouteId, busesVisible),
     ),
   });
 
@@ -117,6 +119,7 @@ export const MapPage = () => {
         location={location}
         selectedStation={selectedStationForMap}
         busRoutes={busRoutes}
+        onBusVisibilityChange={setBusesVisible}
         bottomInset={
           isStationInformationSheetOpen
             ? window.innerHeight * PEEK_HEIGHT_RATIO
