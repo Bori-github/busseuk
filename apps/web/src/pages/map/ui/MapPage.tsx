@@ -15,6 +15,11 @@ import type { StationSearchResult } from '@entities/station';
 import { SearchIcon } from '@shared/icons';
 import { PEEK_HEIGHT_RATIO } from '@shared/ui';
 
+/** 선택 노선 + 그 노선을 고른 정류장. 태그에서 해당 정류장 시트를 다시 열기 위해 함께 저장한다. */
+interface SelectedRouteItem extends SelectedRoute {
+  station: StationSearchResult;
+}
+
 export const MapPage = () => {
   const { location } = useUserLocation();
 
@@ -23,7 +28,7 @@ export const MapPage = () => {
   const [isStationInformationSheetOpen, setIsStationInformationSheetOpen] =
     useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [selectedRoutes, setSelectedRoutes] = useState<SelectedRoute[]>([]);
+  const [selectedRoutes, setSelectedRoutes] = useState<SelectedRouteItem[]>([]);
   // 버스 마커가 실제로 보일 때(줌 임계 이상)만 위치를 폴링해 공공데이터 호출을 아낀다.
   const [busesVisible, setBusesVisible] = useState(false);
 
@@ -108,11 +113,27 @@ export const MapPage = () => {
   };
 
   const handleToggleRoute = (route: SelectedRoute) => {
-    setSelectedRoutes((prev) =>
-      prev.some((selected) => selected.busRouteId === route.busRouteId)
-        ? prev.filter((selected) => selected.busRouteId !== route.busRouteId)
-        : [...prev, route],
+    setSelectedRoutes((prev) => {
+      if (prev.some((selected) => selected.busRouteId === route.busRouteId)) {
+        return prev.filter(
+          (selected) => selected.busRouteId !== route.busRouteId,
+        );
+      }
+      // 추가(체크)는 정류장 시트가 열린 상태에서만 일어나므로 selectedStation이 존재한다.
+      if (!selectedStation) return prev;
+      return [...prev, { ...route, station: selectedStation }];
+    });
+  };
+
+  // 태그의 노선명을 누르면 그 노선을 고른 정류장의 도착정보 시트를 다시 연다.
+  const handleReopenStation = (route: SelectedRoute) => {
+    const item = selectedRoutes.find(
+      (selected) => selected.busRouteId === route.busRouteId,
     );
+    if (!item) return;
+    setSelectedStation(item.station);
+    setIsStationInformationSheetOpen(true);
+    setIsSearchOpen(false);
   };
 
   return (
@@ -146,6 +167,7 @@ export const MapPage = () => {
           <SelectedRouteTagList
             routes={selectedRoutes}
             onRemove={handleToggleRoute}
+            onReopen={handleReopenStation}
           />
           {shouldShowBusZoomHint && <BusZoomHint />}
         </div>
