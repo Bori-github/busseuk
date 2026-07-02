@@ -1,4 +1,5 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import { m } from 'framer-motion';
 import { useState } from 'react';
 import type { RecentSearchItem } from '../model/types';
 import { useRecentSearches } from '../model/useRecentSearches';
@@ -57,7 +58,13 @@ export const SearchOverlay = ({ onClose, onSelect }: SearchOverlayProps) => {
   };
 
   return (
-    <div className="absolute inset-0 z-20 flex flex-col bg-black text-white">
+    <m.div
+      className="absolute inset-0 z-20 flex flex-col bg-black text-white"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2, ease: 'easeInOut' }}
+    >
       <div className="flex items-center gap-2 px-4 pt-4 pb-2">
         <InputSearch
           leadingButton={
@@ -78,6 +85,6 @@ export const SearchOverlay = ({ onClose, onSelect }: SearchOverlayProps) => {
         {!hasQuery && <RecentSearchList items={recentSearches} onSelect={handleSelectRecent} onRemove={removeRecentSearch} />}
         {hasQuery && <SearchList results={results} isLoading={isLoading} disabled={!canSelect} onSelect={handleSelectStation} />}
       </div>
-    </div>
+    </m.div>
   );
 };

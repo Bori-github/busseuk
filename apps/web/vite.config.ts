@@ -18,6 +18,7 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     globals: true,
+    setupFiles: ['./src/shared/test/setup.ts'],
     env: {
       VITE_NAVER_MAP_CLIENT_ID: 'test-naver-client-id',
       VITE_BUS_API_SERVICE_KEY: 'test-bus-service-key',

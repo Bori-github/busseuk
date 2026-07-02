@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useQueries } from '@tanstack/react-query';
+import { AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 
 import type { BusRouteWithPositions } from '@widgets/bus-map';
@@ -130,24 +131,26 @@ export const MapPage = () => {
         bottomInset={isStationInformationSheetOpen ? window.innerHeight * PEEK_HEIGHT_RATIO : 0}
       />
 
-      {!isSearchOpen && (
-        <div className="absolute top-4 left-4 right-4 z-10 flex flex-col gap-2">
-          <button
-            type="button"
-            onClick={handleOpenSearch}
-            className="flex items-center gap-2 w-full rounded-full bg-black h-[40px] px-3 py-2 shadow-md"
-          >
-            <SearchIcon className="h-4 w-4 shrink-0 text-gray-400" />
-            <span className={`flex-1 text-sm text-left ${selectedStation ? 'text-white' : 'text-gray-400'}`}>
-              {selectedStation ? selectedStation.stNm : '정류소 검색'}
-            </span>
-          </button>
-          <SelectedRouteTagList routes={selectedRoutes} onRemove={handleToggleRoute} onReopen={handleReopenStation} />
-          {shouldShowBusZoomHint && <BusZoomHint />}
-        </div>
-      )}
+      {/* 오버레이가 페이드로 덮으므로(z-20 불투명) 이 블록은 조건부로 숨기지 않는다.
+          숨기면 페이드 도중 지도가 드러나 레이아웃이 튄다. */}
+      <div className="absolute top-4 left-4 right-4 z-10 flex flex-col gap-2">
+        <button
+          type="button"
+          onClick={handleOpenSearch}
+          className="flex items-center gap-2 w-full rounded-full bg-black h-[40px] px-3 py-2 shadow-md"
+        >
+          <SearchIcon className="h-4 w-4 shrink-0 text-gray-400" />
+          <span className={`flex-1 text-sm text-left ${selectedStation ? 'text-white' : 'text-gray-400'}`}>
+            {selectedStation ? selectedStation.stNm : '정류소 검색'}
+          </span>
+        </button>
+        <SelectedRouteTagList routes={selectedRoutes} onRemove={handleToggleRoute} onReopen={handleReopenStation} />
+        {shouldShowBusZoomHint && <BusZoomHint />}
+      </div>
 
-      {isSearchOpen && <SearchOverlay onClose={() => setIsSearchOpen(false)} onSelect={handleSelectStation} />}
+      <AnimatePresence>
+        {isSearchOpen && <SearchOverlay key="search-overlay" onClose={() => setIsSearchOpen(false)} onSelect={handleSelectStation} />}
+      </AnimatePresence>
 
       <StationInformationBottomSheet
         open={isStationInformationSheetOpen}
