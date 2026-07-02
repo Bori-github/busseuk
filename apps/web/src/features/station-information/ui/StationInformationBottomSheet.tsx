@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
+import type { SelectedRoute } from '@entities/bus';
 import { getRouteTypeColor, getRouteTypeLabel } from '@entities/bus';
 import { getStationInformationQueryOptions } from '@entities/station';
 import { BusApiError } from '@shared/api';
@@ -25,14 +26,6 @@ const getStationInformationErrorMessage = (error: unknown) => {
 
   return '도착 정보를 불러오지 못했습니다. 네트워크 연결을 확인해 주세요';
 };
-
-/** 지도 버스 마커 렌더링에 필요한, 선택된 노선의 메타 정보 */
-export interface SelectedRoute {
-  busRouteId: string;
-  busRouteAbrv: string;
-  routeType: string;
-  adirection: string;
-}
 
 interface StationInformationBottomSheetProps {
   open: boolean;

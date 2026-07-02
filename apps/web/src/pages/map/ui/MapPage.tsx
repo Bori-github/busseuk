@@ -5,10 +5,10 @@ import { toast } from 'sonner';
 import type { BusRouteWithPositions } from '@widgets/bus-map';
 import { BusMapWidget } from '@widgets/bus-map';
 import { SearchOverlay } from '@features/search';
-import type { SelectedRoute } from '@features/station-information';
 import { StationInformationBottomSheet } from '@features/station-information';
 import { useUserLocation } from '@features/user-location';
 
+import type { SelectedRoute } from '@entities/bus';
 import { busPositionsQueryOptions, routePathQueryOptions } from '@entities/bus';
 import type { StationSearchResult } from '@entities/station';
 import { SearchIcon } from '@shared/icons';
