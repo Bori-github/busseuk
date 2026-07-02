@@ -19,11 +19,11 @@ export const SelectedRouteTagList = ({
   if (routes.length === 0) return null;
 
   return (
-    <ul className="flex flex-wrap gap-2">
+    <ul className="flex gap-2 overflow-x-auto">
       {routes.map((route) => (
         <li
           key={route.busRouteId}
-          className="flex items-center gap-1 rounded-full py-1 pl-2.5 pr-1.5 text-xs font-bold text-white shadow-md"
+          className="flex shrink-0 items-center gap-1 rounded-full py-1 pl-2.5 pr-1.5 text-xs font-bold text-white shadow-md"
           style={{ backgroundColor: getRouteTypeColor(route.routeType) }}
         >
           <span>{route.busRouteAbrv}</span>
