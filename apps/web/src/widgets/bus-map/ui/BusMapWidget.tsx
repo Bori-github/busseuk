@@ -296,13 +296,14 @@ export const BusMapWidget = ({
   }, []);
 
   // 누적거리 s 위치의 좌표·heading을 마커에 반영한다(위치 이동 + 화살표 회전).
-  // 화살표 DOM 핸들은 최초 1회만 해석해 anim에 캐시한다(프레임당 querySelector 회피).
+  // 화살표 DOM 핸들은 캐시해 프레임당 querySelector를 피하되, 네이버가 마커 DOM을
+  // 재생성하면 캐시가 detached 노드를 가리킬 수 있으므로 isConnected로 확인해 재해석한다.
   const applyBusAnim = useCallback(
     (marker: naver.maps.Marker, anim: BusAnimState, s: number) => {
       const { lat, lng, heading } = pointAtDistance(anim.poly, s);
       marker.setPosition(new naver.maps.LatLng(lat, lng));
-      if (anim.arrowEl === undefined) {
-        // 마커가 아직 그려지지 않았으면 다음 프레임에 다시 시도(화살표는 아이콘에 항상 존재).
+      if (anim.arrowEl === undefined || !anim.arrowEl.isConnected) {
+        // 아직 안 그려졌거나(다음 프레임 재시도) 노드가 끊겼으면 다시 해석한다.
         anim.arrowEl =
           marker.getElement()?.querySelector<HTMLElement>(BUS_ARROW_SELECTOR) ??
           undefined;
