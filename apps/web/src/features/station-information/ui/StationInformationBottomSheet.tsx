@@ -149,7 +149,6 @@ export const StationInformationBottomSheet = ({
                             busRouteId: item.busRouteId,
                             busRouteAbrv: item.busRouteAbrv,
                             routeType: item.routeType,
-                            adirection: item.adirection,
                           },
                           e.target.checked,
                         )
