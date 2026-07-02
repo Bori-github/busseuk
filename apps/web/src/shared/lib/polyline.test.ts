@@ -66,6 +66,20 @@ describe('projectToPolyline', () => {
 
     expect(far.distanceAlong).toBeGreaterThan(near.distanceAlong);
   });
+
+  // 진행 방향 화살표의 핵심: 정북 0°/시계방향. 특히 서향은 atan2가 음수를 내고
+  // (deg+360)%360으로 270°가 돼야 하는데, 동향(90°)만으로는 이 정규화 경로가 검증되지 않는다.
+  it.each([
+    ['북', { lat: REF_LAT + 0.001, lng: 127.0 }, 0],
+    ['동', { lat: REF_LAT, lng: 127.001 }, 90],
+    ['남', { lat: REF_LAT - 0.001, lng: 127.0 }, 180],
+    ['서', { lat: REF_LAT, lng: 126.999 }, 270],
+  ] as const)('%s향 구간의 heading은 %d°로 정규화된다', (_dir, end, expected) => {
+    const poly = buildRoutePolyline([{ lat: REF_LAT, lng: 127.0 }, end]);
+    const mid = pointAtDistance(poly, poly.total / 2);
+
+    expect(mid.heading).toBeCloseTo(expected, 0);
+  });
 });
 
 describe('pointAtDistance', () => {

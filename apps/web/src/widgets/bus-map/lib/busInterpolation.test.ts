@@ -75,6 +75,18 @@ describe('sampleAt', () => {
     expect(sampleAt(buf, 3500)).toBeCloseTo(150, 6);
   });
 
+  it('샘플이 3개 이상이면 renderTime이 속한 하위 브래킷을 골라 보간한다', () => {
+    const buf3: Sample[] = [
+      { s: 0, t: 1000 },
+      { s: 100, t: 6000 },
+      { s: 200, t: 11000 },
+    ];
+    // 3500은 오래된 브래킷(1000~6000)에 속함 → 최신이 아닌 올바른 구간을 선택
+    expect(sampleAt(buf3, 3500)).toBeCloseTo(50, 6);
+    // 8500은 최신 브래킷(6000~11000) → 150
+    expect(sampleAt(buf3, 8500)).toBeCloseTo(150, 6);
+  });
+
   it('보간값은 최신 실측을 절대 넘지 않는다(백트래킹 없음)', () => {
     const s = sampleAt(buf, 5999)!;
     expect(s).toBeLessThanOrEqual(200);
