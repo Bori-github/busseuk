@@ -52,6 +52,43 @@ describe('projectToPolyline', () => {
     expect(result.errorMeters).toBeLessThan(2);
   });
 
+  // 왕복(out-and-back) 노선: 동쪽 끝까지 갔다가 약 11m 북쪽으로 옮겨 서쪽으로 돌아온다.
+  // 두 다리가 지리적으로 가까워, 힌트 없이는 관측이 반대편 다리로 스냅될 수 있다.
+  const outAndBack: LatLng[] = [
+    { lat: REF_LAT, lng: 127.0 },
+    { lat: REF_LAT, lng: 127.002 }, // 동쪽 끝 (누적거리 ~176m)
+    { lat: REF_LAT + 0.0001, lng: 127.002 }, // 약 11m 북쪽
+    { lat: REF_LAT + 0.0001, lng: 127.0 }, // 서쪽으로 복귀(반대편 다리)
+  ];
+
+  it('힌트 없으면 지리적으로 가까운 반대편(복귀) 다리로 스냅될 수 있다', () => {
+    const poly = buildRoutePolyline(outAndBack);
+    // 복귀 다리(37.5001)에 더 가까운 점
+    const global = projectToPolyline(poly, { lat: REF_LAT + 0.00008, lng: 127.001 });
+    expect(global.segmentIndex).toBe(2); // 복귀 다리
+  });
+
+  it('직전 위치(nearDistance) 힌트를 주면 같은(진행) 다리에 머문다', () => {
+    const poly = buildRoutePolyline(outAndBack);
+    const hinted = projectToPolyline(
+      poly,
+      { lat: REF_LAT + 0.00008, lng: 127.001 },
+      { nearDistance: 100, windowMeters: 80 }, // 진행 다리(0~176m) 근방만 후보
+    );
+    expect(hinted.segmentIndex).toBe(0); // 진행 다리 유지
+  });
+
+  it('힌트 근방에 후보가 없으면 전역 탐색으로 폴백한다', () => {
+    const poly = buildRoutePolyline(outAndBack);
+    const fallback = projectToPolyline(
+      poly,
+      { lat: REF_LAT + 0.00008, lng: 127.001 },
+      { nearDistance: 999_999, windowMeters: 50 }, // 아무 세그먼트도 안 걸침
+    );
+    expect(Number.isFinite(fallback.errorMeters)).toBe(true);
+    expect(fallback.errorMeters).toBeLessThan(50);
+  });
+
   it('동쪽 진행 구간의 heading은 약 90°다', () => {
     const poly = buildRoutePolyline(eastLine);
     const result = projectToPolyline(poly, { lat: REF_LAT, lng: 127.0005 });

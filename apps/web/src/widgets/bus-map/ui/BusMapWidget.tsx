@@ -31,6 +31,12 @@ import {
 /** 버스 마커가 노출되는 최소 줌 레벨 (정류장 아이콘과 동일) */
 const BUS_MARKER_MIN_ZOOM = 17;
 
+/**
+ * raw GPS를 노선에 투영했을 때 허용하는 최대 이탈(m). 이보다 벗어나면(우회·U턴·GPS 노이즈)
+ * 투영을 버리고 raw GPS 위치를 그대로 쓴다 — 도로선 위 엉뚱한 지점에 스냅되는 것을 막는다.
+ */
+const MAX_SNAP_ERROR_M = 60;
+
 /** gpsX/gpsY 문자열을 좌표로 파싱한다. NaN·0(GPS 미확보)은 무효로 보고 null을 반환. */
 const parseCoord = (value: string): number | null => {
   const parsed = parseFloat(value);
@@ -412,8 +418,18 @@ export const BusMapWidget = ({
             poly,
           };
           // 폴리라인이 있으면 raw GPS를 투영해 관측 누적거리를 얻는다(지터에 강함).
+          // 직전 관측 위치를 힌트로 줘 순환·왕복 노선에서 반대편 다리 락온을 막고,
+          // 노선에서 너무 벗어난 관측은 투영을 버리고 raw GPS를 쓴다.
           if (poly) {
-            desired.sObs = projectToPolyline(poly, { lat, lng }).distanceAlong;
+            const hint = anims.get(bus.vehId)?.buffer.at(-1)?.s;
+            const proj = projectToPolyline(
+              poly,
+              { lat, lng },
+              { nearDistance: hint },
+            );
+            if (proj.errorMeters <= MAX_SNAP_ERROR_M) {
+              desired.sObs = proj.distanceAlong;
+            }
           }
           next.set(bus.vehId, desired);
         }

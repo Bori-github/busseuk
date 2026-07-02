@@ -40,6 +40,20 @@ export interface ProjectionResult {
   heading: number;
 }
 
+export interface ProjectionOptions {
+  /**
+   * 직전 관측의 누적거리(m). 지정 시 이 위치 ± windowMeters 구간을 우선 탐색해,
+   * 순환·왕복 노선에서 지리적으로 가까운 반대편 다리로 락온되는 것을 막는다.
+   * 근방에 후보가 없으면(힌트가 낡음) 전역 탐색으로 폴백한다.
+   */
+  nearDistance?: number;
+  /** nearDistance 기준 탐색 반경(m). 폴 간격 최대 이동거리보다 넉넉해야 한다. */
+  windowMeters?: number;
+}
+
+/** nearDistance 미지정 시/기본 탐색 반경(m). 5초 폴 사이 이동거리(≤수백 m)를 여유 있게 덮는다. */
+const DEFAULT_PROJECTION_WINDOW_M = 400;
+
 const planarX = (lng: number, lngScale: number) => lng * lngScale;
 const planarY = (lat: number) => lat * M_PER_DEG;
 
@@ -74,6 +88,7 @@ export const buildRoutePolyline = (points: LatLng[]): RoutePolyline => {
 export const projectToPolyline = (
   poly: RoutePolyline,
   target: LatLng,
+  options?: ProjectionOptions,
 ): ProjectionResult => {
   const { points, cumulative, lngScale } = poly;
 
@@ -101,42 +116,61 @@ export const projectToPolyline = (
   const tx = planarX(target.lng, lngScale);
   const ty = planarY(target.lat);
 
-  let best = {
-    errorMeters: Infinity,
-    segmentIndex: 0,
-    lat: points[0].lat,
-    lng: points[0].lng,
-    distanceAlong: 0,
+  const near = options?.nearDistance;
+  const window = options?.windowMeters ?? DEFAULT_PROJECTION_WINDOW_M;
+
+  // restrict=true면 near ± window 구간에 걸치는 세그먼트만 후보로 본다(연속성).
+  const scan = (restrict: boolean) => {
+    let best = {
+      errorMeters: Infinity,
+      segmentIndex: 0,
+      lat: points[0].lat,
+      lng: points[0].lng,
+      distanceAlong: 0,
+    };
+
+    for (let i = 0; i < points.length - 1; i += 1) {
+      if (
+        restrict &&
+        near !== undefined &&
+        (cumulative[i + 1] < near - window || cumulative[i] > near + window)
+      ) {
+        continue;
+      }
+
+      const ax = planarX(points[i].lng, lngScale);
+      const ay = planarY(points[i].lat);
+      const bx = planarX(points[i + 1].lng, lngScale);
+      const by = planarY(points[i + 1].lat);
+
+      const vx = bx - ax;
+      const vy = by - ay;
+      const segLen2 = vx * vx + vy * vy;
+      const t =
+        segLen2 === 0
+          ? 0
+          : Math.max(0, Math.min(1, ((tx - ax) * vx + (ty - ay) * vy) / segLen2));
+
+      const footX = ax + vx * t;
+      const footY = ay + vy * t;
+      const err = Math.hypot(tx - footX, ty - footY);
+
+      if (err < best.errorMeters) {
+        best = {
+          errorMeters: err,
+          segmentIndex: i,
+          lat: points[i].lat + (points[i + 1].lat - points[i].lat) * t,
+          lng: points[i].lng + (points[i + 1].lng - points[i].lng) * t,
+          distanceAlong: cumulative[i] + (cumulative[i + 1] - cumulative[i]) * t,
+        };
+      }
+    }
+    return best;
   };
 
-  for (let i = 0; i < points.length - 1; i += 1) {
-    const ax = planarX(points[i].lng, lngScale);
-    const ay = planarY(points[i].lat);
-    const bx = planarX(points[i + 1].lng, lngScale);
-    const by = planarY(points[i + 1].lat);
-
-    const vx = bx - ax;
-    const vy = by - ay;
-    const segLen2 = vx * vx + vy * vy;
-    const t =
-      segLen2 === 0
-        ? 0
-        : Math.max(0, Math.min(1, ((tx - ax) * vx + (ty - ay) * vy) / segLen2));
-
-    const footX = ax + vx * t;
-    const footY = ay + vy * t;
-    const err = Math.hypot(tx - footX, ty - footY);
-
-    if (err < best.errorMeters) {
-      best = {
-        errorMeters: err,
-        segmentIndex: i,
-        lat: points[i].lat + (points[i + 1].lat - points[i].lat) * t,
-        lng: points[i].lng + (points[i + 1].lng - points[i].lng) * t,
-        distanceAlong: cumulative[i] + (cumulative[i + 1] - cumulative[i]) * t,
-      };
-    }
-  }
+  // 직전 위치 근방을 우선 탐색하고, 근방에 후보가 없으면 전역 탐색으로 폴백한다.
+  let best = scan(near !== undefined);
+  if (best.errorMeters === Infinity) best = scan(false);
 
   return {
     ...best,
