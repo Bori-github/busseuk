@@ -116,6 +116,9 @@ export const BusMapWidget = ({
     t: null,
     last: 0,
   });
+  // 모든 버스의 최신 실측 시각(performance.now 도메인). 관측 push 시 갱신하며,
+  // rAF 루프가 재생 클럭 상한(clamp)으로 쓴다 — 프레임마다 anims 전체를 훑지 않기 위한 유지값.
+  const newestSampleRef = useRef(-Infinity);
 
   const [mapReady, setMapReady] = useState(false);
   const [zoom, setZoom] = useState(BUS_MARKER_MIN_ZOOM);
@@ -321,17 +324,14 @@ export const BusMapWidget = ({
       const anims = busAnimRef.current;
       const clock = playClockRef.current;
 
-      // 모든 버스의 최신 실측 시각 → 재생 클럭이 넘지 못하는 상한.
-      let newest = -Infinity;
-      for (const anim of anims.values()) {
-        const last = anim.buffer[anim.buffer.length - 1];
-        if (last && last.t > newest) newest = last.t;
-      }
-      if (newest === -Infinity) {
+      // 재생할 버스가 없으면 멈춘다.
+      if (anims.size === 0) {
         rafRef.current = null;
         clock.last = 0;
         return;
       }
+      // 최신 실측 시각 → 재생 클럭이 넘지 못하는 상한. push 때 유지해둔 값을 쓴다.
+      const newest = newestSampleRef.current;
 
       // 클럭 초기화/재동기화: 최초이거나 오래 멈춰 클럭이 낡았으면 목표 지연 위치로 리셋.
       if (clock.t === null || now - clock.t > TARGET_LAG_MS * 3) {
@@ -484,8 +484,12 @@ export const BusMapWidget = ({
       }
     }
 
-    // 재생할 버퍼가 있으면 rAF 루프를 기동한다(멈춰 있었다면 다시 시작).
-    if (hasPlayback) startAnimation();
+    // 재생할 버퍼가 있으면 최신 실측 시각을 갱신하고 rAF 루프를 기동한다(멈춰 있었다면 다시 시작).
+    // 이번 run에서 push된 관측은 모두 now 시각이므로 남아있는 anim들의 최신 시각 = now.
+    if (hasPlayback) {
+      newestSampleRef.current = now;
+      startAnimation();
+    }
   }, [mapReady, busRoutes, showBuses, routePolylines, startAnimation]);
 
   useEffect(() => {
