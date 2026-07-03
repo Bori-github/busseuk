@@ -44,6 +44,9 @@ Claude Code가 코드를 만질 때 컨벤션([`../rules/`](../rules/README.md))
 - **검사 범위**: `eslint.config.js`에 인코딩된 error 규칙만 잡는다. 문서(`rules/`)의 컨벤션 중
   네이밍·`import type`·TanStack Query·Tailwind·map-center 같은 의미/아키텍처 규칙은 lint에
   없으면 여기서 안 잡히고 리뷰 몫으로 남는다.
+- **인프라 가드**: `pnpm`이 PATH에 없거나 의존성이 설치되지 않았으면(예: `pnpm install` 전의
+  fresh clone) **조용히 통과(exit 0)**한다. 도구 부재는 "위반"이 아니라 "실행 불가"이므로,
+  toolchain이 다른 팀원이 매 턴 거짓 차단되는 것을 막는다.
 
 ## 설계 근거 (왜 이 시점인가)
 
@@ -65,5 +68,6 @@ Claude Code가 코드를 만질 때 컨벤션([`../rules/`](../rules/README.md))
 
 - macOS 기본 `/bin/bash`가 3.2라 스크립트는 **POSIX `sh`**로 작성했다(`mapfile`·연관배열 미사용).
 - JSON 파서(jq) 의존을 피하려 훅 입력을 파싱하지 않고 **git으로 변경 파일을 탐색**한다.
-- `prettier`/`eslint`는 `pnpm exec`로 실행하므로 `pnpm`이 PATH에 있어야 한다(Claude Code를
-  실행한 셸 환경을 그대로 상속).
+- `prettier`/`eslint`는 `pnpm exec`로 실행한다(Claude Code를 실행한 셸 환경의 PATH를 상속).
+  `pnpm`/의존성이 없으면 두 훅 모두 **하드블록하지 않고 조용히 스킵**한다(prettier는 `|| true`,
+  eslint는 인프라 가드).

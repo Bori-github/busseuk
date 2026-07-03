@@ -24,6 +24,11 @@ files=$(
 
 [ -z "$files" ] && exit 0
 
+# 인프라 가드: 도구·의존성이 없으면 "위반"이 아니라 "실행 불가"이므로 조용히 통과한다.
+# (pnpm 미설치, fresh clone 후 pnpm install 미실행 등 — 환경차로 팀원이 매 턴 거짓 차단되는 것 방지)
+command -v pnpm >/dev/null 2>&1 || exit 0
+[ -x apps/web/node_modules/.bin/eslint ] || exit 0
+
 # 변경 파일만 검사 (pnpm --filter web exec → cwd=apps/web에서 flat config 탐색)
 report=$(
   printf '%s\n' "$files" | sed "s|^|$PROJECT_DIR/|" \
