@@ -51,25 +51,18 @@ pnpm --filter web build
 
 **웹 개요**: 서울시 실시간 버스 위치 정보 서비스. 네이버맵 JS SDK로 지도를 렌더링하며, 서울 열린데이터광장 API로 버스 위치·정류장·도착 정보를 조회합니다.
 
-**FSD (Feature-Sliced Design)**: `apps/web/src/`는 FSD 레이어 구조를 따릅니다. 상위 레이어는 하위 레이어만 참조할 수 있습니다.
-
-```
-app/       ← QueryClientProvider, 글로벌 설정
-pages/     ← MapPage (단일 페이지)
-widgets/   ← BusMap, StopBottomSheet
-features/  ← selectBusStop, trackBusLocation
-entities/  ← bus, busStop, route 모델
-shared/    ← API 호출, 공통 유틸, UI 기본 요소
-```
-
-참조 방향: `app → pages → widgets → features → entities → shared`
-
-**스타일링**: Tailwind CSS v4 (`@tailwindcss/vite` 플러그인 방식). `tailwind.config.js` 없이 `index.css`의 `@import "tailwindcss"`로 동작합니다.
-
-**데이터 페칭**: TanStack Query v5. `main.tsx`에서 `QueryClient`를 전역 설정(`staleTime: 10s`, `retry: 1`)합니다.
+**FSD (Feature-Sliced Design)**: `apps/web/src/`는 FSD 레이어 구조를 따르며, 참조 방향은 `app → pages → widgets → features → entities → shared` 단방향입니다. 이 경계는 `eslint-plugin-fsd-lint`로 강제됩니다. 레이어·슬라이스·배치 상세는 [.claude/rules/architecture/fsd.md](.claude/rules/architecture/fsd.md) 참고.
 
 **CORS**: 서울 버스 API(`ws.bus.go.kr`)는 HTTP 전용으로 브라우저에서 직접 호출 시 CORS 오류가 발생합니다. 개발 환경에서는 `vite.config.ts`의 `server.proxy`로, 프로덕션에서는 별도 프록시 서버(Vercel Functions 등)로 처리합니다.
 
 **API 명세**: 서울 버스 API 상세 명세는 `.claude/docs/api/` 참고
 
 **지도 센터 이동 정책**: 센터(panTo)를 움직이는 규칙·금지 사례는 [.claude/docs/map-center-policy.md](.claude/docs/map-center-policy.md) 참고. 지도 센터링을 건드리기 전 확인.
+
+## 컨벤션 규칙
+
+아키텍처·코드 스타일·도구 규칙은 관심사별로 [.claude/rules/](.claude/rules/README.md)에 정리돼 있다. 코드를 쓰기 전 관련 규칙을 참고한다.
+
+- **아키텍처** ([rules/architecture/](.claude/rules/architecture/)) — 개요·FSD·데이터 페칭(TanStack Query)·스타일링(Tailwind v4)
+- **코드 스타일** ([rules/code-style/](.claude/rules/code-style/)) — TypeScript(`func-style`·`import type`·네이밍)·React(훅·effect)
+- **도구** ([rules/tooling/](.claude/rules/tooling/)) — ESLint 규칙 근거·Prettier 포맷·Husky(pre-commit 훅)
