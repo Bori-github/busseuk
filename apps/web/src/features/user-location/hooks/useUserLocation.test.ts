@@ -60,9 +60,7 @@ describe('useUserLocation', () => {
   });
 
   it('위치 획득 성공: 실제 좌표로 갱신', async () => {
-    getCurrentPosition.mockImplementation((success: PositionCallback) =>
-      success(MOCK_POSITION),
-    );
+    getCurrentPosition.mockImplementation((success: PositionCallback) => success(MOCK_POSITION));
 
     const { result } = renderHook(() => useUserLocation());
 
@@ -73,10 +71,7 @@ describe('useUserLocation', () => {
   });
 
   it('권한 거부: PERMISSION_DENIED 메시지 반환', async () => {
-    getCurrentPosition.mockImplementation(
-      (_: PositionCallback, error: PositionErrorCallback) =>
-        error(makeError(1)),
-    );
+    getCurrentPosition.mockImplementation((_: PositionCallback, error: PositionErrorCallback) => error(makeError(1)));
 
     const { result } = renderHook(() => useUserLocation());
 
@@ -91,13 +86,8 @@ describe('useUserLocation', () => {
 
   it('타임아웃: 재시도 성공 시 실제 좌표로 갱신', async () => {
     getCurrentPosition
-      .mockImplementationOnce(
-        (_: PositionCallback, error: PositionErrorCallback) =>
-          error(makeError(3)),
-      )
-      .mockImplementationOnce((success: PositionCallback) =>
-        success(MOCK_POSITION),
-      );
+      .mockImplementationOnce((_: PositionCallback, error: PositionErrorCallback) => error(makeError(3)))
+      .mockImplementationOnce((success: PositionCallback) => success(MOCK_POSITION));
 
     const { result } = renderHook(() => useUserLocation());
 
@@ -109,14 +99,8 @@ describe('useUserLocation', () => {
 
   it('타임아웃: 재시도 실패 시 TIMEOUT 메시지 반환', async () => {
     getCurrentPosition
-      .mockImplementationOnce(
-        (_: PositionCallback, error: PositionErrorCallback) =>
-          error(makeError(3)),
-      )
-      .mockImplementationOnce(
-        (_: PositionCallback, error: PositionErrorCallback) =>
-          error(makeError(3)),
-      );
+      .mockImplementationOnce((_: PositionCallback, error: PositionErrorCallback) => error(makeError(3)))
+      .mockImplementationOnce((_: PositionCallback, error: PositionErrorCallback) => error(makeError(3)));
 
     const { result } = renderHook(() => useUserLocation());
 
@@ -136,8 +120,6 @@ describe('useUserLocation', () => {
 
     await waitFor(() => expect(result.current.isLocating).toBe(false));
 
-    expect(result.current.error).toBe(
-      '이 브라우저는 위치 정보를 지원하지 않습니다.',
-    );
+    expect(result.current.error).toBe('이 브라우저는 위치 정보를 지원하지 않습니다.');
   });
 });

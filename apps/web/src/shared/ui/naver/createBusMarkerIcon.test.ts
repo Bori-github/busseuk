@@ -41,9 +41,7 @@ describe('createBusMarkerIcon', () => {
     // 화살표를 아예 안 그리면 뒤늦게 heading이 생겨도 붙일 곳이 없다.
     // 항상 배치하되 visibility:hidden으로 숨겨 anchor를 안정적으로 유지한다.
     const icon = createBusMarkerIcon({ routeName: '152', color: '#0d3' });
-    const arrow = parseContent(icon.content as string).querySelector<HTMLElement>(
-      '[data-bus-arrow]',
-    );
+    const arrow = parseContent(icon.content as string).querySelector<HTMLElement>('[data-bus-arrow]');
 
     expect(arrow).not.toBeNull();
     expect(arrow?.style.visibility).toBe('hidden');
@@ -55,9 +53,7 @@ describe('createBusMarkerIcon', () => {
       color: '#0d3',
       heading: 90,
     });
-    const arrow = parseContent(icon.content as string).querySelector<HTMLElement>(
-      '[data-bus-arrow]',
-    );
+    const arrow = parseContent(icon.content as string).querySelector<HTMLElement>('[data-bus-arrow]');
 
     expect(arrow).not.toBeNull();
     expect(arrow?.style.visibility).toBe('visible');

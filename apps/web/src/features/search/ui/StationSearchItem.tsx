@@ -8,13 +8,7 @@ interface StationSearchItemProps {
   onRemove?: () => void;
 }
 
-export const StationSearchItem = ({
-  stNm,
-  arsId,
-  disabled,
-  onClick,
-  onRemove,
-}: StationSearchItemProps) => (
+export const StationSearchItem = ({ stNm, arsId, disabled, onClick, onRemove }: StationSearchItemProps) => (
   <li className="flex items-center hover:bg-gray-800">
     <button
       type="button"
@@ -28,12 +22,7 @@ export const StationSearchItem = ({
       </div>
     </button>
     {onRemove && (
-      <button
-        type="button"
-        onClick={onRemove}
-        className="px-4 py-3"
-        aria-label="최근 검색 삭제"
-      >
+      <button type="button" onClick={onRemove} className="px-4 py-3" aria-label="최근 검색 삭제">
         <XIcon className="h-4 w-4 text-gray-400" />
       </button>
     )}

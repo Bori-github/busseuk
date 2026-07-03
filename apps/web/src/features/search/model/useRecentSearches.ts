@@ -6,9 +6,7 @@ const STORAGE_KEY = 'busseuk:recent-searches';
 const MAX_ITEMS = 20;
 
 const dedupKey = (item: RecentSearchItem): string => {
-  return item.type === 'station'
-    ? `station:${item.arsId}`
-    : `route:${item.busRouteId}`;
+  return item.type === 'station' ? `station:${item.arsId}` : `route:${item.busRouteId}`;
 };
 
 const load = (): RecentSearchItem[] => {
@@ -25,8 +23,7 @@ const save = (items: RecentSearchItem[]): void => {
 };
 
 export const useRecentSearches = () => {
-  const [recentSearches, setRecentSearches] =
-    useState<RecentSearchItem[]>(load);
+  const [recentSearches, setRecentSearches] = useState<RecentSearchItem[]>(load);
 
   const addRecentSearch = (item: RecentSearchItem) => {
     setRecentSearches((prev) => {

@@ -15,11 +15,7 @@ interface CreateBusMarkerIconOptions {
   heading?: number;
 }
 
-export const createBusMarkerIcon = ({
-  routeName,
-  color,
-  heading,
-}: CreateBusMarkerIconOptions): naver.maps.HtmlIcon => {
+export const createBusMarkerIcon = ({ routeName, color, heading }: CreateBusMarkerIconOptions): naver.maps.HtmlIcon => {
   const badge = document.createElement('div');
   Object.assign(badge.style, {
     display: 'flex',

@@ -85,11 +85,7 @@ export const buildRoutePolyline = (points: LatLng[]): RoutePolyline => {
 };
 
 /** 좌표를 폴리라인 위 가장 가까운 지점으로 투영한다. */
-export const projectToPolyline = (
-  poly: RoutePolyline,
-  target: LatLng,
-  options?: ProjectionOptions,
-): ProjectionResult => {
+export const projectToPolyline = (poly: RoutePolyline, target: LatLng, options?: ProjectionOptions): ProjectionResult => {
   const { points, cumulative, lngScale } = poly;
 
   if (points.length === 0) {
@@ -130,11 +126,7 @@ export const projectToPolyline = (
     };
 
     for (let i = 0; i < points.length - 1; i += 1) {
-      if (
-        restrict &&
-        near !== undefined &&
-        (cumulative[i + 1] < near - window || cumulative[i] > near + window)
-      ) {
+      if (restrict && near !== undefined && (cumulative[i + 1] < near - window || cumulative[i] > near + window)) {
         continue;
       }
 
@@ -146,10 +138,7 @@ export const projectToPolyline = (
       const vx = bx - ax;
       const vy = by - ay;
       const segLen2 = vx * vx + vy * vy;
-      const t =
-        segLen2 === 0
-          ? 0
-          : Math.max(0, Math.min(1, ((tx - ax) * vx + (ty - ay) * vy) / segLen2));
+      const t = segLen2 === 0 ? 0 : Math.max(0, Math.min(1, ((tx - ax) * vx + (ty - ay) * vy) / segLen2));
 
       const footX = ax + vx * t;
       const footY = ay + vy * t;
@@ -174,19 +163,12 @@ export const projectToPolyline = (
 
   return {
     ...best,
-    heading: segmentBearing(
-      points[best.segmentIndex],
-      points[best.segmentIndex + 1],
-      lngScale,
-    ),
+    heading: segmentBearing(points[best.segmentIndex], points[best.segmentIndex + 1], lngScale),
   };
 };
 
 /** 시작점 기준 누적거리(m) 위치의 좌표와 진행 방향을 반환한다. 보간 애니메이션에 사용. */
-export const pointAtDistance = (
-  poly: RoutePolyline,
-  distance: number,
-): { lat: number; lng: number; heading: number } => {
+export const pointAtDistance = (poly: RoutePolyline, distance: number): { lat: number; lng: number; heading: number } => {
   const { points, cumulative, lngScale, total } = poly;
 
   if (points.length === 0) return { lat: 0, lng: 0, heading: 0 };

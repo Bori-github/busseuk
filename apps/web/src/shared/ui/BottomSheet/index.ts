@@ -1,10 +1,5 @@
 import { BottomSheetRoot } from './BottomSheetRoot';
-import {
-  BottomSheetClose,
-  BottomSheetContent,
-  BottomSheetHeader,
-  BottomSheetTitle,
-} from './parts';
+import { BottomSheetClose, BottomSheetContent, BottomSheetHeader, BottomSheetTitle } from './parts';
 
 export { PEEK_HEIGHT_RATIO } from './context';
 

@@ -39,8 +39,7 @@ export const NaverMap = ({
 
   useEffect(() => {
     let disposed = false;
-    let zoomListener: ReturnType<typeof naver.maps.Event.addListener> | null =
-      null;
+    let zoomListener: ReturnType<typeof naver.maps.Event.addListener> | null = null;
 
     loadNaverMapSDK().then(() => {
       if (disposed || !containerRef.current || mapRef.current) return;
@@ -63,13 +62,9 @@ export const NaverMap = ({
       onReady?.(map);
 
       onZoomChangedRef.current?.(map.getZoom());
-      zoomListener = naver.maps.Event.addListener(
-        map,
-        'zoom_changed',
-        (level: number) => {
-          onZoomChangedRef.current?.(level);
-        },
-      );
+      zoomListener = naver.maps.Event.addListener(map, 'zoom_changed', (level: number) => {
+        onZoomChangedRef.current?.(level);
+      });
     });
 
     return () => {

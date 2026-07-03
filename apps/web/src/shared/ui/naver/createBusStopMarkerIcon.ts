@@ -7,9 +7,7 @@ interface CreateBusStopMarkerIconOptions {
   name: string;
 }
 
-export const createBusStopMarkerIcon = ({
-  name,
-}: CreateBusStopMarkerIconOptions): naver.maps.HtmlIcon => {
+export const createBusStopMarkerIcon = ({ name }: CreateBusStopMarkerIconOptions): naver.maps.HtmlIcon => {
   const wrapper = document.createElement('div');
   Object.assign(wrapper.style, {
     display: 'flex',
@@ -45,8 +43,7 @@ export const createBusStopMarkerIcon = ({
     lineHeight: '1.2',
     color: '#fff',
     whiteSpace: 'nowrap',
-    textShadow:
-      '0 1px 2px rgba(0,0,0,0.9), 0 2px 6px rgba(0,0,0,0.6)',
+    textShadow: '0 1px 2px rgba(0,0,0,0.9), 0 2px 6px rgba(0,0,0,0.6)',
   });
 
   wrapper.appendChild(icon);

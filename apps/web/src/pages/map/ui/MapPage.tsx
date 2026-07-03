@@ -23,10 +23,8 @@ interface SelectedRouteItem extends SelectedRoute {
 export const MapPage = () => {
   const { location } = useUserLocation();
 
-  const [selectedStation, setSelectedStation] =
-    useState<StationSearchResult | null>(null);
-  const [isStationInformationSheetOpen, setIsStationInformationSheetOpen] =
-    useState(false);
+  const [selectedStation, setSelectedStation] = useState<StationSearchResult | null>(null);
+  const [isStationInformationSheetOpen, setIsStationInformationSheetOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [selectedRoutes, setSelectedRoutes] = useState<SelectedRouteItem[]>([]);
   // 버스 마커가 실제로 보일 때(줌 임계 이상)만 위치를 폴링해 공공데이터 호출을 아낀다.
@@ -38,24 +36,16 @@ export const MapPage = () => {
   const shouldShowBusZoomHint = selectedRoutes.length > 0 && !busesVisible;
 
   const busPositionQueries = useQueries({
-    queries: selectedRoutes.map((route) =>
-      busPositionsQueryOptions(route.busRouteId, busesVisible),
-    ),
+    queries: selectedRoutes.map((route) => busPositionsQueryOptions(route.busRouteId, busesVisible)),
   });
 
   const routePathQueries = useQueries({
-    queries: selectedRoutes.map((route) =>
-      routePathQueryOptions(route.busRouteId),
-    ),
+    queries: selectedRoutes.map((route) => routePathQueryOptions(route.busRouteId)),
   });
 
   // data는 react-query가 참조 안정성을 보장하므로, 갱신 시각으로 재계산 시점을 잡는다.
-  const positionsUpdatedAt = busPositionQueries
-    .map((query) => query.dataUpdatedAt)
-    .join(',');
-  const pathsUpdatedAt = routePathQueries
-    .map((query) => query.dataUpdatedAt)
-    .join(',');
+  const positionsUpdatedAt = busPositionQueries.map((query) => query.dataUpdatedAt).join(',');
+  const pathsUpdatedAt = routePathQueries.map((query) => query.dataUpdatedAt).join(',');
 
   const busRoutes = useMemo<BusRouteWithPositions[]>(
     () =>
@@ -72,9 +62,7 @@ export const MapPage = () => {
 
   // 위치/경로 조회 실패는 빈 배열로 대체돼 지도에 조용히 묻히므로(=버스 없음과 구분 불가),
   // 에러 상태로 전환될 때 토스트로 알린다. 폴링은 일시 장애 자동 회복을 위해 유지한다.
-  const hasBusDataError =
-    busPositionQueries.some((query) => query.isError) ||
-    routePathQueries.some((query) => query.isError);
+  const hasBusDataError = busPositionQueries.some((query) => query.isError) || routePathQueries.some((query) => query.isError);
   useEffect(() => {
     if (hasBusDataError) {
       toast.error('실시간 버스 정보를 불러오지 못했습니다');
@@ -115,9 +103,7 @@ export const MapPage = () => {
   const handleToggleRoute = (route: SelectedRoute) => {
     setSelectedRoutes((prev) => {
       if (prev.some((selected) => selected.busRouteId === route.busRouteId)) {
-        return prev.filter(
-          (selected) => selected.busRouteId !== route.busRouteId,
-        );
+        return prev.filter((selected) => selected.busRouteId !== route.busRouteId);
       }
       // 추가(체크)는 정류장 시트가 열린 상태에서만 일어나므로 selectedStation이 존재한다.
       if (!selectedStation) return prev;
@@ -127,9 +113,7 @@ export const MapPage = () => {
 
   // 태그의 노선명을 누르면 그 노선을 고른 정류장의 도착정보 시트를 다시 연다.
   const handleReopenStation = (route: SelectedRoute) => {
-    const item = selectedRoutes.find(
-      (selected) => selected.busRouteId === route.busRouteId,
-    );
+    const item = selectedRoutes.find((selected) => selected.busRouteId === route.busRouteId);
     if (!item) return;
     setSelectedStation(item.station);
     setIsStationInformationSheetOpen(true);
@@ -143,11 +127,7 @@ export const MapPage = () => {
         selectedStation={selectedStationForMap}
         busRoutes={busRoutes}
         onBusVisibilityChange={setBusesVisible}
-        bottomInset={
-          isStationInformationSheetOpen
-            ? window.innerHeight * PEEK_HEIGHT_RATIO
-            : 0
-        }
+        bottomInset={isStationInformationSheetOpen ? window.innerHeight * PEEK_HEIGHT_RATIO : 0}
       />
 
       {!isSearchOpen && (
@@ -158,27 +138,16 @@ export const MapPage = () => {
             className="flex items-center gap-2 w-full rounded-full bg-black h-[40px] px-3 py-2 shadow-md"
           >
             <SearchIcon className="h-4 w-4 shrink-0 text-gray-400" />
-            <span
-              className={`flex-1 text-sm text-left ${selectedStation ? 'text-white' : 'text-gray-400'}`}
-            >
+            <span className={`flex-1 text-sm text-left ${selectedStation ? 'text-white' : 'text-gray-400'}`}>
               {selectedStation ? selectedStation.stNm : '정류소 검색'}
             </span>
           </button>
-          <SelectedRouteTagList
-            routes={selectedRoutes}
-            onRemove={handleToggleRoute}
-            onReopen={handleReopenStation}
-          />
+          <SelectedRouteTagList routes={selectedRoutes} onRemove={handleToggleRoute} onReopen={handleReopenStation} />
           {shouldShowBusZoomHint && <BusZoomHint />}
         </div>
       )}
 
-      {isSearchOpen && (
-        <SearchOverlay
-          onClose={() => setIsSearchOpen(false)}
-          onSelect={handleSelectStation}
-        />
-      )}
+      {isSearchOpen && <SearchOverlay onClose={() => setIsSearchOpen(false)} onSelect={handleSelectStation} />}
 
       <StationInformationBottomSheet
         open={isStationInformationSheetOpen}

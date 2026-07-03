@@ -26,11 +26,7 @@ vi.mock('@widgets/bus-map', () => ({
 }));
 
 vi.mock('@features/search', () => ({
-  SearchOverlay: ({
-    onSelect,
-  }: {
-    onSelect: (station: StationSearchResult) => void;
-  }) => (
+  SearchOverlay: ({ onSelect }: { onSelect: (station: StationSearchResult) => void }) => (
     <div>
       <button type="button" onClick={() => onSelect(STATION_A)}>
         select-station-a
@@ -62,8 +58,7 @@ const STATION_B: StationSearchResult = {
   tmY: '37.5672952',
 };
 
-const renderMapPage = () =>
-  render(<MapPage />, { wrapper: createQueryWrapper() });
+const renderMapPage = () => render(<MapPage />, { wrapper: createQueryWrapper() });
 
 describe('MapPage station information', () => {
   beforeEach(() => {
@@ -150,9 +145,7 @@ describe('MapPage station information', () => {
     await waitFor(() => {
       expect(screen.getByText('753')).toBeTruthy();
     });
-    expect(
-      screen.getByRole('dialog', { hidden: true }).getAttribute('aria-hidden'),
-    ).toBe('false');
+    expect(screen.getByRole('dialog', { hidden: true }).getAttribute('aria-hidden')).toBe('false');
 
     // 선택된 정류장명이 표시된 검색 버튼을 다시 클릭
     await act(async () => {
@@ -161,8 +154,6 @@ describe('MapPage station information', () => {
 
     // 검색 오버레이가 다시 뜨고, 정보 시트는 닫힌다
     expect(screen.getByRole('button', { name: 'select-station-a' })).toBeTruthy();
-    expect(
-      screen.getByRole('dialog', { hidden: true }).getAttribute('aria-hidden'),
-    ).toBe('true');
+    expect(screen.getByRole('dialog', { hidden: true }).getAttribute('aria-hidden')).toBe('true');
   });
 });

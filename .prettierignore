@@ -1,0 +1,8 @@
+# 빌드 산출물·의존성·잠금파일은 포맷 대상에서 제외
+node_modules
+dist
+build
+.output
+.turbo
+pnpm-lock.yaml
+apps/web/dist

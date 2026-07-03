@@ -7,6 +7,7 @@
     "lint": "turbo lint"
   },
   "devDependencies": {
+    "prettier": "^3.9.4",
     "turbo": "latest"
   },
   "packageManager": "pnpm@10.29.2"

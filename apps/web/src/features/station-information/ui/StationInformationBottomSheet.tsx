@@ -91,14 +91,10 @@ export const StationInformationBottomSheet = ({
       </BottomSheet.Header>
       <BottomSheet.Content>
         {/* TODO: Spinner 추가 */}
-        {isLoading && (
-          <div className="space-y-1 p-3 text-sm text-gray-400">Loading...</div>
-        )}
+        {isLoading && <div className="space-y-1 p-3 text-sm text-gray-400">Loading...</div>}
         {!isLoading && isError && data.length === 0 && (
           <div className="flex flex-col items-center gap-3 px-4 py-8 text-center">
-            <p className="text-sm text-gray-400">
-              {getStationInformationErrorMessage(error)}
-            </p>
+            <p className="text-sm text-gray-400">{getStationInformationErrorMessage(error)}</p>
             <button
               type="button"
               onClick={() => refetch()}
@@ -112,11 +108,7 @@ export const StationInformationBottomSheet = ({
             </button>
           </div>
         )}
-        {!isLoading && !isError && data.length === 0 && (
-          <p className="px-4 py-8 text-center text-sm text-gray-400">
-            도착 정보가 없습니다
-          </p>
-        )}
+        {!isLoading && !isError && data.length === 0 && <p className="px-4 py-8 text-center text-sm text-gray-400">도착 정보가 없습니다</p>}
         {!isLoading && data.length > 0 && (
           <>
             {isError && (
@@ -129,15 +121,12 @@ export const StationInformationBottomSheet = ({
                   'disabled:opacity-60',
                 )}
               >
-                {isFetching
-                  ? '최신 정보를 불러오는 중...'
-                  : '최신 정보를 불러오지 못했어요 · 다시 시도'}
+                {isFetching ? '최신 정보를 불러오는 중...' : '최신 정보를 불러오지 못했어요 · 다시 시도'}
               </button>
             )}
             {isAtMaxRoutes && (
               <p className="px-4 py-1 text-xs text-gray-400">
-                최대 {MAX_SELECTED_ROUTES}개까지 선택할 수 있어요. 다른 노선을
-                해제한 뒤 선택하세요.
+                최대 {MAX_SELECTED_ROUTES}개까지 선택할 수 있어요. 다른 노선을 해제한 뒤 선택하세요.
               </p>
             )}
             <ul className="divide-y divide-white/10">
@@ -147,10 +136,7 @@ export const StationInformationBottomSheet = ({
                 const isDisabled = !checked && isAtMaxRoutes;
 
                 return (
-                  <li
-                    key={item.busRouteId}
-                    className="flex items-center gap-3 px-4 py-3"
-                  >
+                  <li key={item.busRouteId} className="flex items-center gap-3 px-4 py-3">
                     <input
                       type="checkbox"
                       checked={checked}
@@ -176,40 +162,18 @@ export const StationInformationBottomSheet = ({
                       >
                         {item.busRouteAbrv}
                       </span>
-                      {routeTypeLabel && (
-                        <span className="text-[10px] text-gray-400">
-                          {routeTypeLabel}
-                        </span>
-                      )}
+                      {routeTypeLabel && <span className="text-[10px] text-gray-400">{routeTypeLabel}</span>}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-xs text-gray-400">
-                        {item.adirection} 방면
-                      </p>
+                      <p className="truncate text-xs text-gray-400">{item.adirection} 방면</p>
                       <div className="mt-0.5 flex flex-col gap-0.5">
                         {hasArrival(item.arrmsg1) && (
-                          <p
-                            className={cn(
-                              'text-sm font-semibold',
-                              isImminent(item.arrmsg1)
-                                ? 'text-red-400'
-                                : 'text-white',
-                            )}
-                          >
+                          <p className={cn('text-sm font-semibold', isImminent(item.arrmsg1) ? 'text-red-400' : 'text-white')}>
                             {item.arrmsg1}
                           </p>
                         )}
                         {hasArrival(item.arrmsg2) && (
-                          <p
-                            className={cn(
-                              'text-xs',
-                              isImminent(item.arrmsg2)
-                                ? 'text-red-400'
-                                : 'text-gray-400',
-                            )}
-                          >
-                            {item.arrmsg2}
-                          </p>
+                          <p className={cn('text-xs', isImminent(item.arrmsg2) ? 'text-red-400' : 'text-gray-400')}>{item.arrmsg2}</p>
                         )}
                       </div>
                     </div>

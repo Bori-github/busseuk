@@ -47,11 +47,8 @@ export const useUserLocation = () => {
     };
 
     const fail = (error?: GeolocationPositionError) => {
-      const isDenied =
-        error?.code === GeolocationPositionError.PERMISSION_DENIED;
-      setError(
-        isDenied ? ERROR_MESSAGES.PERMISSION_DENIED : ERROR_MESSAGES.TIMEOUT,
-      );
+      const isDenied = error?.code === GeolocationPositionError.PERMISSION_DENIED;
+      setError(isDenied ? ERROR_MESSAGES.PERMISSION_DENIED : ERROR_MESSAGES.TIMEOUT);
       setIsLocating(false);
     };
 

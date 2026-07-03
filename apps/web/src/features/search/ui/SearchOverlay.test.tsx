@@ -12,8 +12,20 @@ vi.mock('@entities/station/api/getStationsByName', () => ({
 }));
 
 const RESULTS: StationSearchResult[] = [
-  { stId: '1', stNm: '강남역', arsId: '22001', tmX: '127.0276', tmY: '37.4979' },
-  { stId: '2', stNm: '강남구청', arsId: '22002', tmX: '127.0473', tmY: '37.5172' },
+  {
+    stId: '1',
+    stNm: '강남역',
+    arsId: '22001',
+    tmX: '127.0276',
+    tmY: '37.4979',
+  },
+  {
+    stId: '2',
+    stNm: '강남구청',
+    arsId: '22002',
+    tmX: '127.0473',
+    tmY: '37.5172',
+  },
 ];
 
 const renderOverlay = () => {
@@ -38,10 +50,7 @@ const searchAndSettle = async (keyword: string, label: RegExp) => {
   });
 
   await waitFor(() => {
-    expect(screen.getByRole('button', { name: label })).toHaveProperty(
-      'disabled',
-      false,
-    );
+    expect(screen.getByRole('button', { name: label })).toHaveProperty('disabled', false);
   });
 };
 

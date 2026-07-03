@@ -93,16 +93,12 @@ describe('StationInformationBottomSheet', () => {
 
     // 폴링 실패 후에도 기존 목록은 그대로 유지되고, 전체 에러 화면으로 교체되지 않는다.
     expect(screen.getByText('753')).toBeTruthy();
-    expect(
-      screen.queryByText('실시간 도착 정보를 불러오지 못했습니다'),
-    ).toBeNull();
+    expect(screen.queryByText('실시간 도착 정보를 불러오지 못했습니다')).toBeNull();
     expect(screen.getByText(/최신 정보를 불러오지 못했어요/)).toBeTruthy();
   });
 
   it('공백이 포함된 "곧 도착" 메시지에 임박 강조(빨간색)를 적용한다', async () => {
-    vi.mocked(getStationInformation).mockResolvedValue([
-      mockRoute({ arrmsg1: '곧 도착' }),
-    ]);
+    vi.mocked(getStationInformation).mockResolvedValue([mockRoute({ arrmsg1: '곧 도착' })]);
 
     renderSheet();
 
@@ -112,16 +108,12 @@ describe('StationInformationBottomSheet', () => {
   });
 
   it('API 오류 시 빈 목록 문구 대신 에러 UI를 표시한다', async () => {
-    vi.mocked(getStationInformation).mockRejectedValue(
-      new BusApiError('3', '정류소를 찾을 수 없음'),
-    );
+    vi.mocked(getStationInformation).mockRejectedValue(new BusApiError('3', '정류소를 찾을 수 없음'));
 
     renderSheet({ arsId: '99999' });
 
     await waitFor(() => {
-      expect(
-        screen.getByText('정류장 또는 노선 정보를 찾을 수 없습니다'),
-      ).toBeTruthy();
+      expect(screen.getByText('정류장 또는 노선 정보를 찾을 수 없습니다')).toBeTruthy();
     });
     expect(screen.getByRole('button', { name: '다시 시도' })).toBeTruthy();
     expect(screen.queryByText('도착 정보가 없습니다')).toBeNull();
@@ -141,16 +133,12 @@ describe('StationInformationBottomSheet', () => {
   it('에러 상태에서 다시 시도 버튼으로 재조회한다', async () => {
     const route = mockRoute();
 
-    vi.mocked(getStationInformation)
-      .mockRejectedValueOnce(new BusApiError('6', '실시간 정보 읽기 실패'))
-      .mockResolvedValueOnce([route]);
+    vi.mocked(getStationInformation).mockRejectedValueOnce(new BusApiError('6', '실시간 정보 읽기 실패')).mockResolvedValueOnce([route]);
 
     renderSheet({ arsId: 'retry-test' });
 
     await waitFor(() => {
-      expect(
-        screen.getByText('실시간 도착 정보를 불러오지 못했습니다'),
-      ).toBeTruthy();
+      expect(screen.getByText('실시간 도착 정보를 불러오지 못했습니다')).toBeTruthy();
     });
 
     await act(async () => {

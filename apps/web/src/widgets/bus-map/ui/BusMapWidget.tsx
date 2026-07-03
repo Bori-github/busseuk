@@ -14,19 +14,9 @@ import type { Sample } from '../lib/busInterpolation';
 
 import type { BusPosition, RoutePathPoint } from '@entities/bus';
 import { getRouteTypeColor } from '@entities/bus';
-import {
-  buildRoutePolyline,
-  pointAtDistance,
-  projectToPolyline,
-} from '@shared/lib';
+import { buildRoutePolyline, pointAtDistance, projectToPolyline } from '@shared/lib';
 import type { LatLng, RoutePolyline } from '@shared/lib';
-import {
-  BUS_ARROW_SELECTOR,
-  createBusMarkerIcon,
-  createBusStopMarkerIcon,
-  createUserMarkerIcon,
-  NaverMap,
-} from '@shared/ui/naver';
+import { BUS_ARROW_SELECTOR, createBusMarkerIcon, createBusStopMarkerIcon, createUserMarkerIcon, NaverMap } from '@shared/ui/naver';
 
 /** 버스 마커가 노출되는 최소 줌 레벨 (정류장 아이콘과 동일) */
 const BUS_MARKER_MIN_ZOOM = 17;
@@ -94,13 +84,7 @@ interface BusMapWidgetProps {
   onBusVisibilityChange?: (visible: boolean) => void;
 }
 
-export const BusMapWidget = ({
-  location,
-  selectedStation,
-  busRoutes = [],
-  bottomInset = 0,
-  onBusVisibilityChange,
-}: BusMapWidgetProps) => {
+export const BusMapWidget = ({ location, selectedStation, busRoutes = [], bottomInset = 0, onBusVisibilityChange }: BusMapWidgetProps) => {
   const mapRef = useRef<naver.maps.Map | null>(null);
   const userMarkerRef = useRef<naver.maps.Marker | null>(null);
   const selectedMarkerRef = useRef<naver.maps.Marker | null>(null);
@@ -155,9 +139,7 @@ export const BusMapWidget = ({
         icon: createUserMarkerIcon(),
       });
     } else {
-      userMarkerRef.current.setPosition(
-        new naver.maps.LatLng(location.lat, location.lng),
-      );
+      userMarkerRef.current.setPosition(new naver.maps.LatLng(location.lat, location.lng));
     }
   }, [mapReady, location]);
 
@@ -191,9 +173,7 @@ export const BusMapWidget = ({
       // 화면 투영 좌표에서 목표 중심을 아래로 inset/2만큼 밀어 보정한다.
       const projection = mapRef.current.getProjection();
       const offset = projection.fromCoordToOffset(position);
-      const target = projection.fromOffsetToCoord(
-        new naver.maps.Point(offset.x, offset.y + inset / 2),
-      );
+      const target = projection.fromOffsetToCoord(new naver.maps.Point(offset.x, offset.y + inset / 2));
       mapRef.current.panTo(target);
     } else {
       mapRef.current.panTo(position);
@@ -202,9 +182,7 @@ export const BusMapWidget = ({
 
   // 노선 경로는 24h 캐시·불변이므로 위치 폴링(15s)마다 폴리라인을 재생성하지 않도록,
   // 노선 구성·경로 길이가 바뀔 때만 갱신되는 목록으로 분리한다(P1: 위치 갱신과 경로 렌더 디커플).
-  const pathSignature = busRoutes
-    .map((route) => `${route.busRouteId}:${route.path?.length ?? 0}`)
-    .join(',');
+  const pathSignature = busRoutes.map((route) => `${route.busRouteId}:${route.path?.length ?? 0}`).join(',');
   const routePaths = useMemo(
     () =>
       busRoutes
@@ -213,9 +191,7 @@ export const BusMapWidget = ({
           busRouteId: route.busRouteId,
           routeType: route.routeType,
           // API 응답이 순번(no)대로 온다는 보장이 없어, 폴리라인이 지그재그가 되지 않도록 정렬한다.
-          path: [...(route.path as RoutePathPoint[])].sort(
-            (a, b) => Number(a.no) - Number(b.no),
-          ),
+          path: [...(route.path as RoutePathPoint[])].sort((a, b) => Number(a.no) - Number(b.no)),
         })),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [pathSignature],
@@ -297,23 +273,18 @@ export const BusMapWidget = ({
   // 누적거리 s 위치의 좌표·heading을 마커에 반영한다(위치 이동 + 화살표 회전).
   // 화살표 DOM 핸들은 캐시해 프레임당 querySelector를 피하되, 네이버가 마커 DOM을
   // 재생성하면 캐시가 detached 노드를 가리킬 수 있으므로 isConnected로 확인해 재해석한다.
-  const applyBusAnim = useCallback(
-    (marker: naver.maps.Marker, anim: BusAnimState, s: number) => {
-      const { lat, lng, heading } = pointAtDistance(anim.poly, s);
-      marker.setPosition(new naver.maps.LatLng(lat, lng));
-      if (anim.arrowEl === undefined || !anim.arrowEl.isConnected) {
-        // 아직 안 그려졌거나(다음 프레임 재시도) 노드가 끊겼으면 다시 해석한다.
-        anim.arrowEl =
-          marker.getElement()?.querySelector<HTMLElement>(BUS_ARROW_SELECTOR) ??
-          undefined;
-      }
-      if (anim.arrowEl) {
-        anim.arrowEl.style.visibility = 'visible';
-        anim.arrowEl.style.transform = `rotate(${heading}deg)`;
-      }
-    },
-    [],
-  );
+  const applyBusAnim = useCallback((marker: naver.maps.Marker, anim: BusAnimState, s: number) => {
+    const { lat, lng, heading } = pointAtDistance(anim.poly, s);
+    marker.setPosition(new naver.maps.LatLng(lat, lng));
+    if (anim.arrowEl === undefined || !anim.arrowEl.isConnected) {
+      // 아직 안 그려졌거나(다음 프레임 재시도) 노드가 끊겼으면 다시 해석한다.
+      anim.arrowEl = marker.getElement()?.querySelector<HTMLElement>(BUS_ARROW_SELECTOR) ?? undefined;
+    }
+    if (anim.arrowEl) {
+      anim.arrowEl.style.visibility = 'visible';
+      anim.arrowEl.style.transform = `rotate(${heading}deg)`;
+    }
+  }, []);
 
   // rAF 루프: 적응형 재생 클럭(playTime)을 사이에 두는 두 실측을 보간해 위치를 재생한다.
   // 클럭은 목표 지연을 유지하되, 초과 지연이 쌓이면 잠깐 >1배속으로 부드럽게 회수(캐치업)한다.
@@ -419,11 +390,7 @@ export const BusMapWidget = ({
           // 노선에서 너무 벗어난 관측은 투영을 버리고 raw GPS를 쓴다.
           if (poly) {
             const hint = anims.get(bus.vehId)?.buffer.at(-1)?.s;
-            const proj = projectToPolyline(
-              poly,
-              { lat, lng },
-              { nearDistance: hint },
-            );
+            const proj = projectToPolyline(poly, { lat, lng }, { nearDistance: hint });
             if (proj.errorMeters <= MAX_SNAP_ERROR_M) {
               desired.sObs = proj.distanceAlong;
             }
@@ -468,7 +435,11 @@ export const BusMapWidget = ({
         const start =
           anim && s !== null
             ? pointAtDistance(anim.poly, s)
-            : { lat: d.lat, lng: d.lng, heading: undefined as number | undefined };
+            : {
+                lat: d.lat,
+                lng: d.lng,
+                heading: undefined as number | undefined,
+              };
         markers.set(
           vehId,
           new naver.maps.Marker({
@@ -509,11 +480,5 @@ export const BusMapWidget = ({
     };
   }, []);
 
-  return (
-    <NaverMap
-      center={location}
-      onReady={handleMapReady}
-      onZoomChanged={setZoom}
-    />
-  );
+  return <NaverMap center={location} onReady={handleMapReady} onZoomChanged={setZoom} />;
 };

@@ -7,23 +7,10 @@ interface InputSearchProps extends React.ComponentProps<'input'> {
   leadingButton?: React.ReactNode;
 }
 
-export const InputSearch = ({
-  onClear,
-  leadingButton,
-  onFocus,
-  onBlur,
-  value,
-  ref,
-  ...props
-}: InputSearchProps) => {
+export const InputSearch = ({ onClear, leadingButton, onFocus, onBlur, value, ref, ...props }: InputSearchProps) => {
   const [focused, setFocused] = React.useState(false);
 
-  const showClear =
-    focused &&
-    (value as string).length > 0 &&
-    !props.readOnly &&
-    !props.disabled &&
-    !!onClear;
+  const showClear = focused && (value as string).length > 0 && !props.readOnly && !props.disabled && !!onClear;
 
   return (
     <div className="flex items-center gap-2 w-full rounded-full bg-black h-[40px] px-3 py-2 shadow-md">

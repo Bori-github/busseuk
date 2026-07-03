@@ -26,19 +26,18 @@ export const SearchOverlay = ({ onClose, onSelect }: SearchOverlayProps) => {
   const hasQuery = debouncedQuery.trim().length >= 2;
   const isQuerySettled = query.trim() === debouncedQuery.trim();
 
-  const { data: results = [], isFetching, isPlaceholderData, isLoading } =
-    useQuery({
-      ...getStationsByNameQueryOptions(debouncedQuery),
-      enabled: hasQuery,
-      placeholderData: keepPreviousData,
-    });
+  const {
+    data: results = [],
+    isFetching,
+    isPlaceholderData,
+    isLoading,
+  } = useQuery({
+    ...getStationsByNameQueryOptions(debouncedQuery),
+    enabled: hasQuery,
+    placeholderData: keepPreviousData,
+  });
 
-  const canSelect =
-    hasQuery &&
-    isQuerySettled &&
-    !isFetching &&
-    !isPlaceholderData &&
-    results.length > 0;
+  const canSelect = hasQuery && isQuerySettled && !isFetching && !isPlaceholderData && results.length > 0;
 
   const handleSelectStation = (station: StationSearchResult) => {
     addRecentSearch({ type: 'station', ...station });
@@ -76,17 +75,8 @@ export const SearchOverlay = ({ onClose, onSelect }: SearchOverlayProps) => {
       </div>
 
       <div className="flex-1 overflow-y-auto pb-4">
-        {!hasQuery && (
-          <RecentSearchList items={recentSearches} onSelect={handleSelectRecent} onRemove={removeRecentSearch} />
-        )}
-        {hasQuery && (
-          <SearchList
-            results={results}
-            isLoading={isLoading}
-            disabled={!canSelect}
-            onSelect={handleSelectStation}
-          />
-        )}
+        {!hasQuery && <RecentSearchList items={recentSearches} onSelect={handleSelectRecent} onRemove={removeRecentSearch} />}
+        {hasQuery && <SearchList results={results} isLoading={isLoading} disabled={!canSelect} onSelect={handleSelectStation} />}
       </div>
     </div>
   );
