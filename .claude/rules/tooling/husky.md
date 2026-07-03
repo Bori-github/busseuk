@@ -8,8 +8,9 @@ paths:
 # Husky (git 훅)
 
 커밋 시점에 자동으로 품질 게이트를 걸어, 포맷·린트가 어긋난 코드가 커밋되지 않게 한다.
-Claude Code의 Stop 훅([`.claude/hooks/`](../../hooks/README.md))이 "응답 종료 시" 검증이라면,
-husky는 "git 커밋 시" 검증으로 서로 보완한다.
+Claude Code의 훅([`.claude/hooks/`](../../hooks/README.md))이 "Claude가 코드를 만질 때" 검증이라면,
+husky는 "git 커밋 시" 검증으로 서로 보완한다(Claude 훅의 시점·self-gate·토큰 설계는
+[`.claude/hooks/README.md`](../../hooks/README.md) 참고).
 
 > **현재 상태: 설치·배선 완료.** `husky@9` + `lint-staged@17`이 루트에 설치돼 있고,
 > `.husky/pre-commit`이 동작한다. 아래는 현재 구성 그대로다.
