@@ -64,5 +64,5 @@ pnpm --filter web build
 아키텍처·코드 스타일·도구 규칙은 관심사별로 [.claude/rules/](.claude/rules/README.md)에 정리돼 있다. 코드를 쓰기 전 관련 규칙을 참고한다.
 
 - **아키텍처** ([rules/architecture/](.claude/rules/architecture/)) — 개요·FSD·데이터 페칭(TanStack Query)·스타일링(Tailwind v4)
-- **코드 스타일** ([rules/code-style/](.claude/rules/code-style/)) — TypeScript(`func-style`·`import type`·네이밍)·React(훅·effect)
+- **코드 스타일** ([rules/code-style/](.claude/rules/code-style/)) — TypeScript(`func-style`·`import type`·네이밍)·React(훅·effect)·코드 품질(변경하기 쉬운 코드 4원칙)
 - **도구** ([rules/tooling/](.claude/rules/tooling/)) — ESLint 규칙 근거·Prettier 포맷·Husky(pre-commit 훅)

@@ -9,7 +9,7 @@
 | 폴더 | 관심사 | 문서 |
 | --- | --- | --- |
 | [`architecture/`](architecture/) | 시스템 구조·레이어·데이터 흐름 | `overview.md` · `fsd.md` · `data-fetching.md` · `styling.md` |
-| [`code-style/`](code-style/) | 언어·프레임워크 코딩 스타일 | `typescript.md` · `react.md` |
+| [`code-style/`](code-style/) | 언어·프레임워크 코딩 스타일·품질 | `typescript.md` · `react.md` · `code-quality.md` |
 | [`tooling/`](tooling/) | 린트·포맷·git 훅 등 도구 정책 | `eslint.md` · `prettier.md` · `husky.md` |
 
 ## 관련 문서
