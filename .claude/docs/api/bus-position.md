@@ -2,7 +2,7 @@
 
 - **Base URL**: `http://ws.bus.go.kr/api/rest/buspos`
 - **갱신 주기**: 매 5초
-- 인증·응답형식·제한 → [_auth-limits.md](_auth-limits.md) (`serviceKey` 소문자 주의)
+- 인증·응답형식·제한 → [_auth-limits.md](_auth-limits.md)
 - 공통 응답 구조 → [_response-structure.md](_response-structure.md)
 
 ---

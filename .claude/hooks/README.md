@@ -24,7 +24,8 @@ Claude Code가 코드를 만질 때 컨벤션([`.claude/rules/`](../rules/))을 
     스크립트가 **self-gate**한다 → `git`으로 `apps/web`의 변경 `.ts,.tsx`가 없으면 즉시
     `exit 0`. **순수 대화 턴은 0 토큰.**
 - **무엇**: 변경 파일만 `pnpm --filter web exec eslint`로 검사. 자동수정 불가한 위반
-  (`func-style`, `import type`, **FSD 경계**, 미사용 심볼 등)을 잡는다. 포맷은 1번이 이미 처리.
+  (`func-style`, **FSD 경계**, 미사용 심볼 등 `eslint.config.js`의 error 규칙)을 잡는다.
+  포맷은 1번이 이미 처리. (`import type` 등 lint에 없는 컨벤션은 아래 "검사 범위" 참고.)
 - **위반 시**: `exit 2`로 위반 목록을 stderr에 실어 Claude에 피드백 → **같은 턴에서 수정**.
   **토큰은 위반이 있을 때만** 발생한다.
 - **루프 방지**: 입력 JSON에 `stop_hook_active`가 참이면(= Stop 훅 때문에 이어달리는 중)
