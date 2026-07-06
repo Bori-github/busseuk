@@ -28,7 +28,7 @@ paths:
 busseuk/
 ├─ apps/
 │  └─ web/          메인 웹 앱 (React 19 + Vite 8)
-├─ packages/        공유 패키지 (현재 비어 있음)
+├─ packages/        공유 패키지 (디렉터리 아직 없음 — 필요 시 생성)
 ├─ turbo.json       파이프라인(dev/build/lint)
 └─ pnpm-workspace.yaml
 ```
