@@ -1,8 +1,17 @@
 # 개발 워크플로
 
-기능 개발은 아래 **5단계 루프**를 따른다. 핵심 요약은 `CLAUDE.md`에 있고, 이 문서는 각 단계의 상세와 실제 사례를 담는다.
+이 문서는 모든 작업의 전제인 **Working Style**과 기능 개발 **5단계 루프**의 단일 출처다.
 
-> 전제: `CLAUDE.md`의 "Working Style"(한 번에 하나씩 작은 커밋, 나눠서 확인받기)을 따른다.
+## Working Style
+
+- 변경은 논리적으로 완결되는 가장 작은 단위로 나눠 진행하고, 각 단위마다 검증(lint·타입·테스트)을 통과시킨다.
+- 신규·계약 변경·미검증 영역은 더 작게 쪼개 결정 경계에서 확인받는다. 기계적·저위험 변경은 큰 배치로 한 번에 처리한다.
+- 단, 중간 상태가 깨지는 분할은 하지 않는다 — 원자적이면 여러 파일을 함께 바꾼다. ("커밋 입도"와 "확인 빈도"는 별개로 본다.)
+- 문서에 없는 결정이 필요하거나 실제 구현이 문서화된 전략과 달라지면 임의로 진행하지 말고 사용자에게 먼저 보고한다. 한계를 숨기고 밀어붙이지 않는다.
+
+## 5단계 루프
+
+기능 개발은 아래 5단계 루프를 따른다. 위 Working Style이 전제다.
 
 ---
 
@@ -43,12 +52,12 @@
 
 ## 4. 단계별 검증 — 통과 + 확인받기
 
-각 단계에서 다음을 **레포 루트에서** 통과시킨다. TypeScript·vitest는 `apps/web`에만 설치돼 있으므로 `pnpm --filter web`로 실행한다(루트에서 `npx tsc`/`npx vitest`를 직접 부르면 실패하거나 잘못된 설정으로 돈다):
+각 단계에서 다음을 **레포 루트에서** 통과시킨다. CI·PR 기준([pr-checklist.md](pr-checklist.md) §병합 전 통과 기준)과 동일한 명령을 쓴다. TypeScript·vitest는 `apps/web`에만 설치돼 있으므로 `pnpm --filter web`로 실행한다(루트에서 `npx tsc`/`npx vitest`를 직접 부르면 실패하거나 잘못된 설정으로 돈다):
 
 ```bash
 pnpm --filter web lint
-pnpm --filter web exec tsc --noEmit -p tsconfig.app.json   # 타입체크
-pnpm --filter web test                                      # 테스트 (vitest run)
+pnpm --filter web build                                      # tsc -b 타입체크 + Vite 빌드
+pnpm --filter web exec vitest run                            # 테스트
 ```
 
 - 변경에 대한 테스트를 함께 추가한다 (예: `polyline.test.ts`).
@@ -65,6 +74,6 @@ pnpm --filter web test                                      # 테스트 (vitest 
 
 ## 관련
 
-- 핵심 요약: `CLAUDE.md` → "개발 워크플로"
+- 진입점 인덱스: [`AGENTS.md`](../../AGENTS.md)
 - API 명세: `.claude/docs/api/`
 - 라이브 검증 스크립트: `.claude/scripts/`

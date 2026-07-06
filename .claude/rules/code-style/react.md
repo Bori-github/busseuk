@@ -26,17 +26,8 @@ paths:
 
 - 안정 참조가 필요하면 `useMemo`로 감싸 넘긴다.
 - primitive 의존성(`[center.lat, center.lng]`)을 우선한다.
-- 특히 **지도 센터 이동 effect**는 이 규칙이 불변식이다 →
-  [`docs/map-center-policy.md`](../../docs/map-center-policy.md). 센터링을 건드리기 전 반드시 확인.
-
-```tsx
-// ❌ MapPage가 매 렌더 새 리터럴을 넘기면 폴링마다 지도가 튕김
-<BusMapWidget selectedStation={{ lat, lng }} />
-
-// ✅ 안정 참조 — 정류장이 실제로 바뀔 때만 panTo
-const selectedStation = useMemo(() => ({ lat, lng }), [lat, lng])
-<BusMapWidget selectedStation={selectedStation} />
-```
+- 특히 **지도 센터 이동 effect**는 이 규칙이 불변식이다 — 트리거·회귀 사례·예시는
+  [`docs/map-center-policy.md`](../../docs/map-center-policy.md)가 단일 출처. 센터링을 건드리기 전 반드시 확인.
 
 ## 지도 SDK 연동
 

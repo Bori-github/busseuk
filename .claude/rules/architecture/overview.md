@@ -33,7 +33,7 @@ busseuk/
 └─ pnpm-workspace.yaml
 ```
 
-- 모든 명령은 **루트에서** 실행한다: `pnpm dev` · `pnpm build` · `pnpm lint`.
+- 모든 명령은 **루트에서** 실행한다: `pnpm dev`(개발 서버 http://localhost:5173) · `pnpm build` · `pnpm lint`.
 - 특정 앱만: `pnpm --filter web <script>`.
 - TypeScript·Vitest는 `apps/web`에만 설치돼 있다. 타입체크·테스트는 반드시
   `pnpm --filter web ...` 로 실행한다 (루트에서 `npx tsc`/`npx vitest` 직접 호출 금지).
@@ -46,7 +46,7 @@ busseuk/
 
 - **CORS**: 서울 버스 API(`ws.bus.go.kr`)는 HTTP 전용이라 브라우저 직접 호출 시 CORS
   오류가 난다. 개발은 `vite.config.ts`의 `server.proxy`(`/api/bus`), 프로덕션은 별도
-  프록시 서버로 우회한다.
+  프록시 서버(Vercel Functions 등)로 우회한다.
 - **좌표계 주의**: 위치 API 명세의 `tmX/tmY`(WGS84)는 실제 응답에서 `null`. 좌표는
   `gpsX`(경도)/`gpsY`(위도)를 쓴다. (근거: `docs/dev-workflow.md`)
 - **지도 센터**: 센터 이동은 cross-cutting 불변식 → 반드시

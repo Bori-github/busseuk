@@ -63,4 +63,4 @@ export const busPositionsQueryOptions = (routeId: string) =>
 ## 계약 변경 시
 
 질의 키 구조·응답 타입 등 **계약 변경은 되돌리기 어려운 경계**다. 넓게 퍼진 변경은
-작게 쪼개고 경계에서 확인받는다 (`CLAUDE.md` Working Style).
+작게 쪼개고 경계에서 확인받는다 ([Working Style](../../docs/dev-workflow.md#working-style)).

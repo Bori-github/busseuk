@@ -1,18 +1,8 @@
 # .claude/hooks — Claude Code 검증 훅
 
-Claude Code가 코드를 만질 때 컨벤션([`../rules/`](../rules/README.md))을 자동으로 지키게 하는
-훅이다. husky(git 커밋 시)·CI(PR 시)와 **시점이 다른 보조 게이트**다. 파일명은 실행하는
-도구를 그대로 따른다(`prettier.sh`, `eslint.sh`).
-
-| 게이트 | 시점 | 담당 | 권위 |
-| --- | --- | --- | --- |
-| 이 훅(`prettier.sh`) | Claude **편집 직후** | 포맷 자동정리 | 보조 |
-| 이 훅(`eslint.sh`) | Claude **턴 종료 시** | 규칙 위반 보고 | 보조 |
-| husky `pre-commit` | **git 커밋 시** | 포맷+린트(변경 파일) | 보조 |
-| CI (`test.yml`) | **PR→main** | lint·타입·테스트 | **권위** |
-
-> 훅은 "Claude가 만드는 코드를 깨끗하게 유지"하는 편의 장치다. **품질의 최종 권위는 CI**이고,
-> 타입체크·테스트는 여기 넣지 않는다(무겁고 CI와 중복).
+Claude Code가 코드를 만질 때 컨벤션([`.claude/rules/`](../rules/))을 자동으로 지키게 하는
+훅이다. husky(git 커밋 시)·CI(PR 시)와 **시점이 다른 보조 게이트**다. 게이트·권위·CI 명령은
+[검증 매트릭스](../docs/verification-matrix.md)를 단일 출처로 둔다. 타입체크·테스트는 여기 넣지 않는다(무겁고 CI와 중복).
 
 ## 등록 방식 (중요)
 
