@@ -52,8 +52,13 @@ busseuk/
 - **지도 센터**: 센터 이동은 cross-cutting 불변식 → 반드시
   [`docs/map-center-policy.md`](../../docs/map-center-policy.md) 확인 후 수정.
 
-## 시크릿
+## 시크릿·환경변수
 
-- API 키·Client ID는 `apps/web/.env.local`(`VITE_` prefix)에서 읽는다.
+- 환경변수는 `apps/web/.env.local`(`VITE_` prefix)에서 읽는다. **세 변수 모두 필수**이며,
+  `shared/config/env.ts`가 검증한다(없으면 앱 시작 시 throw):
+  - `VITE_NAVER_MAP_CLIENT_ID` — 네이버맵 Client ID
+  - `VITE_BUS_API_SERVICE_KEY` — 공공데이터 포털 인증키
+  - `VITE_BUS_API_BASE_URL` — 버스 API 베이스 URL. 개발은 Vite 프록시 경로 `/api/bus`,
+    프로덕션은 배포한 프록시 주소.
 - 라이브 API 검증 스크립트(`.claude/scripts/probe-bus-api.sh`)도 `.env.local`을 읽는다.
 - `.env*`는 **절대 커밋하지 않는다** (`.gitignore` 확인).
