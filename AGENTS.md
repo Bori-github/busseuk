@@ -14,6 +14,7 @@
 - [verification-matrix.md](.claude/docs/verification-matrix.md) — 영역별 검증 방법·게이트
 - [pr-checklist.md](.claude/docs/pr-checklist.md) — PR 평가 기준·설명 양식 (GitHub 양식: [pull_request_template.md](.github/pull_request_template.md))
 - [map-center-policy.md](.claude/docs/map-center-policy.md) — 지도 센터 이동 불변식
+- [bus-animation-policy.md](.claude/docs/bus-animation-policy.md) — 버스 마커 지연 재생 보간 불변식
 - [api/](.claude/docs/api/) — 서울 버스 API 응답·계약
 - [naver-map/map-options.md](.claude/docs/naver-map/map-options.md) — 네이버맵 MapOptions 레퍼런스
 
