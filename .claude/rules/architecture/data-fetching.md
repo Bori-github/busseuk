@@ -25,6 +25,9 @@ paths:
   통해 호출하는 순수 함수다(예: `entities/bus/api/busPositionApi.ts`).
 - **`queryOptions` 팩토리와 질의 키 팩토리**는 `model` 세그먼트에 둔다
   (`model/queries.ts`·`model/queryKeys.ts`) — [fsd.md](fsd.md) 세그먼트 규칙.
+  > 확정 결정(2026-07): 공식 FSD 가이드는 쿼리 팩토리를 `api`에 두는 예시를 쓰지만,
+  > 이 저장소는 **서버 통신(fetch)과 클라이언트 캐시 정책(queryKey·staleTime·폴링)의
+  > 분리**를 위해 `model`을 택했다. 공식 예시와 다르다는 이유로 되돌리지 않는다.
 - 컴포넌트/훅은 팩토리를 스프레드해 쓰고, 화면 로컬 옵션(`enabled` 게이팅,
   `placeholderData` 등)만 소비처에서 덧붙인다.
 
@@ -54,6 +57,22 @@ export const busPositionsQueryOptions = (busRouteId: string, enabled = true) =>
 - 폴링 리렌더가 **지도 센터를 움직여서는 안 된다**. 안정 참조(`useMemo`)/primitive
   의존성으로 effect 재실행을 막는다 →
   [`docs/map-center-policy.md`](../../docs/map-center-policy.md).
+
+## 에러 처리
+
+원칙: **조용한 실패 금지** — "데이터 없음"과 "장애"를 사용자가 구분할 수 있어야 한다.
+
+- **API 오류의 단일 처리 지점은 `shared/api/busClient.ts`다.** 응답 인터셉터가
+  `headerCd !== '0'`이면 `BusApiError`(코드 의미: [_error-codes.md](../../docs/api/_error-codes.md))를
+  던지고, HTTP/네트워크 오류는 별도 Error로 래핑한다. `itemList`의 단일 객체/`null`
+  응답은 배열로 정규화한다. 개별 fetch 함수에서 이를 중복 처리하지 않는다.
+- **빈 배열 폴백은 반드시 에러 알림과 짝을 이룬다.** 위치/경로처럼 실패를 빈 배열로
+  대체해 렌더하는 곳은 지도에 조용히 묻히므로(버스 없음과 구분 불가), 에러 상태 전환
+  시 토스트로 알린다(예: `MapPage`).
+- **폴링 질의의 실패 정책**: 초기 로드 실패(보여줄 데이터 없음)는 폴링을 멈추고 수동
+  재시도에 맡기고, 데이터가 있는 상태의 백그라운드 실패는 일시 장애일 수 있으므로
+  폴링을 유지해 자동 회복시킨다(예: 정류장 도착정보 시트).
+- 전역 `retry: 1`(위 전역 설정) 외의 재시도 정책은 질의 정의부에 둔다.
 
 ## 선(先)검증
 
