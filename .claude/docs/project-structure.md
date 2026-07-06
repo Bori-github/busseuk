@@ -60,11 +60,13 @@ apps/web/src/
     icons/               아이콘
     types/               공용 타입
     test/                테스트 헬퍼(queryWrapper 등)
-    assets/              정적 자원
 ```
 
 진입점은 `src/app/index.tsx`다(`src/main.tsx`는 존재하지 않는다 — `eslint.config.js`의
 `main.tsx` ignore는 stale 항목, [eslint.md](../rules/tooling/eslint.md) 참고).
+
+정적 자원은 `apps/web/public/`(favicon.svg·icons.svg)에 둔다. 소스 내 정적 자원 세그먼트
+(`shared/assets` 등)는 현재 없으며, 필요해지면 사용하는 슬라이스 기준으로 배치를 결정한다.
 
 ## 테스트 배치
 
