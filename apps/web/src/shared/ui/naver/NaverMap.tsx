@@ -7,7 +7,7 @@ const NAVER_CUSTOM_STYLE_ID = '59272e0e-36d1-4a0e-a14a-122cf10d64b0';
 interface NaverMapProps {
   /** 지도 중심 좌표. 변경 시 panTo로 이동 */
   center: { lat: number; lng: number };
-  /** 네이버 줌 레벨 (최대 21, 클수록 확대). 기본값: 16 */
+  /** 네이버 줌 레벨 (최대 21, 클수록 확대). 기본값: 17 */
   zoom?: number;
   /** 지도 인스턴스 생성 완료 시 호출되는 콜백 */
   onReady?: (map: naver.maps.Map) => void;

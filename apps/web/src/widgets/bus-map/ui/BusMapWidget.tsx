@@ -180,7 +180,7 @@ export const BusMapWidget = ({ location, selectedStation, busRoutes = [], bottom
     }
   }, [mapReady, selectedStation]);
 
-  // 노선 경로는 24h 캐시·불변이므로 위치 폴링(15s)마다 폴리라인을 재생성하지 않도록,
+  // 노선 경로는 24h 캐시·불변이므로 위치 폴링(5s)마다 폴리라인을 재생성하지 않도록,
   // 노선 구성·경로 길이가 바뀔 때만 갱신되는 목록으로 분리한다(P1: 위치 갱신과 경로 렌더 디커플).
   const pathSignature = busRoutes.map((route) => `${route.busRouteId}:${route.path?.length ?? 0}`).join(',');
   const routePaths = useMemo(
