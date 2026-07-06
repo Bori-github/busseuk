@@ -5,6 +5,10 @@
 - 인증·응답형식·제한 → [_auth-limits.md](_auth-limits.md)
 - 공통 응답 구조 → [_response-structure.md](_response-structure.md)
 
+> ⚠️ **명세 ≠ 실측**: 명세상 WGS84 좌표인 `tmX`/`tmY`는 **실제 응답에서 `null`로 온다**
+> (선검증 실측). 좌표는 `getBusPosByRtid`의 `gpsX`(경도)/`gpsY`(위도, WGS84)를 사용한다
+> → [dev-workflow.md](../dev-workflow.md) §선검증.
+
 ---
 
 ## 엔드포인트
@@ -46,7 +50,7 @@ GET /getBusPosByRouteSt
 | `stopFlag` | `0`: 운행중, `1`: 도착 |
 | `sectionId` | 구간 ID |
 | `dataTm` | 제공시간 (예: `20190109160221`) |
-| `tmX` / `tmY` | 맵매칭 좌표 WGS84 |
+| `tmX` / `tmY` | 맵매칭 좌표 WGS84 — **실측상 `null`, 사용 금지(상단 경고 참고)** |
 | `posX` / `posY` | 맵매칭 좌표 GRS80 |
 
 ---
@@ -115,7 +119,7 @@ GET /getBusPosByVehId
 | `sectOrd` | 정류소 순번 |
 | `stopFlag` | `0`: 운행중, `1`: 도착 |
 | `dataTm` | 제공시간 |
-| `tmX` / `tmY` | 맵매칭 좌표 WGS84 |
+| `tmX` / `tmY` | 맵매칭 좌표 WGS84 — **실측상 `null`, 사용 금지(상단 경고 참고)** |
 | `posX` / `posY` | 맵매칭 좌표 GRS80 |
 | `congetion` | `0`: 없음, `3`: 여유, `4`: 보통, `5`: 혼잡 |
 | `isFullFlag` | `0`: 만차아님, `1`: 만차 |

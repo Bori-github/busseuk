@@ -17,40 +17,40 @@ paths:
 
 컴포넌트에서 개별 `QueryClient`를 만들지 않는다.
 
-## 현재 구조와 지향점
+## 구조 — `queryOptions` 팩토리 표준 (적용 완료)
 
-**현재:** `entities/<domain>/api`는 순수 fetch 함수를 export한다(예:
-`getBusPositions(busRouteId): Promise<BusPosition[]>`). 컴포넌트/훅에서 이 함수를
-`useQuery`의 `queryFn`으로 직접 넘긴다.
+질의는 `queryOptions` 팩토리로 정의한다. 이 표준은 이미 코드 전체에 적용돼 있다.
 
-```ts
-// entities/bus/api/busPositionApi.ts (실제)
-export const getBusPositions = (busRouteId: string): Promise<BusPosition[]> => …
-```
-
-**지향(권장):** 질의 키·`queryFn`·옵션이 여러 곳에서 반복되면 `queryOptions` 팩토리로
-한 곳에 모아 재사용·타입추론을 얻는다. 신규 질의는 이 형태를 우선한다.
+- **fetch 함수**(`get<리소스>`)는 `api` 세그먼트에 둔다. HTTP 클라이언트(`shared/api`)를
+  통해 호출하는 순수 함수다(예: `entities/bus/api/busPositionApi.ts`).
+- **`queryOptions` 팩토리와 질의 키 팩토리**는 `model` 세그먼트에 둔다
+  (`model/queries.ts`·`model/queryKeys.ts`) — [fsd.md](fsd.md) 세그먼트 규칙.
+- 컴포넌트/훅은 팩토리를 스프레드해 쓰고, 화면 로컬 옵션(`enabled` 게이팅,
+  `placeholderData` 등)만 소비처에서 덧붙인다.
 
 ```ts
-// 지향 형태 — <리소스>QueryOptions 네이밍
-export const busPositionsQueryOptions = (routeId: string) =>
+// entities/bus/model/queries.ts (실제) — <리소스>QueryOptions 네이밍
+export const busPositionsQueryOptions = (busRouteId: string, enabled = true) =>
   queryOptions({
-    queryKey: ['bus', 'positions', routeId],
-    queryFn: () => getBusPositions(routeId),
-    // 폴링이 필요하면 refetchInterval을 여기 둔다
-  })
+    queryKey: busQueryKeys.position(busRouteId),
+    queryFn: () => getBusPositions(busRouteId),
+    enabled,
+    staleTime: 0,
+    refetchInterval: 5_000, // 폴링 등 질의별 정책은 정의부에 둔다
+  });
 ```
 
-> 규칙 정립과 기존 코드 정렬은 별개다. 위 팩토리 형태는 표준으로 문서화하되, 기존
-> fetch-함수 방식 코드를 일괄 리팩터링하지는 않는다(승인 후 별도 작업).
-
-- **질의 키**는 `[도메인, 리소스, ...파라미터]` 순의 배열로 구조화한다.
-- 폴링 주기(`refetchInterval`) 등 질의별 정책은 질의 정의부에 둔다.
-- fetch 함수(`get<리소스>`)는 `api` 세그먼트에서 HTTP 클라이언트(`shared/api`)를 통해 호출한다.
+- **질의 키**는 `model/queryKeys.ts`의 키 팩토리로 `[도메인, 리소스, ...파라미터]` 구조를
+  만든다(예: `busQueryKeys.position(busRouteId)` → `['bus', 'position', busRouteId]`).
+- 폴링 주기(`refetchInterval`)·`staleTime` 등 질의별 정책은 팩토리 정의부에 둔다.
 
 ## 실시간 폴링
 
-- 버스 위치·경로는 약 **15초 주기 폴링**으로 갱신한다(공공 API는 일반 GPS + 약 5초 갱신).
+- 버스 위치는 **5초 주기 폴링**(`refetchInterval: 5_000`)으로 갱신한다 — 공공 API 갱신
+  주기(약 5초)와 동일하게 맞춘 값. 버스 마커가 보이지 않을 때는 `enabled` 게이팅으로
+  폴링을 멈춰 호출 쿼터를 아낀다.
+- 노선 경로는 매일 새벽 5시에만 갱신되므로 폴링하지 않고 긴 `staleTime`(24시간)으로 캐싱한다.
+- 정류장 도착정보는 시트가 열려 있는 동안 **15초 주기 폴링**으로 갱신한다.
 - 폴링 리렌더가 **지도 센터를 움직여서는 안 된다**. 안정 참조(`useMemo`)/primitive
   의존성으로 effect 재실행을 막는다 →
   [`docs/map-center-policy.md`](../../docs/map-center-policy.md).

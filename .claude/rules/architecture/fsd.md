@@ -34,8 +34,8 @@ app → pages → widgets → features → entities → shared
 ```
 <slice>/
 ├─ ui/        컴포넌트
-├─ model/     상태·훅·순수 로직
-├─ api/       질의(queryOptions)·요청 함수   (주로 entities)
+├─ model/     상태·훅·질의 정의(queryOptions·queryKeys)·순수 로직
+├─ api/       요청 함수(fetch, get<리소스>)   (주로 entities)
 ├─ lib/       슬라이스 국소 유틸
 └─ index.ts   ← Public API (배럴). 외부는 여기만 import
 ```
