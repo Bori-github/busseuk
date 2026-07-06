@@ -62,3 +62,8 @@ Claude Code가 코드를 만질 때 컨벤션([`.claude/rules/`](../rules/))을 
 - `prettier`/`eslint`는 `pnpm exec`로 실행한다(Claude Code를 실행한 셸 환경의 PATH를 상속).
   `pnpm`/의존성이 없으면 두 훅 모두 **하드블록하지 않고 조용히 스킵**한다(prettier는 `|| true`,
   eslint는 인프라 가드).
+- **비대화형 셸 PATH 보강**: AI 세션·GUI 앱 등 비대화형 셸은 nvm을 로드하지 않아 `pnpm`이
+  PATH에 없을 수 있다. 그러면 인프라 가드 때문에 검증이 세션에 따라 조용히 꺼지는
+  비결정성이 생기므로, 두 훅(과 `.husky/pre-commit`)은 pnpm이 없으면 `.nvmrc` 버전의
+  nvm 설치 경로(`~/.nvm/versions/node/v<버전>/bin`)를 PATH에 보강한 뒤 다시 찾는다.
+  nvm 외 방식(Homebrew·corepack 등)으로 pnpm을 설치했다면 원래 PATH에서 그대로 잡힌다.

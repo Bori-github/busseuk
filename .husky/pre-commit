@@ -1,1 +1,8 @@
+# pnpm이 PATH에 없으면(비대화형 셸 — AI 세션·GUI 앱 등은 nvm을 로드하지 않음)
+# .nvmrc가 가리키는 nvm 설치 경로를 보강한다. 그래도 없으면 원래 에러로 실패한다.
+if ! command -v pnpm >/dev/null 2>&1 && [ -f .nvmrc ]; then
+  nvm_bin="$HOME/.nvm/versions/node/v$(tr -d ' \t\r\n' <.nvmrc)/bin"
+  [ -x "$nvm_bin/pnpm" ] && PATH="$nvm_bin:$PATH"
+fi
+
 pnpm exec lint-staged
