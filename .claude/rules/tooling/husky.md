@@ -1,8 +1,8 @@
 ---
 paths:
-  - ".husky/**"
-  - "package.json"
-  - ".github/workflows/**"
+  - '.husky/**'
+  - 'package.json'
+  - '.github/workflows/**'
 ---
 
 # Husky (git 훅)
@@ -23,15 +23,12 @@ husky는 "git 커밋 시" 검증으로 서로 보완한다(Claude 훅의 시점�
   ```jsonc
   {
     "scripts": {
-      "prepare": "husky"        // clone 후 pnpm install 시 훅 자동 설치
+      "prepare": "husky", // clone 후 pnpm install 시 훅 자동 설치
     },
     "lint-staged": {
-      "apps/web/**/*.{ts,tsx}": [
-        "prettier --write",
-        "pnpm --filter web exec eslint --fix"
-      ],
-      "apps/web/**/*.css": ["prettier --write"]
-    }
+      "apps/web/**/*.{ts,tsx}": ["prettier --write", "pnpm --filter web exec eslint --fix"],
+      "apps/web/**/*.css": ["prettier --write"],
+    },
   }
   ```
 - `.husky/pre-commit` — `pnpm exec lint-staged` 실행. 단, 비대화형 셸(AI 세션·GUI 앱)은

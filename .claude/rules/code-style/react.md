@@ -1,6 +1,6 @@
 ---
 paths:
-  - "apps/web/src/**/*.{ts,tsx}"
+  - 'apps/web/src/**/*.{ts,tsx}'
 ---
 
 # React 코드 스타일

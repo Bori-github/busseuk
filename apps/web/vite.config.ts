@@ -1,8 +1,8 @@
-import { defineConfig } from 'vitest/config'
-import react from '@vitejs/plugin-react'
-import tailwindcss from '@tailwindcss/vite'
-import tsconfigPaths from 'vite-tsconfig-paths'
-import svgr from 'vite-plugin-svgr'
+import { defineConfig } from 'vitest/config';
+import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
+import tsconfigPaths from 'vite-tsconfig-paths';
+import svgr from 'vite-plugin-svgr';
 
 export default defineConfig({
   plugins: [react(), tailwindcss(), tsconfigPaths(), svgr()],
@@ -24,4 +24,4 @@ export default defineConfig({
       VITE_BUS_API_BASE_URL: 'http://localhost/api/bus',
     },
   },
-})
+});

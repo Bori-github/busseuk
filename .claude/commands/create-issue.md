@@ -12,6 +12,7 @@
 ```
 
 예시:
+
 ```
 /create-issue 정류장 탭 시 바텀시트로 도착 정보 표시
 /create-issue 정류장 탭 시 바텀시트로 도착 정보 표시 --assignee other-user

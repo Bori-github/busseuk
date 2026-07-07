@@ -48,29 +48,29 @@ GET /getBusRouteList
 
 **요청 파라미터**
 
-| 파라미터 | 필수 | 설명 |
-| --- | --- | --- |
-| `serviceKey` | ✅ | 인증키 |
-| `strSrch` | ✅ | 검색할 노선번호 (부분 검색 가능, 예: `3`) |
-| `resultType` | - | `xml` \| `json` (기본 xml) |
+| 파라미터     | 필수 | 설명                                      |
+| ------------ | ---- | ----------------------------------------- |
+| `serviceKey` | ✅   | 인증키                                    |
+| `strSrch`    | ✅   | 검색할 노선번호 (부분 검색 가능, 예: `3`) |
+| `resultType` | -    | `xml` \| `json` (기본 xml)                |
 
 **응답 필드**
 
-| 필드 | 설명 |
-| --- | --- |
-| `busRouteId` | **노선 ID — 이후 API 호출에 사용** |
-| `busRouteAbrv` | 노선 약칭 (안내용, 마을버스 제외) |
-| `busRouteNm` | 노선명 (DB 관리용) |
-| `routeType` | `1`:공항, `2`:마을, `3`:간선, `4`:지선, `5`:순환, `6`:광역, `7`:인천, `8`:경기, `9`:폐지, `0`:공용, `14`:한강 |
-| `stStationNm` | 기점 정류소명 |
-| `edStationNm` | 종점 정류소명 |
-| `term` | 배차간격 (분) |
-| `lastBusYn` | 막차운행여부 (`Y`/`N`) |
-| `firstBusTm` | 금일 첫차 시간 (예: `20170809040000`) |
-| `lastBusTm` | 금일 막차 시간 |
-| `firstLowTm` | 금일 저상버스 첫차 시간 |
-| `lastLowTm` | 금일 저상버스 막차 시간 |
-| `length` | 노선 길이 (km) |
+| 필드           | 설명                                                                                                          |
+| -------------- | ------------------------------------------------------------------------------------------------------------- |
+| `busRouteId`   | **노선 ID — 이후 API 호출에 사용**                                                                            |
+| `busRouteAbrv` | 노선 약칭 (안내용, 마을버스 제외)                                                                             |
+| `busRouteNm`   | 노선명 (DB 관리용)                                                                                            |
+| `routeType`    | `1`:공항, `2`:마을, `3`:간선, `4`:지선, `5`:순환, `6`:광역, `7`:인천, `8`:경기, `9`:폐지, `0`:공용, `14`:한강 |
+| `stStationNm`  | 기점 정류소명                                                                                                 |
+| `edStationNm`  | 종점 정류소명                                                                                                 |
+| `term`         | 배차간격 (분)                                                                                                 |
+| `lastBusYn`    | 막차운행여부 (`Y`/`N`)                                                                                        |
+| `firstBusTm`   | 금일 첫차 시간 (예: `20170809040000`)                                                                         |
+| `lastBusTm`    | 금일 막차 시간                                                                                                |
+| `firstLowTm`   | 금일 저상버스 첫차 시간                                                                                       |
+| `lastLowTm`    | 금일 저상버스 막차 시간                                                                                       |
+| `length`       | 노선 길이 (km)                                                                                                |
 
 ---
 
@@ -87,29 +87,29 @@ GET /getRouteInfo
 
 **요청 파라미터**
 
-| 파라미터 | 필수 | 설명 |
-| --- | --- | --- |
-| `serviceKey` | ✅ | 인증키 |
-| `busRouteId` | ✅ | 노선 시스템 ID (예: `100100112`) |
-| `resultType` | - | `xml` \| `json` |
+| 파라미터     | 필수 | 설명                             |
+| ------------ | ---- | -------------------------------- |
+| `serviceKey` | ✅   | 인증키                           |
+| `busRouteId` | ✅   | 노선 시스템 ID (예: `100100112`) |
+| `resultType` | -    | `xml` \| `json`                  |
 
 **응답 필드**
 
-| 필드 | 설명 |
-| --- | --- |
-| `busRouteId` | 노선 ID |
-| `busRouteAbrv` | 노선 약칭 (안내용) |
-| `busRouteNm` | 노선명 (DB 관리용) |
-| `routeType` | 노선 유형 (getBusRouteList와 동일) |
-| `stStationNm` | 기점 정류소명 |
-| `edStationNm` | 종점 정류소명 |
-| `term` | 배차간격 (분) |
-| `firstBusTm` | 금일 첫차 시간 |
-| `lastBusTm` | 금일 막차 시간 |
-| `firstLowTm` | 금일 저상버스 첫차 시간 |
-| `lastLowTm` | 금일 저상버스 막차 시간 |
-| `corpNm` | 운수사명 및 연락처 (예: `서부운수 02-372-0221`) |
-| `length` | 노선 길이 (km) |
+| 필드           | 설명                                            |
+| -------------- | ----------------------------------------------- |
+| `busRouteId`   | 노선 ID                                         |
+| `busRouteAbrv` | 노선 약칭 (안내용)                              |
+| `busRouteNm`   | 노선명 (DB 관리용)                              |
+| `routeType`    | 노선 유형 (getBusRouteList와 동일)              |
+| `stStationNm`  | 기점 정류소명                                   |
+| `edStationNm`  | 종점 정류소명                                   |
+| `term`         | 배차간격 (분)                                   |
+| `firstBusTm`   | 금일 첫차 시간                                  |
+| `lastBusTm`    | 금일 막차 시간                                  |
+| `firstLowTm`   | 금일 저상버스 첫차 시간                         |
+| `lastLowTm`    | 금일 저상버스 막차 시간                         |
+| `corpNm`       | 운수사명 및 연락처 (예: `서부운수 02-372-0221`) |
+| `length`       | 노선 길이 (km)                                  |
 
 **응답 예제 (XML)**
 
@@ -147,31 +147,31 @@ GET /getStaionByRoute
 
 **요청 파라미터**
 
-| 파라미터 | 필수 | 설명 |
-| --- | --- | --- |
-| `serviceKey` | ✅ | 인증키 |
-| `busRouteId` | ✅ | 노선 시스템 ID |
-| `resultType` | - | `xml` \| `json` |
+| 파라미터     | 필수 | 설명            |
+| ------------ | ---- | --------------- |
+| `serviceKey` | ✅   | 인증키          |
+| `busRouteId` | ✅   | 노선 시스템 ID  |
+| `resultType` | -    | `xml` \| `json` |
 
 **응답 필드**
 
-| 필드 | 설명 |
-| --- | --- |
-| `seq` | 정류소 순번 |
-| `station` | 정류소 고유 ID |
-| `stationNm` | 정류소 이름 |
-| `stationNo` | 정류소 번호 |
-| `arsId` | 정류소 고유번호 — `getStationByUid` 호출 시 사용 |
-| `gpsX` / `gpsY` | 좌표 WGS84 (경도/위도) — 지도 마커에 사용 |
-| `posX` / `posY` | 좌표 GRS80 |
-| `direction` | 방향 (종점 방향 정류소명) |
-| `section` | 구간 ID |
-| `beginTm` | 해당 정류소 첫차 시간 (예: `04:20`) |
-| `lastTm` | 해당 정류소 막차 시간 |
-| `trnstnid` | 회차지 정류소 ID |
-| `transYn` | 회차지 여부 (`Y`: 회차지, `N`: 아님) |
-| `sectSpd` | 구간속도 |
-| `busRouteId` | 노선 ID |
+| 필드            | 설명                                             |
+| --------------- | ------------------------------------------------ |
+| `seq`           | 정류소 순번                                      |
+| `station`       | 정류소 고유 ID                                   |
+| `stationNm`     | 정류소 이름                                      |
+| `stationNo`     | 정류소 번호                                      |
+| `arsId`         | 정류소 고유번호 — `getStationByUid` 호출 시 사용 |
+| `gpsX` / `gpsY` | 좌표 WGS84 (경도/위도) — 지도 마커에 사용        |
+| `posX` / `posY` | 좌표 GRS80                                       |
+| `direction`     | 방향 (종점 방향 정류소명)                        |
+| `section`       | 구간 ID                                          |
+| `beginTm`       | 해당 정류소 첫차 시간 (예: `04:20`)              |
+| `lastTm`        | 해당 정류소 막차 시간                            |
+| `trnstnid`      | 회차지 정류소 ID                                 |
+| `transYn`       | 회차지 여부 (`Y`: 회차지, `N`: 아님)             |
+| `sectSpd`       | 구간속도                                         |
+| `busRouteId`    | 노선 ID                                          |
 
 **응답 예제 (XML)**
 
@@ -214,17 +214,17 @@ GET /getRoutePath
 
 **요청 파라미터**
 
-| 파라미터 | 필수 | 설명 |
-| --- | --- | --- |
-| `serviceKey` | ✅ | 인증키 |
-| `busRouteId` | ✅ | 노선 시스템 ID |
-| `resultType` | - | `xml` \| `json` |
+| 파라미터     | 필수 | 설명            |
+| ------------ | ---- | --------------- |
+| `serviceKey` | ✅   | 인증키          |
+| `busRouteId` | ✅   | 노선 시스템 ID  |
+| `resultType` | -    | `xml` \| `json` |
 
 **응답 필드**
 
-| 필드 | 설명 |
-| --- | --- |
-| `no` | 좌표 순번 |
+| 필드   | 설명                                     |
+| ------ | ---------------------------------------- |
+| `no`   | 좌표 순번                                |
 | `gpsX` | 경도 WGS84 — 지도 폴리라인 렌더링에 사용 |
 | `gpsY` | 위도 WGS84 — 지도 폴리라인 렌더링에 사용 |
 

@@ -1,6 +1,6 @@
 ---
 paths:
-  - "apps/web/src/**/*.{ts,tsx}"
+  - 'apps/web/src/**/*.{ts,tsx}'
 ---
 
 # FSD (Feature-Sliced Design)
@@ -14,14 +14,14 @@ paths:
 app → pages → widgets → features → entities → shared
 ```
 
-| 레이어 | 책임 | 실제 슬라이스 |
-| --- | --- | --- |
-| `app/` | Provider·라우터·글로벌 설정·레이아웃 | `providers/`, `layouts/`, `router.tsx`, `index.css` |
-| `pages/` | 라우트 단위 화면 조합 | `map/` |
-| `widgets/` | 독립적으로 완결된 UI 블록 | `bus-map/` |
-| `features/` | 사용자 상호작용 단위 기능 | `search/`, `selected-routes/`, `station-information/`, `user-location/` |
-| `entities/` | 도메인 모델·API·타입 | `bus/`, `station/` |
-| `shared/` | 도메인 무관 재사용 코드 | `api/`, `config/`, `lib/`, `ui/`, `icons/`, `types/`, `test/` |
+| 레이어      | 책임                                 | 실제 슬라이스                                                           |
+| ----------- | ------------------------------------ | ----------------------------------------------------------------------- |
+| `app/`      | Provider·라우터·글로벌 설정·레이아웃 | `providers/`, `layouts/`, `router.tsx`, `index.css`                     |
+| `pages/`    | 라우트 단위 화면 조합                | `map/`                                                                  |
+| `widgets/`  | 독립적으로 완결된 UI 블록            | `bus-map/`                                                              |
+| `features/` | 사용자 상호작용 단위 기능            | `search/`, `selected-routes/`, `station-information/`, `user-location/` |
+| `entities/` | 도메인 모델·API·타입                 | `bus/`, `station/`                                                      |
+| `shared/`   | 도메인 무관 재사용 코드              | `api/`, `config/`, `lib/`, `ui/`, `icons/`, `types/`, `test/`           |
 
 > **참조 방향은 단방향**이다. `features`는 `entities`/`shared`만, `entities`는 `shared`만
 > import한다. 역방향(`entities`가 `features`를 참조 등)이나 같은 레이어의 다른 슬라이스

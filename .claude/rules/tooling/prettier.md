@@ -1,7 +1,7 @@
 ---
 paths:
-  - "apps/web/**"
-  - ".prettierrc.json"
+  - 'apps/web/**'
+  - '.prettierrc.json'
 ---
 
 # Prettier (포맷)

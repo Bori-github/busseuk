@@ -1,6 +1,6 @@
 ---
 paths:
-  - "apps/web/**"
+  - 'apps/web/**'
 ---
 
 # 아키텍처 개요
@@ -10,17 +10,17 @@ paths:
 
 ## 기술 스택
 
-| 영역 | 선택 | 비고 |
-| --- | --- | --- |
-| 런타임 | Node.js `22.18.0` | `.nvmrc` |
-| 패키지 매니저 | pnpm `10.29.2` | `package.json` `packageManager` |
-| 모노레포 | pnpm workspace + Turborepo | `pnpm-workspace.yaml`, `turbo.json` |
-| 프레임워크 | React 19 + Vite 8 + TypeScript | `apps/web` |
-| 라우팅 | react-router-dom v7 | 단일 페이지(MapPage) |
-| 데이터 페칭 | TanStack Query v5 | [`data-fetching.md`](data-fetching.md) |
-| 스타일 | Tailwind CSS v4 (`@tailwindcss/vite`) | [`styling.md`](styling.md) |
-| 지도 | Naver Maps JS SDK (`@types/navermaps`) | |
-| 테스트 | Vitest + Testing Library | `apps/web`에만 설치 |
+| 영역          | 선택                                   | 비고                                   |
+| ------------- | -------------------------------------- | -------------------------------------- |
+| 런타임        | Node.js `22.18.0`                      | `.nvmrc`                               |
+| 패키지 매니저 | pnpm `10.29.2`                         | `package.json` `packageManager`        |
+| 모노레포      | pnpm workspace + Turborepo             | `pnpm-workspace.yaml`, `turbo.json`    |
+| 프레임워크    | React 19 + Vite 8 + TypeScript         | `apps/web`                             |
+| 라우팅        | react-router-dom v7                    | 단일 페이지(MapPage)                   |
+| 데이터 페칭   | TanStack Query v5                      | [`data-fetching.md`](data-fetching.md) |
+| 스타일        | Tailwind CSS v4 (`@tailwindcss/vite`)  | [`styling.md`](styling.md)             |
+| 지도          | Naver Maps JS SDK (`@types/navermaps`) |                                        |
+| 테스트        | Vitest + Testing Library               | `apps/web`에만 설치                    |
 
 ## 모노레포 구조
 

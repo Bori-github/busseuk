@@ -1,6 +1,6 @@
 ---
 paths:
-  - "apps/web/src/**/*.{ts,tsx,css}"
+  - 'apps/web/src/**/*.{ts,tsx,css}'
 ---
 
 # 스타일링 — Tailwind CSS v4
@@ -20,9 +20,9 @@ Tailwind **v4**를 `@tailwindcss/vite` 플러그인으로 쓴다. **`tailwind.co
 - 변형(variant)이 많은 컴포넌트는 `class-variance-authority(cva)`로 정의한다.
 
 ```tsx
-import { cn } from '@shared/lib'
+import { cn } from '@shared/lib';
 
-<button className={cn('px-3 py-2', isActive && 'bg-blue-500')} />
+<button className={cn('px-3 py-2', isActive && 'bg-blue-500')} />;
 ```
 
 ## 원칙

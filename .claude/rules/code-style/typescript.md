@@ -1,6 +1,6 @@
 ---
 paths:
-  - "apps/web/**/*.{ts,tsx}"
+  - 'apps/web/**/*.{ts,tsx}'
 ---
 
 # TypeScript / JS 코드 스타일
@@ -27,8 +27,8 @@ export function toRad(deg: number) { … }
 타입만 가져올 땐 `import type`을 쓴다(런타임 번들에서 제거·의도 명확).
 
 ```ts
-import type { BusPosition } from '@entities/bus'
-import { getBusPositions } from '@entities/bus'
+import type { BusPosition } from '@entities/bus';
+import { getBusPositions } from '@entities/bus';
 ```
 
 ## import 별칭 — 레이어별 절대경로
@@ -39,8 +39,8 @@ import { getBusPositions } from '@entities/bus'
 `@app/*` · `@pages/*` · `@widgets/*` · `@features/*` · `@entities/*` · `@shared/*`
 
 ```ts
-import { cn } from '@shared/lib'
-import { getBusPositions } from '@entities/bus'
+import { cn } from '@shared/lib';
+import { getBusPositions } from '@entities/bus';
 ```
 
 슬라이스 내부에서만 상대경로를 허용한다(`fsd/no-relative-imports`).
@@ -61,13 +61,13 @@ import { getBusPositions } from '@entities/bus'
 
 ## 네이밍
 
-| 대상 | 규칙 | 예 |
-| --- | --- | --- |
-| 컴포넌트·타입 | PascalCase | `BusMapWidget`, `BusPosition` |
-| 변수·함수·훅 | camelCase (훅은 `use` 접두사) | `busClient`, `useUserLocation` |
-| 상수 | 상황에 맞게 (모듈 상수는 UPPER_SNAKE 허용) | `DEFAULT_ZOOM` |
-| API fetch 함수 | `get<리소스>` | `getBusPositions`, `getStationInformation` |
-| 파일 | 컴포넌트는 PascalCase, 그 외 camelCase | `NaverMap.tsx`, `polyline.ts` |
+| 대상           | 규칙                                       | 예                                         |
+| -------------- | ------------------------------------------ | ------------------------------------------ |
+| 컴포넌트·타입  | PascalCase                                 | `BusMapWidget`, `BusPosition`              |
+| 변수·함수·훅   | camelCase (훅은 `use` 접두사)              | `busClient`, `useUserLocation`             |
+| 상수           | 상황에 맞게 (모듈 상수는 UPPER_SNAKE 허용) | `DEFAULT_ZOOM`                             |
+| API fetch 함수 | `get<리소스>`                              | `getBusPositions`, `getStationInformation` |
+| 파일           | 컴포넌트는 PascalCase, 그 외 camelCase     | `NaverMap.tsx`, `polyline.ts`              |
 
 ## 순수 함수 우선
 

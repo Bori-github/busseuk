@@ -10,11 +10,11 @@
 
 ## 허용 트리거
 
-| 트리거 | 코드 | 동작 | 빈도 |
-| --- | --- | --- | --- |
-| 앱 시작(지도 생성) | `shared/ui/naver/NaverMap.tsx` 생성 시 `center` | 마운트 시점 `location`으로 센터, zoom 17 | 1회 |
-| 내 위치 확정 | `shared/ui/naver/NaverMap.tsx` `panTo(center)` (deps `[center.lat, center.lng]`) | `useUserLocation`의 `getCurrentPosition`(1회성, watchPosition 아님) 응답으로 `location`이 바뀌면 그 위치로 panTo | 사실상 시작 시 1회 |
-| 정류장 선택 | `widgets/bus-map/ui/BusMapWidget.tsx` `panTo(target/position)` | 선택 정류장으로 센터(바텀시트가 가리면 `bottomInset/2`만큼 아래로 보정). 의존성은 **안정 참조 `selectedStation`** | 선택이 바뀔 때만 1회 |
+| 트리거             | 코드                                                                             | 동작                                                                                                              | 빈도                 |
+| ------------------ | -------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- | -------------------- |
+| 앱 시작(지도 생성) | `shared/ui/naver/NaverMap.tsx` 생성 시 `center`                                  | 마운트 시점 `location`으로 센터, zoom 17                                                                          | 1회                  |
+| 내 위치 확정       | `shared/ui/naver/NaverMap.tsx` `panTo(center)` (deps `[center.lat, center.lng]`) | `useUserLocation`의 `getCurrentPosition`(1회성, watchPosition 아님) 응답으로 `location`이 바뀌면 그 위치로 panTo  | 사실상 시작 시 1회   |
+| 정류장 선택        | `widgets/bus-map/ui/BusMapWidget.tsx` `panTo(target/position)`                   | 선택 정류장으로 센터(바텀시트가 가리면 `bottomInset/2`만큼 아래로 보정). 의존성은 **안정 참조 `selectedStation`** | 선택이 바뀔 때만 1회 |
 
 ## 금지 (센터 이동 안 함)
 

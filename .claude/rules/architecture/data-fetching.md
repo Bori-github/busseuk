@@ -1,6 +1,6 @@
 ---
 paths:
-  - "apps/web/src/**/*.{ts,tsx}"
+  - 'apps/web/src/**/*.{ts,tsx}'
 ---
 
 # 데이터 페칭 — TanStack Query v5

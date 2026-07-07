@@ -1,6 +1,6 @@
 ---
 paths:
-  - "apps/web/src/**/*.{ts,tsx}"
+  - 'apps/web/src/**/*.{ts,tsx}'
 ---
 
 # 코드 품질 — 변경하기 쉬운 코드 4원칙

@@ -7,23 +7,23 @@ busseuk의 각 영역이 **무엇으로 검증되는지**를 추적하는 표다
 방어선은 피드백 속도 순으로 세 겹이다(자세한 시점·설계 근거는
 [.claude/hooks/README.md](../hooks/README.md)·[husky.md](../rules/tooling/husky.md) 참고).
 
-| 게이트 | 시점 | 담당 | 권위 |
-| --- | --- | --- | --- |
-| Claude 훅(`prettier.sh`) | 편집 직후(PostToolUse) | 포맷 자동정리 | 보조 |
-| Claude 훅(`eslint.sh`) | 턴 종료 시(Stop) | 규칙 위반 보고 | 보조 |
-| husky `pre-commit` | git 커밋 시 | 변경 파일 포맷+린트 | 보조 |
-| CI (`test.yml`) | PR→main | lint·build·test | **권위** |
+| 게이트                   | 시점                   | 담당                | 권위     |
+| ------------------------ | ---------------------- | ------------------- | -------- |
+| Claude 훅(`prettier.sh`) | 편집 직후(PostToolUse) | 포맷 자동정리       | 보조     |
+| Claude 훅(`eslint.sh`)   | 턴 종료 시(Stop)       | 규칙 위반 보고      | 보조     |
+| husky `pre-commit`       | git 커밋 시            | 변경 파일 포맷+린트 | 보조     |
+| CI (`test.yml`)          | PR→main                | lint·build·test     | **권위** |
 
 ## 현재 자동 검증되는 영역
 
-| 영역 | 검증 방법 | 강제 지점 | 산출물 |
-| --- | --- | --- | --- |
-| 포맷 | `pnpm exec prettier --check "apps/web/src/**/*.{ts,tsx,css}"` | 편집 시 `prettier.sh`, 커밋 시 lint-staged `prettier --write` | 없음 |
-| 린트 규칙 | `pnpm --filter web lint` (eslint flat config) | CI `Lint` step, 커밋 시 `eslint --fix`, 턴 종료 시 `eslint.sh` | 없음 |
-| FSD 레이어 경계 | `eslint-plugin-fsd-lint` (위 lint에 포함) | 위와 동일 | 없음 |
-| 타입 안전성 | `tsc -b` (`pnpm --filter web build`에 포함) | CI `Build` step | 없음 |
-| 빌드 | `pnpm --filter web build` (`tsc -b && vite build`) | CI `Build` step | `apps/web/dist` |
-| 단위·컴포넌트 테스트 | `pnpm --filter web exec vitest run` (jsdom) | CI `Run tests` step | 없음 |
+| 영역                 | 검증 방법                                                     | 강제 지점                                                      | 산출물          |
+| -------------------- | ------------------------------------------------------------- | -------------------------------------------------------------- | --------------- |
+| 포맷                 | `pnpm exec prettier --check "apps/web/src/**/*.{ts,tsx,css}"` | 편집 시 `prettier.sh`, 커밋 시 lint-staged `prettier --write`  | 없음            |
+| 린트 규칙            | `pnpm --filter web lint` (eslint flat config)                 | CI `Lint` step, 커밋 시 `eslint --fix`, 턴 종료 시 `eslint.sh` | 없음            |
+| FSD 레이어 경계      | `eslint-plugin-fsd-lint` (위 lint에 포함)                     | 위와 동일                                                      | 없음            |
+| 타입 안전성          | `tsc -b` (`pnpm --filter web build`에 포함)                   | CI `Build` step                                                | 없음            |
+| 빌드                 | `pnpm --filter web build` (`tsc -b && vite build`)            | CI `Build` step                                                | `apps/web/dist` |
+| 단위·컴포넌트 테스트 | `pnpm --filter web exec vitest run` (jsdom)                   | CI `Run tests` step                                            | 없음            |
 
 CI 워크플로(`.github/workflows/test.yml`)는 PR→main에서 Install → Lint → Build → Run tests를
 순서대로 강제한다. **품질의 권위 있는 게이트는 CI**이고, 훅·husky는 그 앞단의 빠른 보조다.
@@ -49,13 +49,13 @@ vitest는 검증 대상 파일 옆에 co-locate 한다([project-structure.md](pr
 - `수동`: 자동 러너 없이 사람이 확인한다.
 - `환경 의존`: 실제 서비스 키·외부 API·브라우저처럼 실행 환경에 따라 결과가 달라진다.
 
-| 영역 | 검증 방법 | 상태 | 비고 |
-| --- | --- | --- | --- |
-| 서울 버스 API 계약 | `.claude/scripts/probe-bus-api.sh`로 실제 응답 확인 | 수동·환경 의존 | 서비스 키는 `.env.local`에서 읽고 커밋하지 않는다. 개발 워크플로의 **선(先)검증** 단계([dev-workflow.md](dev-workflow.md)). |
-| 네이버맵 실제 렌더 | `pnpm dev` 후 브라우저 확인 | 수동 | 지도·마커·센터링이 의도대로 그려지는지는 자동화 없음. 완료 처리 전 한계로 보고한다. |
-| 지도 센터 이동 정책 | 코드 리뷰 + 수동 확인 | 수동 | 불변식은 [map-center-policy.md](map-center-policy.md)가 단일 출처. lint로 못 잡는다. |
-| CORS 프록시 | `pnpm dev`에서 실제 요청 확인 | 수동·환경 의존 | 개발은 `vite.config.ts` `server.proxy`, 프로덕션은 별도 프록시. |
-| 의미/네이밍 컨벤션 | 코드 리뷰 | 수동 | `import type`·네이밍·TanStack Query·Tailwind 규칙 등 lint에 인코딩되지 않은 항목은 리뷰 몫([eslint.md](../rules/tooling/eslint.md)). |
+| 영역                | 검증 방법                                           | 상태           | 비고                                                                                                                                 |
+| ------------------- | --------------------------------------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| 서울 버스 API 계약  | `.claude/scripts/probe-bus-api.sh`로 실제 응답 확인 | 수동·환경 의존 | 서비스 키는 `.env.local`에서 읽고 커밋하지 않는다. 개발 워크플로의 **선(先)검증** 단계([dev-workflow.md](dev-workflow.md)).          |
+| 네이버맵 실제 렌더  | `pnpm dev` 후 브라우저 확인                         | 수동           | 지도·마커·센터링이 의도대로 그려지는지는 자동화 없음. 완료 처리 전 한계로 보고한다.                                                  |
+| 지도 센터 이동 정책 | 코드 리뷰 + 수동 확인                               | 수동           | 불변식은 [map-center-policy.md](map-center-policy.md)가 단일 출처. lint로 못 잡는다.                                                 |
+| CORS 프록시         | `pnpm dev`에서 실제 요청 확인                       | 수동·환경 의존 | 개발은 `vite.config.ts` `server.proxy`, 프로덕션은 별도 프록시.                                                                      |
+| 의미/네이밍 컨벤션  | 코드 리뷰                                           | 수동           | `import type`·네이밍·TanStack Query·Tailwind 규칙 등 lint에 인코딩되지 않은 항목은 리뷰 몫([eslint.md](../rules/tooling/eslint.md)). |
 
 ## 아직 없는 검증 (구현 전)
 
