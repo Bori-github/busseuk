@@ -5,4 +5,3 @@ build
 .output
 .turbo
 pnpm-lock.yaml
-apps/web/dist
