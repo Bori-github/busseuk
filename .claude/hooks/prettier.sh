@@ -9,11 +9,8 @@ cat >/dev/null 2>&1 || true
 PROJECT_DIR="${CLAUDE_PROJECT_DIR:-.}"
 cd "$PROJECT_DIR" 2>/dev/null || exit 0
 
-# PATH 보강: 비대화형 셸(AI 세션 등)은 nvm을 로드하지 않아 pnpm이 PATH에 없을 수 있다.
-if ! command -v pnpm >/dev/null 2>&1 && [ -f .nvmrc ]; then
-  nvm_bin="$HOME/.nvm/versions/node/v$(tr -d ' \t\r\n' <.nvmrc)/bin"
-  [ -x "$nvm_bin/pnpm" ] && PATH="$nvm_bin:$PATH"
-fi
+# 비대화형 셸의 pnpm 부재 대비 PATH 보강(공용 스니펫)
+[ -f .claude/hooks/ensure-pnpm.sh ] && . .claude/hooks/ensure-pnpm.sh
 
 # 워킹트리에서 변경/신규인 apps/web의 포맷 대상 파일
 files=$(

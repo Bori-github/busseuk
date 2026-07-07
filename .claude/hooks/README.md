@@ -64,6 +64,8 @@ Claude Code가 코드를 만질 때 컨벤션([`.claude/rules/`](../rules/))을 
   eslint는 인프라 가드).
 - **비대화형 셸 PATH 보강**: AI 세션·GUI 앱 등 비대화형 셸은 nvm을 로드하지 않아 `pnpm`이
   PATH에 없을 수 있다. 그러면 인프라 가드 때문에 검증이 세션에 따라 조용히 꺼지는
-  비결정성이 생기므로, 두 훅(과 `.husky/pre-commit`)은 pnpm이 없으면 `.nvmrc` 버전의
-  nvm 설치 경로(`~/.nvm/versions/node/v<버전>/bin`)를 PATH에 보강한 뒤 다시 찾는다.
-  nvm 외 방식(Homebrew·corepack 등)으로 pnpm을 설치했다면 원래 PATH에서 그대로 잡힌다.
+  비결정성이 생기므로, pnpm이 없으면 `.nvmrc` 버전의 nvm 설치 경로
+  (`~/.nvm/versions/node/v<버전>/bin`)를 PATH에 보강한 뒤 다시 찾는다. 이 로직은
+  **`ensure-pnpm.sh` 공용 스니펫이 단일 출처**이고, 두 훅과 `.husky/pre-commit`이
+  source 해서 쓴다(중복 구현 금지). nvm 외 방식(Homebrew·corepack 등)으로 설치했다면
+  원래 PATH에서 그대로 잡힌다.
