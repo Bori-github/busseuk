@@ -48,12 +48,8 @@ export const playbackRate = (lagMs: number, target: number = TARGET_LAG_MS): num
  * 재생 클럭을 한 프레임 전진시킨다. 최신 실측 시각(newestT)을 넘지 않도록 클램프해
  * 예측(=되돌아감)을 원천 차단한다. 넘어서면 새 데이터가 올 때까지 그 지점에서 정지(freeze).
  */
-export const advancePlayTime = (
-  playTime: number,
-  dtMs: number,
-  rate: number,
-  newestT: number,
-): number => Math.min(playTime + Math.max(dtMs, 0) * rate, newestT);
+export const advancePlayTime = (playTime: number, dtMs: number, rate: number, newestT: number): number =>
+  Math.min(playTime + Math.max(dtMs, 0) * rate, newestT);
 
 /**
  * 한 폴 사이 관측 이동거리가 이 값을 넘으면 GPS 점프/노이즈로 보고 버퍼를 리셋(스냅)한다.
@@ -131,7 +127,5 @@ export const pruneBuffer = (buffer: Sample[], renderTime: number): void => {
 };
 
 /** 아직 재생할(보간할) 구간이 남았는지 — rAF 루프 지속 판정. */
-export const hasPendingPlayback = (
-  buffer: Sample[],
-  renderTime: number,
-): boolean => buffer.length > 0 && renderTime < buffer[buffer.length - 1].t;
+export const hasPendingPlayback = (buffer: Sample[], renderTime: number): boolean =>
+  buffer.length > 0 && renderTime < buffer[buffer.length - 1].t;

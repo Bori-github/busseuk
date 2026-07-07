@@ -1,10 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  buildRoutePolyline,
-  pointAtDistance,
-  projectToPolyline,
-} from './polyline';
+import { buildRoutePolyline, pointAtDistance, projectToPolyline } from './polyline';
 
 import type { LatLng } from './polyline';
 
@@ -64,7 +60,10 @@ describe('projectToPolyline', () => {
   it('힌트 없으면 지리적으로 가까운 반대편(복귀) 다리로 스냅될 수 있다', () => {
     const poly = buildRoutePolyline(outAndBack);
     // 복귀 다리(37.5001)에 더 가까운 점
-    const global = projectToPolyline(poly, { lat: REF_LAT + 0.00008, lng: 127.001 });
+    const global = projectToPolyline(poly, {
+      lat: REF_LAT + 0.00008,
+      lng: 127.001,
+    });
     expect(global.segmentIndex).toBe(2); // 복귀 다리
   });
 

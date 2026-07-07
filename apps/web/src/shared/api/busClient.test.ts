@@ -15,12 +15,11 @@ const { get, store } = vi.hoisted(() => ({
 vi.mock('axios', () => {
   const instance = {
     interceptors: {
-      request: { use: (fn: (config: unknown) => unknown) => (store.request = fn) },
+      request: {
+        use: (fn: (config: unknown) => unknown) => (store.request = fn),
+      },
       response: {
-        use: (
-          onFulfilled: (response: unknown) => unknown,
-          onRejected: (error: unknown) => unknown,
-        ) => {
+        use: (onFulfilled: (response: unknown) => unknown, onRejected: (error: unknown) => unknown) => {
           store.responseFulfilled = onFulfilled;
           store.responseRejected = onRejected;
         },
@@ -29,8 +28,7 @@ vi.mock('axios', () => {
     get,
   };
 
-  const isAxiosError = (error: unknown) =>
-    Boolean((error as { isAxiosError?: boolean })?.isAxiosError);
+  const isAxiosError = (error: unknown) => Boolean((error as { isAxiosError?: boolean })?.isAxiosError);
 
   return {
     default: { create: vi.fn(() => instance), isAxiosError },
@@ -113,14 +111,18 @@ describe('request 인터셉터', () => {
 
 describe('response 인터셉터', () => {
   it('headerCd가 "0"이면 응답을 그대로 통과시킨다', () => {
-    const response = { data: { msgHeader: { headerCd: '0', headerMsg: '정상' } } };
+    const response = {
+      data: { msgHeader: { headerCd: '0', headerMsg: '정상' } },
+    };
 
     expect(store.responseFulfilled?.(response)).toBe(response);
   });
 
   it('headerCd가 "0"이 아니면 BusApiError를 던진다', () => {
     const response = {
-      data: { msgHeader: { headerCd: '3', headerMsg: '정류소를 찾을 수 없음' } },
+      data: {
+        msgHeader: { headerCd: '3', headerMsg: '정류소를 찾을 수 없음' },
+      },
     };
 
     expect(() => store.responseFulfilled?.(response)).toThrowError(BusApiError);
@@ -136,17 +138,13 @@ describe('response 인터셉터', () => {
   it('HTTP 응답이 있는 axios 오류는 상태코드 메시지로 변환한다', () => {
     const axiosError = { isAxiosError: true, response: { status: 500 } };
 
-    expect(() => store.responseRejected?.(axiosError)).toThrowError(
-      '버스 API HTTP 오류: 500',
-    );
+    expect(() => store.responseRejected?.(axiosError)).toThrowError('버스 API HTTP 오류: 500');
   });
 
   it('응답이 없는 axios 오류는 네트워크 오류 메시지로 변환한다', () => {
     const axiosError = { isAxiosError: true, message: 'Network Error' };
 
-    expect(() => store.responseRejected?.(axiosError)).toThrowError(
-      '버스 API 네트워크 오류: Network Error',
-    );
+    expect(() => store.responseRejected?.(axiosError)).toThrowError('버스 API 네트워크 오류: Network Error');
   });
 
   it('axios 오류가 아니면 원본 오류를 그대로 전파한다', () => {

@@ -25,14 +25,7 @@ interface BottomSheetContentProps {
 }
 
 export const BottomSheetHeader = ({ children, className }: BottomSheetHeaderProps) => (
-  <div
-    className={cn(
-      'flex shrink-0 items-center justify-between gap-3 px-4 pt-1 pb-2',
-      className,
-    )}
-  >
-    {children}
-  </div>
+  <div className={cn('flex shrink-0 items-center justify-between gap-3 px-4 pt-1 pb-2', className)}>{children}</div>
 );
 
 export const BottomSheetTitle = ({ children, className }: BottomSheetTitleProps) => {

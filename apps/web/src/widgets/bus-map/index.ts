@@ -1,2 +1,2 @@
-export { BusMapWidget } from './ui/BusMapWidget'
-export type { BusRouteWithPositions } from './ui/BusMapWidget'
+export { BusMapWidget } from './ui/BusMapWidget';
+export type { BusRouteWithPositions } from './ui/BusMapWidget';

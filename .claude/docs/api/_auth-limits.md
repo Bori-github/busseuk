@@ -8,20 +8,18 @@
 GET /endpoint?serviceKey={인증키}&resultType=json
 ```
 
-> `bus-position.md`의 버스위치 API만 `serviceKey`(소문자)를 사용합니다.
-
 ## 응답 형식
 
 `resultType` 파라미터로 지정합니다.
 
-| 값 | 설명 |
-| --- | --- |
-| `xml` | XML (기본값) |
-| `json` | JSON |
+| 값     | 설명         |
+| ------ | ------------ |
+| `xml`  | XML (기본값) |
+| `json` | JSON         |
 
 ## 요청 제한
 
-| 항목 | 값 |
-| --- | --- |
-| TPS | 30 |
+| 항목           | 값  |
+| -------------- | --- |
+| TPS            | 30  |
 | 최대 응답 크기 | 3MB |

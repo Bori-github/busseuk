@@ -1,0 +1,4 @@
+# 비대화형 셸의 pnpm 부재 대비 PATH 보강(공용 스니펫). 그래도 없으면 원래 에러로 실패한다.
+[ -f .claude/hooks/ensure-pnpm.sh ] && . .claude/hooks/ensure-pnpm.sh
+
+pnpm exec lint-staged

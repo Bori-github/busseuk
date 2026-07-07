@@ -1,1 +1,1 @@
-export { busGet, BusApiError } from './busClient'
+export { busGet, BusApiError } from './busClient';

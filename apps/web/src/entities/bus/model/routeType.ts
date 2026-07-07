@@ -19,8 +19,6 @@ const ROUTE_TYPES: Record<string, RouteTypeInfo> = {
 
 const DEFAULT_COLOR = '#6B7280';
 
-export const getRouteTypeColor = (routeType: string): string =>
-  ROUTE_TYPES[routeType]?.color ?? DEFAULT_COLOR;
+export const getRouteTypeColor = (routeType: string): string => ROUTE_TYPES[routeType]?.color ?? DEFAULT_COLOR;
 
-export const getRouteTypeLabel = (routeType: string): string | undefined =>
-  ROUTE_TYPES[routeType]?.label;
+export const getRouteTypeLabel = (routeType: string): string | undefined => ROUTE_TYPES[routeType]?.label;

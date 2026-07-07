@@ -1,12 +1,4 @@
-import {
-  useCallback,
-  useEffect,
-  useId,
-  useLayoutEffect,
-  useRef,
-  useState,
-  type ReactNode,
-} from 'react';
+import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 
 import { cn } from '@shared/lib';
@@ -47,16 +39,12 @@ export const BottomSheetRoot = ({
   const titleId = useId();
   const [prevOpen, setPrevOpen] = useState(open);
   const [sheetState, setSheetState] = useState<SheetState>('peek');
-  const [viewportHeight, setViewportHeight] = useState(
-    () => (typeof window !== 'undefined' ? window.innerHeight : 800),
-  );
+  const [viewportHeight, setViewportHeight] = useState(() => (typeof window !== 'undefined' ? window.innerHeight : 800));
   const [isDragging, setIsDragging] = useState(false);
   const [isOpening, setIsOpening] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
   const [dragHeight, setDragHeight] = useState<number | null>(null);
-  const [dragTranslateY, setDragTranslateY] = useState(() =>
-    open ? 0 : (typeof window !== 'undefined' ? window.innerHeight : 800),
-  );
+  const [dragTranslateY, setDragTranslateY] = useState(() => (open ? 0 : typeof window !== 'undefined' ? window.innerHeight : 800));
 
   const sheetRef = useRef<HTMLDivElement>(null);
   const startYRef = useRef(0);
@@ -254,10 +242,7 @@ export const BottomSheetRoot = ({
         aria-modal="false"
         aria-hidden={!open}
         aria-labelledby={titleId}
-        className={cn(
-          'fixed bottom-0 left-0 right-0 z-20 flex flex-col bg-white shadow-lg',
-          className,
-        )}
+        className={cn('fixed bottom-0 left-0 right-0 z-20 flex flex-col bg-white shadow-lg', className)}
         style={{
           height: `${currentHeight}px`,
           borderTopLeftRadius: showRoundedTop ? '1rem' : 0,
@@ -277,10 +262,7 @@ export const BottomSheetRoot = ({
           onPointerUp={handlePointerUp}
           onPointerCancel={handlePointerCancel}
         >
-          <div
-            className={cn('h-1 w-10 rounded-full bg-gray-300', handleClassName)}
-            aria-hidden
-          />
+          <div className={cn('h-1 w-10 rounded-full bg-gray-300', handleClassName)} aria-hidden />
         </div>
 
         {children}

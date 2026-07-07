@@ -66,19 +66,11 @@ busHttp.interceptors.response.use(
 
     const status = err.response?.status;
 
-    throw new Error(
-      status != null
-        ? `버스 API HTTP 오류: ${status}`
-        : `버스 API 네트워크 오류: ${err.message}`,
-      { cause: err },
-    );
+    throw new Error(status != null ? `버스 API HTTP 오류: ${status}` : `버스 API 네트워크 오류: ${err.message}`, { cause: err });
   },
 );
 
-export const busGet = async <T>(
-  path: string,
-  params: Record<string, string | number> = {},
-): Promise<T[]> => {
+export const busGet = async <T>(path: string, params: Record<string, string | number> = {}): Promise<T[]> => {
   const { data } = await busHttp.get<BusApiResponse<T>>(path, { params });
 
   return normalizeItemList(data.msgBody.itemList);

@@ -15,9 +15,9 @@
 }
 ```
 
-| 필드 | 설명 |
-| --- | --- |
-| `msgHeader.headerCd` | 오류 코드 (`0`: 정상) |
-| `msgHeader.headerMsg` | 오류 메시지 |
-| `msgHeader.itemCount` | 반환된 항목 수 |
-| `msgBody.itemList` | 실제 데이터 배열 |
+| 필드                  | 설명                  |
+| --------------------- | --------------------- |
+| `msgHeader.headerCd`  | 오류 코드 (`0`: 정상) |
+| `msgHeader.headerMsg` | 오류 메시지           |
+| `msgHeader.itemCount` | 반환된 항목 수        |
+| `msgBody.itemList`    | 실제 데이터 배열      |

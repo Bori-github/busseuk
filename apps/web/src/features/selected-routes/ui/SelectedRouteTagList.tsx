@@ -14,11 +14,7 @@ interface SelectedRouteTagListProps {
  * 노선번호를 누르면 그 노선을 고른 정류장의 도착정보 시트를 다시 연다.
  * 선택된 노선이 없으면 아무것도 렌더링하지 않는다.
  */
-export const SelectedRouteTagList = ({
-  routes,
-  onRemove,
-  onReopen,
-}: SelectedRouteTagListProps) => {
+export const SelectedRouteTagList = ({ routes, onRemove, onReopen }: SelectedRouteTagListProps) => {
   if (routes.length === 0) return null;
 
   return (
@@ -29,11 +25,7 @@ export const SelectedRouteTagList = ({
           className="flex shrink-0 items-center gap-1 rounded-full py-1 pl-2.5 pr-1.5 text-xs font-bold text-white shadow-md"
           style={{ backgroundColor: getRouteTypeColor(route.routeType) }}
         >
-          <button
-            type="button"
-            onClick={() => onReopen(route)}
-            aria-label={`${route.busRouteAbrv} 정류장 도착정보 다시 보기`}
-          >
+          <button type="button" onClick={() => onReopen(route)} aria-label={`${route.busRouteAbrv} 정류장 도착정보 다시 보기`}>
             {route.busRouteAbrv}
           </button>
           <button
