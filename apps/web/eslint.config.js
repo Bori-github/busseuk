@@ -31,7 +31,6 @@ export default defineConfig([
   },
   {
     files: ['src/**/*.{ts,tsx}'],
-    ignores: ['src/main.tsx'],
     plugins: { fsd: fsdPlugin },
     rules: {
       'fsd/forbidden-imports': 'error',
