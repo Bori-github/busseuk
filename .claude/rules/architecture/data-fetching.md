@@ -17,9 +17,9 @@ paths:
 
 컴포넌트에서 개별 `QueryClient`를 만들지 않는다.
 
-## 구조 — `queryOptions` 팩토리 표준 (적용 완료)
+## 구조 — `queryOptions` 팩토리 표준
 
-질의는 `queryOptions` 팩토리로 정의한다. 이 표준은 이미 코드 전체에 적용돼 있다.
+질의는 `queryOptions` 팩토리로 정의한다. 코드 전체가 이 표준을 따른다.
 
 - **fetch 함수**(`get<리소스>`)는 `api` 세그먼트에 둔다. HTTP 클라이언트(`shared/api`)를
   통해 호출하는 순수 함수다(예: `entities/bus/api/busPositionApi.ts`).

@@ -52,9 +52,6 @@ paths:
 
 - `globalIgnores(['dist'])` — 빌드 산출물.
 
-과거 진입점 `src/main.tsx`에 대한 FSD ignore가 있었으나, 파일이 존재하지 않는 stale
-항목이라 제거했다. 현 진입점 `src/app/index.tsx`는 app 레이어 안에 있어 예외가 필요 없다.
-
 ## 규칙을 바꾸고 싶다면
 
 1. 이 문서에 **근거**(왜 필요/불필요한지)를 먼저 남긴다.
