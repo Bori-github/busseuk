@@ -17,6 +17,7 @@ file_path=$(
 
 PROJECT_DIR="${CLAUDE_PROJECT_DIR:-}"
 [ -n "$PROJECT_DIR" ] || exit 0
+PROJECT_DIR="${PROJECT_DIR%/}" # 끝 슬래시 제거 — 아래 case 글롭이 이중 슬래시로 어긋나는 것 방지
 cd "$PROJECT_DIR" 2>/dev/null || exit 0
 
 # 이 프로젝트 apps/web 하위의 포맷 대상 확장자만 처리한다(case 글롭의 *는 /도 매칭).

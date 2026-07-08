@@ -16,6 +16,9 @@ Claude Code가 코드를 만질 때 컨벤션([`.claude/rules/`](../rules/))을 
 - **무엇**: 방금 편집한 파일이 `apps/web`의 `.ts,.tsx,.css`면 **그 파일만** `prettier --write`.
   PostToolUse stdin의 `file_path`로 대상을 특정하므로, Claude가 만진 파일만 건드리고
   사용자의 다른 미커밋 변경은 손대지 않는다.
+  - **한계**: 대상은 `Edit`/`Write`/`MultiEdit`로 편집한 파일뿐이다. Claude가 **Bash로**
+    (heredoc·`sed`·`mv` 등) 만들거나 고친 `apps/web` 파일은 이 훅이 발화하지 않아 포맷되지
+    않는다 — 그런 파일은 **커밋 시 lint-staged**가 백스톱으로 포맷한다([husky.md](../rules/tooling/husky.md)).
 - **토큰**: `exit 0` + stdout 없음 → Claude 컨텍스트에 안 들어감 → **0 토큰**. 조용히 정리만 한다.
 - **효과**: lint-staged가 커밋 시 하는 포맷을 편집 시점으로 앞당겨, 편집이 늘 포맷된 상태 유지.
 
