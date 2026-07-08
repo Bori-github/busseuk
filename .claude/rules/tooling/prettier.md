@@ -39,16 +39,19 @@ ESLint와 역할이 분리된다 → [eslint.md](eslint.md).)
 1. **에디터 저장 시** — VS Code/Cursor의 `esbenp.prettier-vscode`가 프로젝트 설정을 우선
    적용(사용자 `prettier.*`는 설정 파일이 없을 때만 fallback).
 2. **커밋 시** — `lint-staged`가 스테이징 파일에 `prettier --write` ([husky.md](husky.md)).
-3. **수동** — `pnpm exec prettier --write "apps/web/src/**/*.{ts,tsx,css}"`.
+3. **수동** — `pnpm exec prettier --write "apps/web/**/*.{ts,tsx,css}"`.
+
+세 경로 모두 `apps/web` 하위 `.{ts,tsx,css}`를 대상으로 한다(lint-staged 글롭과 동일 범위라
+`vite.config.ts` 등 `src` 밖 파일도 함께 포맷된다). `.prettierignore`로 제외한 대상은 공통 적용.
 
 ## 확인
 
 ```bash
-pnpm exec prettier --check "apps/web/src/**/*.{ts,tsx,css}"
+pnpm exec prettier --check "apps/web/**/*.{ts,tsx,css}"
 ```
 
 ## 설정을 바꿀 때
 
-`printWidth` 등을 바꾸면 `apps/web/src` 전체가 재포맷돼 큰 diff가 난다. 이런 변경은
+`printWidth` 등을 바꾸면 `apps/web` 하위 대상 파일 전체가 재포맷돼 큰 diff가 난다. 이런 변경은
 **포맷 전용 커밋으로 분리**하고, 바꾼 뒤 `lint`·타입체크·`test`·`build`를 통과시킨다.
 에디터 사용자 설정(`prettier.*`)도 함께 맞춰 세 경로의 결과를 일치시킨다.
