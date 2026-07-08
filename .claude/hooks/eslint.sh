@@ -10,7 +10,8 @@ case "$input" in
   *'"stop_hook_active":true'* | *'"stop_hook_active": true'*) exit 0 ;;
 esac
 
-PROJECT_DIR="${CLAUDE_PROJECT_DIR:-.}"
+PROJECT_DIR="${CLAUDE_PROJECT_DIR:-}"
+[ -n "$PROJECT_DIR" ] || exit 0
 cd "$PROJECT_DIR" 2>/dev/null || exit 0
 
 # self-gate: 변경/신규 ts,tsx가 없으면 조용히 통과(순수 대화 턴 = 0 토큰).
