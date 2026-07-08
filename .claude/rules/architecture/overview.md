@@ -61,4 +61,5 @@ busseuk/
   - `VITE_BUS_API_BASE_URL` — 버스 API 베이스 URL. 개발은 Vite 프록시 경로 `/api/bus`,
     프로덕션은 배포한 프록시 주소.
 - 라이브 API 검증 스크립트(`.claude/scripts/probe-bus-api.sh`)도 `.env.local`을 읽는다.
-- `.env*`는 **절대 커밋하지 않는다** (`.gitignore` 확인).
+- `.env`·`.env.*`(실제 키가 담긴 `.env.local` 등)는 **절대 커밋하지 않는다**(`.env.example`만
+  예외 — `.gitignore` 확인).
