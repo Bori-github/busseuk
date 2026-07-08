@@ -36,6 +36,6 @@
 
 - [ ] `pnpm --filter web lint` 통과 (린트·FSD 경계)
 - [ ] `pnpm --filter web build` 통과 (타입체크 + 빌드)
-- [ ] `pnpm --filter web exec vitest run` 통과 (변경에 대한 테스트 포함)
+- [ ] `pnpm --filter web test` 통과 (변경에 대한 테스트 포함)
 - [ ] 가정을 실제 API/데이터로 선검증함 (해당 시 `.claude/scripts/` 사용)
 - [ ] 작은 커밋 단위로 분리함

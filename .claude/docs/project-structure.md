@@ -99,5 +99,5 @@ vitest 설정은 `apps/web/vite.config.ts`의 `test` 블록에 있다(`environme
 
 - 기능이 어느 레이어에 속하는지 먼저 판단한다([fsd.md](../rules/architecture/fsd.md)의 배치 기준).
 - 슬라이스를 새로 만들면 `index.ts`로 공개 API를 노출한다.
-- 테스트를 함께 추가하고(같은 폴더), `pnpm --filter web exec vitest run`으로 통과시킨다.
+- 테스트를 함께 추가하고(같은 폴더), `pnpm --filter web test`로 통과시킨다.
 - 검증 경로(lint·타입·테스트)는 [검증 매트릭스](verification-matrix.md)를 따른다.

@@ -23,7 +23,7 @@ busseuk의 각 영역이 **무엇으로 검증되는지**를 추적하는 표다
 | FSD 레이어 경계      | `eslint-plugin-fsd-lint` (위 lint에 포함)                     | 위와 동일                                                      | 없음            |
 | 타입 안전성          | `tsc -b` (`pnpm --filter web build`에 포함)                   | CI `Build` step                                                | 없음            |
 | 빌드                 | `pnpm --filter web build` (`tsc -b && vite build`)            | CI `Build` step                                                | `apps/web/dist` |
-| 단위·컴포넌트 테스트 | `pnpm --filter web exec vitest run` (jsdom)                   | CI `Run tests` step                                            | 없음            |
+| 단위·컴포넌트 테스트 | `pnpm --filter web test` (jsdom)                              | CI `Run tests` step                                            | 없음            |
 
 CI 워크플로(`.github/workflows/test.yml`)는 PR→main에서 Install → Lint → Build → Run tests를
 순서대로 강제한다. **품질의 권위 있는 게이트는 CI**이고, 훅·husky는 그 앞단의 빠른 보조다.
