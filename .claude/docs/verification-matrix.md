@@ -33,7 +33,7 @@ CI 워크플로(`.github/workflows/test.yml`)는 PR→main에서 Install → Lin
 vitest는 검증 대상 파일 옆에 co-locate 한다([project-structure.md](project-structure.md)).
 현재 자동 테스트가 있는 영역:
 
-- `shared/lib/polyline` — polyline 디코딩
+- `shared/lib/polyline` — 노선 폴리라인 투영·누적거리 보간
 - `shared/api/busClient` — API 클라이언트
 - `shared/ui/naver/createBusMarkerIcon` — 마커 아이콘 생성
 - `entities/station/api/getStationInformation` — 정류장 정보 조회
