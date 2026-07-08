@@ -13,13 +13,16 @@ esac
 PROJECT_DIR="${CLAUDE_PROJECT_DIR:-.}"
 cd "$PROJECT_DIR" 2>/dev/null || exit 0
 
-# self-gate: 변경/신규 ts,tsx가 없으면 조용히 통과(순수 대화 턴 = 0 토큰)
+# self-gate: 변경/신규 ts,tsx가 없으면 조용히 통과(순수 대화 턴 = 0 토큰).
+# --cached 목록에는 "스테이징 후 워킹트리에서 삭제된" 파일이 남을 수 있으므로,
+# eslint가 존재하지 않는 경로로 오탐(exit 2)하지 않게 실재하는 파일만 남긴다.
 files=$(
   {
     git diff --name-only --diff-filter=ACMR -- apps/web
     git diff --name-only --cached --diff-filter=ACMR -- apps/web
     git ls-files --others --exclude-standard -- apps/web
-  } 2>/dev/null | grep -E '\.(ts|tsx)$' | sort -u
+  } 2>/dev/null | grep -E '\.(ts|tsx)$' | sort -u \
+    | while IFS= read -r f; do [ -f "$f" ] && printf '%s\n' "$f"; done
 )
 
 [ -z "$files" ] && exit 0
