@@ -13,7 +13,9 @@ Claude Code가 코드를 만질 때 컨벤션([`.claude/rules/`](../rules/))을 
 ## 1. `prettier.sh` — PostToolUse (편집 시점 포맷)
 
 - **언제**: `Edit`/`Write`/`MultiEdit` 도구 호출 **직후마다**(matcher로 제한).
-- **무엇**: 워킹트리에서 변경된 `apps/web/**`의 `.ts,.tsx,.css`를 찾아 `prettier --write`.
+- **무엇**: 방금 편집한 파일이 `apps/web`의 `.ts,.tsx,.css`면 **그 파일만** `prettier --write`.
+  PostToolUse stdin의 `file_path`로 대상을 특정하므로, Claude가 만진 파일만 건드리고
+  사용자의 다른 미커밋 변경은 손대지 않는다.
 - **토큰**: `exit 0` + stdout 없음 → Claude 컨텍스트에 안 들어감 → **0 토큰**. 조용히 정리만 한다.
 - **효과**: lint-staged가 커밋 시 하는 포맷을 편집 시점으로 앞당겨, 편집이 늘 포맷된 상태 유지.
 
@@ -23,6 +25,11 @@ Claude Code가 코드를 만질 때 컨벤션([`.claude/rules/`](../rules/))을 
   - Stop 훅은 matcher를 지원하지 않아 **변경이 없어도 매 턴 무조건 발화**한다. 그래서
     스크립트가 **self-gate**한다 → `git`으로 `apps/web`의 변경 `.ts,.tsx`가 없으면 즉시
     `exit 0`. **순수 대화 턴은 0 토큰.**
+  - **대상 범위 = 워킹트리 전체.** Stop 훅은 개별 `file_path`를 받지 못해, "Claude가 만진
+    파일"이 아니라 **워킹트리의 변경 `apps/web` 파일 전체**를 검사한다. 따라서 위 "0 토큰"은
+    **클린 트리 전제**다 — 사용자의 미커밋 WIP가 이미 있으면 순수 대화 턴에도 그 변경을
+    검사·보고한다(Claude 편집분과 구분하지 않음). 대상을 좁히려면 PostToolUse가 만진 파일을
+    기록하는 교차-훅 상태가 필요해, 현재는 트리 기준을 유지한다.
 - **무엇**: 변경 파일만 `pnpm --filter web exec eslint`로 검사. 자동수정 불가한 위반
   (`func-style`, **FSD 경계**, 미사용 심볼 등 `eslint.config.js`의 error 규칙)을 잡는다.
   포맷은 1번이 이미 처리. (`import type` 등 lint에 없는 컨벤션은 아래 "검사 범위" 참고.)
@@ -58,7 +65,9 @@ Claude Code가 코드를 만질 때 컨벤션([`.claude/rules/`](../rules/))을 
 ## 이식성 메모
 
 - macOS 기본 `/bin/bash`가 3.2라 스크립트는 **POSIX `sh`**로 작성했다(`mapfile`·연관배열 미사용).
-- JSON 파서(jq) 의존을 피하려 훅 입력을 파싱하지 않고 **git으로 변경 파일을 탐색**한다.
+- JSON 파서(jq)에 의존하지 않는다. `prettier.sh`는 PostToolUse stdin에서 `file_path`
+  **한 필드만** grep/sed로 뽑아 편집 파일을 특정하고, `eslint.sh`(Stop)는 입력에 개별
+  파일이 없어 **git으로 변경 파일을 탐색**한다.
 - `prettier`/`eslint`는 `pnpm exec`로 실행한다(Claude Code를 실행한 셸 환경의 PATH를 상속).
   `pnpm`/의존성이 없으면 두 훅 모두 **하드블록하지 않고 조용히 스킵**한다(prettier는 `|| true`,
   eslint는 인프라 가드).
