@@ -35,7 +35,7 @@ paths:
 
 ### FSD 경계 (`eslint-plugin-fsd-lint`)
 
-`src/**/*.{ts,tsx}`(단, `src/main.tsx` 제외)에 적용. 레이어·슬라이스 규칙을 강제한다 →
+`src/**/*.{ts,tsx}` 전체에 적용. 레이어·슬라이스 규칙을 강제한다 →
 [`architecture/fsd.md`](../architecture/fsd.md).
 
 | 규칙                            | 레벨  | 의미                                     |
