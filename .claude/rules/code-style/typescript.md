@@ -14,7 +14,7 @@ paths:
 
 ```ts
 // ✅ 화살표 함수 표현식
-export const toRad = (deg: number) => (deg * Math.PI) / 180
+export const toRad = (deg: number) => (deg * Math.PI) / 180;
 
 // ❌ 함수 선언문 (린트 에러)
 export function toRad(deg: number) { … }

@@ -60,7 +60,7 @@
 ```bash
 pnpm --filter web lint
 pnpm --filter web build                                      # tsc -b 타입체크 + Vite 빌드
-pnpm --filter web exec vitest run                            # 테스트
+pnpm --filter web test                                       # 테스트
 ```
 
 - 변경에 대한 테스트를 함께 추가한다 (예: `polyline.test.ts`).

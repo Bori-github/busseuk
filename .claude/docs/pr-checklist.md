@@ -13,7 +13,7 @@ PR은 [검증 매트릭스](verification-matrix.md)의 CI 게이트를 통과해
 
 - `pnpm --filter web lint` — 린트·FSD 경계 위반 없음
 - `pnpm --filter web build` — `tsc -b` 타입체크 + Vite 빌드 성공
-- `pnpm --filter web exec vitest run` — 테스트 통과
+- `pnpm --filter web test` — 테스트 통과
 
 CI(`.github/workflows/test.yml`)가 PR→main에서 이 세 가지를 강제한다. 커밋 전 husky
 `pre-commit`이 변경 파일에 `prettier --write` + `eslint --fix`를 돌린다([husky.md](../rules/tooling/husky.md)).

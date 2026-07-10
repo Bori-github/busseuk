@@ -13,8 +13,9 @@ build
 # Claude Code 에이전트 워크트리 (메인 체크아웃에 untracked로 잡히는 것 방지)
 .claude/worktrees/
 
-# Environment variables — .env* 전부 커밋 금지 (키 노출 방지), 예시 파일만 예외
-.env*
+# Environment variables — .env 및 .env.<환경> 커밋 금지 (키 노출 방지), 예시 파일만 예외
+.env
+.env.*
 !.env.example
 
 # Logs
