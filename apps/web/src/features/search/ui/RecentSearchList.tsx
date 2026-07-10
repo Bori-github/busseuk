@@ -1,5 +1,8 @@
+import { m } from 'framer-motion';
+
 import type { RecentSearchItem } from '../model/types';
 import { StationSearchItem } from './StationSearchItem';
+import { listVariants } from '@shared/lib';
 
 interface RecentSearchListProps {
   items: RecentSearchItem[];
@@ -31,7 +34,9 @@ export const RecentSearchList = ({ items, onSelect, onRemove }: RecentSearchList
       {items.length === 0 ? (
         <p className="px-4 py-3 text-sm text-gray-400 text-center">최근 검색 내역이 없습니다</p>
       ) : (
-        <ul>{items.map((item) => renderItem(item, onSelect, onRemove))}</ul>
+        <m.ul variants={listVariants} initial="hidden" animate="visible">
+          {items.map((item) => renderItem(item, onSelect, onRemove))}
+        </m.ul>
       )}
     </div>
   );

@@ -1,11 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
+import { m } from 'framer-motion';
 import { toast } from 'sonner';
 
 import type { SelectedRoute } from '@entities/bus';
 import { getRouteTypeColor, getRouteTypeLabel } from '@entities/bus';
 import { getStationInformationQueryOptions } from '@entities/station';
 import { BusApiError } from '@shared/api';
-import { cn } from '@shared/lib';
+import { TAP_SCALE, cn, listItemVariants, listVariants } from '@shared/lib';
 import { BottomSheet } from '@shared/ui';
 
 const MAX_SELECTED_ROUTES = 5;
@@ -95,52 +96,58 @@ export const StationInformationBottomSheet = ({
         {!isLoading && isError && data.length === 0 && (
           <div className="flex flex-col items-center gap-3 px-4 py-8 text-center">
             <p className="text-sm text-gray-400">{getStationInformationErrorMessage(error)}</p>
-            <button
+            <m.button
               type="button"
               onClick={() => refetch()}
               disabled={isFetching}
+              whileTap={TAP_SCALE}
               className={cn(
                 'rounded-full bg-white px-4 py-2 text-sm font-medium text-neutral-900',
                 'disabled:cursor-not-allowed disabled:opacity-50',
               )}
             >
               {isFetching ? '다시 불러오는 중...' : '다시 시도'}
-            </button>
+            </m.button>
           </div>
         )}
         {!isLoading && !isError && data.length === 0 && <p className="px-4 py-8 text-center text-sm text-gray-400">도착 정보가 없습니다</p>}
         {!isLoading && data.length > 0 && (
           <>
             {isError && (
-              <button
+              <m.button
                 type="button"
                 onClick={() => refetch()}
                 disabled={isFetching}
+                whileTap={TAP_SCALE}
                 className={cn(
                   'flex w-full items-center justify-center bg-amber-500/10 px-4 py-2 text-xs font-medium text-amber-300',
                   'disabled:opacity-60',
                 )}
               >
                 {isFetching ? '최신 정보를 불러오는 중...' : '최신 정보를 불러오지 못했어요 · 다시 시도'}
-              </button>
+              </m.button>
             )}
             {isAtMaxRoutes && (
               <p className="px-4 py-1 text-xs text-gray-400">
                 최대 {MAX_SELECTED_ROUTES}개까지 선택할 수 있어요. 다른 노선을 해제한 뒤 선택하세요.
               </p>
             )}
-            <ul className="divide-y divide-white/10">
+            {/* stagger는 컨테이너가 hidden→visible로 전이할 때만 재생된다.
+                15초 폴링(refetchInterval)으로 data가 갱신돼도 이 ul은 마운트된 채라
+                목록 전체가 다시 등장하지 않는다. */}
+            <m.ul variants={listVariants} initial="hidden" animate="visible" className="divide-y divide-white/10">
               {data.map((item) => {
                 const routeTypeLabel = getRouteTypeLabel(item.routeType);
                 const checked = selectedRouteIds.includes(item.busRouteId);
                 const isDisabled = !checked && isAtMaxRoutes;
 
                 return (
-                  <li key={item.busRouteId} className="flex items-center gap-3 px-4 py-3">
-                    <input
+                  <m.li key={item.busRouteId} variants={listItemVariants} className="flex items-center gap-3 px-4 py-3">
+                    <m.input
                       type="checkbox"
                       checked={checked}
                       disabled={isDisabled}
+                      whileTap={TAP_SCALE}
                       onChange={(e) =>
                         handleToggle(
                           {
@@ -177,10 +184,10 @@ export const StationInformationBottomSheet = ({
                         )}
                       </div>
                     </div>
-                  </li>
+                  </m.li>
                 );
               })}
-            </ul>
+            </m.ul>
           </>
         )}
       </BottomSheet.Content>
