@@ -15,6 +15,7 @@
 - [pr-checklist.md](.claude/docs/pr-checklist.md) — PR 작성 기준: 커밋·라벨 규칙, 검증을 값으로 쓰는 이유 (본문 구조는 [pull_request_template.md](.github/pull_request_template.md), 절차는 [/pr](.claude/commands/pr.md))
 - [map-center-policy.md](.claude/docs/map-center-policy.md) — 지도 센터 이동 불변식
 - [bus-animation-policy.md](.claude/docs/bus-animation-policy.md) — 버스 마커 지연 재생 보간 불변식
+- [animation-libs-policy.md](.claude/docs/animation-libs-policy.md) — UI 애니메이션 라이브러리(framer-motion 채택·GSAP 미채택 근거)
 - [api/](.claude/docs/api/) — 서울 버스 API 응답·계약
 - [naver-map/map-options.md](.claude/docs/naver-map/map-options.md) — 네이버맵 MapOptions 레퍼런스
 
