@@ -23,11 +23,17 @@ interface PointerSample {
 /**
  * 최근 이동 구간의 평균 속도(px/ms). 양수 = 아래로.
  * 전체 드래그가 아니라 마지막 구간만 보는 이유: 천천히 끌다가 마지막에 튕기는 동작을 살리기 위해.
+ *
+ * @param releaseTime 손을 뗀 시각. 정지한 채로 떼면 던진 게 아니므로 속도를 0으로 본다.
+ *   포인터가 멈춰 있는 동안에는 pointermove가 발생하지 않아 샘플이 갱신되지 않는다.
+ *   이 가드가 없으면 "빠르게 끌다 → 멈춤 → 뗌"에서 멈추기 전의 낡은 속도가 반영된다.
  */
-const getVelocity = (samples: PointerSample[]) => {
+const getVelocity = (samples: PointerSample[], releaseTime: number) => {
   if (samples.length < 2) return 0;
 
   const last = samples[samples.length - 1];
+  if (releaseTime - last.t > VELOCITY_WINDOW_MS) return 0;
+
   const first = samples[0];
   const elapsed = last.t - first.t;
 
@@ -242,7 +248,7 @@ export const BottomSheetRoot = ({
 
     const rawDelta = e.clientY - startYRef.current;
     // 손을 뗀 속도(px/ms)로 조금 더 갔을 지점까지 반영한다.
-    const velocity = getVelocity(samplesRef.current);
+    const velocity = getVelocity(samplesRef.current, e.timeStamp);
     finishDrag(rawDelta + velocity * FLING_PROJECTION_MS);
 
     if (e.currentTarget.hasPointerCapture(e.pointerId)) {
