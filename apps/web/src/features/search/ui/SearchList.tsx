@@ -16,7 +16,7 @@ export const SearchList = ({ results, isLoading, disabled = false, onSelect }: S
     <div className="overflow-hidden">
       {!isLoading && results.length === 0 && <p className="px-4 py-3 text-sm text-gray-400">검색 결과가 없습니다</p>}
       {!isLoading && results.length > 0 && (
-        <m.ul variants={listVariants} initial="hidden" animate="visible">
+        <m.ul variants={listVariants(results.length)} initial="hidden" animate="visible">
           {results.map((station) => (
             <StationSearchItem
               key={station.arsId}

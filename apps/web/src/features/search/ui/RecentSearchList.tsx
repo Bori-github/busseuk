@@ -34,7 +34,7 @@ export const RecentSearchList = ({ items, onSelect, onRemove }: RecentSearchList
       {items.length === 0 ? (
         <p className="px-4 py-3 text-sm text-gray-400 text-center">최근 검색 내역이 없습니다</p>
       ) : (
-        <m.ul variants={listVariants} initial="hidden" animate="visible">
+        <m.ul variants={listVariants(items.length)} initial="hidden" animate="visible">
           {items.map((item) => renderItem(item, onSelect, onRemove))}
         </m.ul>
       )}

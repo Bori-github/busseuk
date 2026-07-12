@@ -135,7 +135,7 @@ export const StationInformationBottomSheet = ({
             {/* stagger는 컨테이너가 hidden→visible로 전이할 때만 재생된다.
                 15초 폴링(refetchInterval)으로 data가 갱신돼도 이 ul은 마운트된 채라
                 목록 전체가 다시 등장하지 않는다. */}
-            <m.ul variants={listVariants} initial="hidden" animate="visible" className="divide-y divide-white/10">
+            <m.ul variants={listVariants(data.length)} initial="hidden" animate="visible" className="divide-y divide-white/10">
               {data.map((item) => {
                 const routeTypeLabel = getRouteTypeLabel(item.routeType);
                 const checked = selectedRouteIds.includes(item.busRouteId);
