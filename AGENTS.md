@@ -12,7 +12,7 @@
 - [dev-workflow.md](.claude/docs/dev-workflow.md) — Working Style·기능 개발 5단계 루프
 - [project-structure.md](.claude/docs/project-structure.md) — FSD 배치·테스트 배치
 - [verification-matrix.md](.claude/docs/verification-matrix.md) — 영역별 검증 방법·게이트
-- [pr-checklist.md](.claude/docs/pr-checklist.md) — PR 평가 기준·설명 양식 (GitHub 양식: [pull_request_template.md](.github/pull_request_template.md))
+- [pr-checklist.md](.claude/docs/pr-checklist.md) — PR 작성 기준: 커밋·라벨 규칙, 검증을 값으로 쓰는 이유 (본문 구조는 [pull_request_template.md](.github/pull_request_template.md), 절차는 [/pr](.claude/commands/pr.md))
 - [map-center-policy.md](.claude/docs/map-center-policy.md) — 지도 센터 이동 불변식
 - [bus-animation-policy.md](.claude/docs/bus-animation-policy.md) — 버스 마커 지연 재생 보간 불변식
 - [api/](.claude/docs/api/) — 서울 버스 API 응답·계약
