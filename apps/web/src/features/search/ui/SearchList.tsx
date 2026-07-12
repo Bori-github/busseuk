@@ -1,5 +1,8 @@
+import { m } from 'framer-motion';
+
 import { StationSearchItem } from './StationSearchItem';
 import type { StationSearchResult } from '@entities/station';
+import { listVariants } from '@shared/lib';
 
 interface SearchListProps {
   results: StationSearchResult[];
@@ -13,7 +16,7 @@ export const SearchList = ({ results, isLoading, disabled = false, onSelect }: S
     <div className="overflow-hidden">
       {!isLoading && results.length === 0 && <p className="px-4 py-3 text-sm text-gray-400">검색 결과가 없습니다</p>}
       {!isLoading && results.length > 0 && (
-        <ul>
+        <m.ul variants={listVariants(results.length)} initial="hidden" animate="visible">
           {results.map((station) => (
             <StationSearchItem
               key={station.arsId}
@@ -23,7 +26,7 @@ export const SearchList = ({ results, isLoading, disabled = false, onSelect }: S
               onClick={() => onSelect(station)}
             />
           ))}
-        </ul>
+        </m.ul>
       )}
     </div>
   );
