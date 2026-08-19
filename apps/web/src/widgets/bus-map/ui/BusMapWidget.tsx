@@ -11,9 +11,11 @@ import {
   TARGET_LAG_MS,
 } from '../lib/busInterpolation';
 import type { Sample } from '../lib/busInterpolation';
+import { diffBusStopMarkers } from '../lib/busStopMarkers';
 
 import type { BusPosition, RoutePathPoint } from '@entities/bus';
 import { getRouteTypeColor } from '@entities/bus';
+import type { BusStop } from '@entities/bus-stop';
 import { buildRoutePolyline, pointAtDistance, projectToPolyline } from '@shared/lib';
 import type { LatLng, RoutePolyline } from '@shared/lib';
 import { BUS_ARROW_SELECTOR, createBusMarkerIcon, createBusStopMarkerIcon, createUserMarkerIcon, NaverMap } from '@shared/ui/naver';
@@ -48,6 +50,7 @@ interface Location {
 }
 
 interface SelectedStation {
+  stationId: string;
   lat: number;
   lng: number;
   name: string;
@@ -78,17 +81,28 @@ interface BusMapWidgetProps {
   selectedStation?: SelectedStation | null;
   /** 선택된 노선들의 실시간 버스 위치 */
   busRoutes?: BusRouteWithPositions[];
+  /** 지도에 그릴 주변 정류장. 줌이 임계 미만이면 렌더하지 않는다 */
+  stops?: BusStop[];
   /** 하단 오버레이(바텀시트 등)가 가리는 높이(px). 선택 정류장을 가려지지 않은 영역 중앙에 배치하기 위해 사용 */
   bottomInset?: number;
   /** 버스 마커 노출 여부(줌 임계 이상) 변화를 상위에 알린다. 안 보일 때 위치 폴링을 끄기 위함. */
   onBusVisibilityChange?: (visible: boolean) => void;
 }
 
-export const BusMapWidget = ({ location, selectedStation, busRoutes = [], bottomInset = 0, onBusVisibilityChange }: BusMapWidgetProps) => {
+export const BusMapWidget = ({
+  location,
+  selectedStation,
+  busRoutes = [],
+  stops = [],
+  bottomInset = 0,
+  onBusVisibilityChange,
+}: BusMapWidgetProps) => {
   const mapRef = useRef<naver.maps.Map | null>(null);
   const userMarkerRef = useRef<naver.maps.Marker | null>(null);
   const selectedMarkerRef = useRef<naver.maps.Marker | null>(null);
   const busMarkersRef = useRef<Map<string, naver.maps.Marker>>(new Map());
+  const stopMarkersRef = useRef<Map<string, naver.maps.Marker>>(new Map());
+  const prevSelectedStationIdRef = useRef<string | null>(null);
   const routePathsRef = useRef<Map<string, naver.maps.Polyline>>(new Map());
 
   // 차량별 재생 상태. 폴(5초)마다 관측을 버퍼에 쌓고, rAF 루프가 renderTime(=now−지연)을
@@ -143,6 +157,8 @@ export const BusMapWidget = ({ location, selectedStation, busRoutes = [], bottom
     }
   }, [mapReady, location]);
 
+  const selectedStationId = selectedStation?.stationId ?? null;
+
   useEffect(() => {
     if (!mapReady || !mapRef.current) return;
 
@@ -179,6 +195,55 @@ export const BusMapWidget = ({ location, selectedStation, busRoutes = [], bottom
       mapRef.current.panTo(position);
     }
   }, [mapReady, selectedStation]);
+
+  const showStops = zoom >= BUS_MARKER_MIN_ZOOM;
+
+  useEffect(() => {
+    if (!mapReady || !mapRef.current) return;
+
+    const map = mapRef.current;
+    const markers = stopMarkersRef.current;
+    const buildIcon = (stop: BusStop) => createBusStopMarkerIcon({ name: stop.name, selected: stop.stationId === selectedStationId });
+
+    const { added, removed, reiconed } = diffBusStopMarkers({
+      stops: showStops ? stops : [],
+      existingIds: markers.keys(),
+      selectedStationId,
+      prevSelectedStationId: prevSelectedStationIdRef.current,
+    });
+
+    for (const stationId of removed) {
+      markers.get(stationId)?.setMap(null);
+      markers.delete(stationId);
+    }
+
+    for (const stop of added) {
+      markers.set(
+        stop.stationId,
+        new naver.maps.Marker({
+          map,
+          position: new naver.maps.LatLng(stop.lat, stop.lng),
+          icon: buildIcon(stop),
+        }),
+      );
+    }
+
+    for (const stop of reiconed) {
+      markers.get(stop.stationId)?.setIcon(buildIcon(stop));
+    }
+
+    prevSelectedStationIdRef.current = selectedStationId;
+  }, [mapReady, stops, selectedStationId, showStops]);
+
+  useEffect(() => {
+    const markers = stopMarkersRef.current;
+    return () => {
+      for (const marker of markers.values()) {
+        marker.setMap(null);
+      }
+      markers.clear();
+    };
+  }, []);
 
   // 노선 경로는 24h 캐시·불변이므로 위치 폴링(5s)마다 폴리라인을 재생성하지 않도록,
   // 노선 구성·경로 길이가 바뀔 때만 갱신되는 목록으로 분리한다(P1: 위치 갱신과 경로 렌더 디커플).

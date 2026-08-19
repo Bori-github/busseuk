@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useQueries } from '@tanstack/react-query';
+import { useQueries, useQuery } from '@tanstack/react-query';
 import { AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 
@@ -12,6 +12,7 @@ import { useUserLocation } from '@features/user-location';
 
 import type { SelectedRoute } from '@entities/bus';
 import { busPositionsQueryOptions, routePathQueryOptions } from '@entities/bus';
+import { nearbyStopsQueryOptions } from '@entities/bus-stop';
 import type { StationSearchResult } from '@entities/station';
 import { SearchIcon } from '@shared/icons';
 import { PEEK_HEIGHT_RATIO } from '@shared/ui';
@@ -22,7 +23,7 @@ interface SelectedRouteItem extends SelectedRoute {
 }
 
 export const MapPage = () => {
-  const { location } = useUserLocation();
+  const { location, isLocating } = useUserLocation();
 
   const [selectedStation, setSelectedStation] = useState<StationSearchResult | null>(null);
   const [isStationInformationSheetOpen, setIsStationInformationSheetOpen] = useState(false);
@@ -32,6 +33,18 @@ export const MapPage = () => {
   const [busesVisible, setBusesVisible] = useState(false);
 
   const selectedRouteIds = selectedRoutes.map((route) => route.busRouteId);
+
+  const { data: nearbyStops = [], isError: hasNearbyStopsError } = useQuery({
+    ...nearbyStopsQueryOptions(location.lat, location.lng),
+    enabled: !isLocating,
+  });
+
+  // 조회 실패가 빈 배열로 대체돼 "주변에 정류장이 없음"과 구분되지 않으므로 토스트로 알린다.
+  useEffect(() => {
+    if (hasNearbyStopsError) {
+      toast.error('주변 정류장을 불러오지 못했습니다');
+    }
+  }, [hasNearbyStopsError]);
 
   // 선택한 노선이 있는데 줌이 낮아 버스 마커가 안 보이면(=버스 없음과 구분 불가) 확대를 안내한다.
   const shouldShowBusZoomHint = selectedRoutes.length > 0 && !busesVisible;
@@ -77,6 +90,7 @@ export const MapPage = () => {
     () =>
       selectedStation
         ? {
+            stationId: selectedStation.stId,
             lat: parseFloat(selectedStation.tmY),
             lng: parseFloat(selectedStation.tmX),
             name: selectedStation.stNm,
@@ -127,6 +141,7 @@ export const MapPage = () => {
         location={location}
         selectedStation={selectedStationForMap}
         busRoutes={busRoutes}
+        stops={nearbyStops}
         onBusVisibilityChange={setBusesVisible}
         bottomInset={isStationInformationSheetOpen ? window.innerHeight * PEEK_HEIGHT_RATIO : 0}
       />

@@ -21,6 +21,11 @@ vi.mock('@entities/bus/api/busRouteApi', () => ({
   searchBusRoutes: vi.fn().mockResolvedValue([]),
 }));
 
+vi.mock('@entities/bus-stop/api/getNearbyStops', () => ({
+  getNearbyStops: vi.fn().mockResolvedValue([]),
+  NEARBY_RADIUS_METERS: 300,
+}));
+
 vi.mock('@widgets/bus-map', () => ({
   BusMapWidget: () => null,
 }));
