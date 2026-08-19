@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { createBusStopMarkerIcon, STOP_PIN_TIP_SELECTOR } from './createBusStopMarkerIcon';
+import { createBusStopMarkerIcon, BUS_STOP_PIN_TIP_SELECTOR } from './createBusStopMarkerIcon';
 
 // toMeasuredHtmlIcon은 window.naver.maps.Size/Point를 사용하므로 최소 스텁을 둔다.
 beforeEach(() => {
@@ -43,8 +43,8 @@ describe('createBusStopMarkerIcon', () => {
   });
 
   it('꼬리는 선택된 정류장에만 붙인다', () => {
-    expect(render(false).querySelector(STOP_PIN_TIP_SELECTOR)).toBeNull();
-    expect(render(true).querySelector(STOP_PIN_TIP_SELECTOR)).not.toBeNull();
+    expect(render(false).querySelector(BUS_STOP_PIN_TIP_SELECTOR)).toBeNull();
+    expect(render(true).querySelector(BUS_STOP_PIN_TIP_SELECTOR)).not.toBeNull();
   });
 
   it('선택된 정류장의 원을 더 크게 그린다', () => {

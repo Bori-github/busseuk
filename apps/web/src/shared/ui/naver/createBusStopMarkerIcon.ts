@@ -14,7 +14,7 @@ const LABEL_GAP = 4;
 const FILL = '#EF4444';
 const STROKE = '#DC2626';
 
-export const STOP_PIN_TIP_SELECTOR = '[data-stop-pin-tip]';
+export const BUS_STOP_PIN_TIP_SELECTOR = '[data-bus-stop-pin-tip]';
 
 interface CreateBusStopMarkerIconOptions {
   name: string;
@@ -48,7 +48,7 @@ const createCircle = (size: number): HTMLElement => {
 
 const createTip = (): HTMLElement => {
   const tip = document.createElement('div');
-  tip.dataset.stopPinTip = '';
+  tip.dataset.busStopPinTip = '';
   Object.assign(tip.style, {
     width: '0',
     height: '0',
