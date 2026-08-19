@@ -12,6 +12,7 @@ import { useUserLocation } from '@features/user-location';
 
 import type { SelectedRoute } from '@entities/bus';
 import { busPositionsQueryOptions, routePathQueryOptions } from '@entities/bus';
+import type { BusStop } from '@entities/bus-stop';
 import { nearbyStopsQueryOptions } from '@entities/bus-stop';
 import type { StationSearchResult } from '@entities/station';
 import { SearchIcon } from '@shared/icons';
@@ -110,6 +111,19 @@ export const MapPage = () => {
     setIsSearchOpen(false);
   };
 
+  // 임시. 상태를 정류장 공통 타입으로 정리하면 이 변환은 사라진다.
+  const handleSelectStop = (stop: BusStop) => {
+    setSelectedStation({
+      stId: stop.stationId,
+      stNm: stop.name,
+      arsId: stop.arsId,
+      tmX: String(stop.lng),
+      tmY: String(stop.lat),
+    });
+    setIsStationInformationSheetOpen(true);
+    setIsSearchOpen(false);
+  };
+
   const handleStationInformationSheetClose = () => {
     setSelectedStation(null);
     setIsStationInformationSheetOpen(false);
@@ -142,6 +156,7 @@ export const MapPage = () => {
         selectedStation={selectedStationForMap}
         busRoutes={busRoutes}
         stops={nearbyStops}
+        onStopSelect={handleSelectStop}
         onBusVisibilityChange={setBusesVisible}
         bottomInset={isStationInformationSheetOpen ? window.innerHeight * PEEK_HEIGHT_RATIO : 0}
       />
