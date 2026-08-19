@@ -87,7 +87,7 @@ interface BusMapWidgetProps {
   selectedStation?: SelectedStation | null;
   /** 선택된 노선들의 실시간 버스 위치 */
   busRoutes?: BusRouteWithPositions[];
-  /** 지도에 그릴 주변 정류장. 줌이 임계 미만이면 렌더하지 않는다 */
+  /** 줌이 임계 미만이면 렌더하지 않는다 */
   stops?: BusStop[];
   onStopSelect?: (stop: BusStop) => void;
   /** 하단 오버레이(바텀시트 등)가 가리는 높이(px). 선택 정류장을 가려지지 않은 영역 중앙에 배치하기 위해 사용 */
@@ -233,8 +233,7 @@ export const BusMapWidget = ({
     prevSelectedStationIdRef.current = selectedStationId;
   }, [mapReady, stops, selectedStationId, showStops]);
 
-  // 선택 정류장이 주변 목록에 있으면 그 마커가 선택 모양을 맡는다. 여기서 겹쳐 그리면 마커가 둘이 된다.
-  // 반경 밖 정류장(검색 결과)과 줌아웃으로 주변 마커가 숨은 경우만 이 폴백이 그린다.
+  // 주변 마커가 이미 선택 모양을 그리므로 여기서 겹쳐 그리면 마커가 둘이 된다.
   useEffect(() => {
     if (!mapReady || !mapRef.current) return;
 
