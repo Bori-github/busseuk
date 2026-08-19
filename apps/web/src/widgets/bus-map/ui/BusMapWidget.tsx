@@ -160,28 +160,9 @@ export const BusMapWidget = ({
   const selectedStationId = selectedStation?.stationId ?? null;
 
   useEffect(() => {
-    if (!mapReady || !mapRef.current) return;
-
-    if (!selectedStation) {
-      selectedMarkerRef.current?.setMap(null);
-      selectedMarkerRef.current = null;
-      return;
-    }
+    if (!mapReady || !mapRef.current || !selectedStation) return;
 
     const position = new naver.maps.LatLng(selectedStation.lat, selectedStation.lng);
-    const icon = createBusStopMarkerIcon({ name: selectedStation.name, selected: true });
-
-    if (!selectedMarkerRef.current) {
-      selectedMarkerRef.current = new naver.maps.Marker({
-        map: mapRef.current,
-        position,
-        icon,
-      });
-    } else {
-      selectedMarkerRef.current.setPosition(position);
-      selectedMarkerRef.current.setIcon(icon);
-      selectedMarkerRef.current.setMap(mapRef.current);
-    }
 
     const inset = bottomInsetRef.current;
     if (inset > 0) {
@@ -234,6 +215,31 @@ export const BusMapWidget = ({
 
     prevSelectedStationIdRef.current = selectedStationId;
   }, [mapReady, stops, selectedStationId, showStops]);
+
+  // 선택 정류장이 주변 목록에 있으면 그 마커가 선택 모양을 맡는다. 여기서 겹쳐 그리면 마커가 둘이 된다.
+  // 반경 밖 정류장(검색 결과)과 줌아웃으로 주변 마커가 숨은 경우만 이 폴백이 그린다.
+  useEffect(() => {
+    if (!mapReady || !mapRef.current) return;
+
+    const drawnAsNearbyStop = showStops && stops.some((stop) => stop.stationId === selectedStationId);
+
+    if (!selectedStation || drawnAsNearbyStop) {
+      selectedMarkerRef.current?.setMap(null);
+      selectedMarkerRef.current = null;
+      return;
+    }
+
+    const position = new naver.maps.LatLng(selectedStation.lat, selectedStation.lng);
+    const icon = createBusStopMarkerIcon({ name: selectedStation.name, selected: true });
+
+    if (!selectedMarkerRef.current) {
+      selectedMarkerRef.current = new naver.maps.Marker({ map: mapRef.current, position, icon });
+    } else {
+      selectedMarkerRef.current.setPosition(position);
+      selectedMarkerRef.current.setIcon(icon);
+      selectedMarkerRef.current.setMap(mapRef.current);
+    }
+  }, [mapReady, selectedStation, selectedStationId, stops, showStops]);
 
   useEffect(() => {
     const markers = stopMarkersRef.current;
