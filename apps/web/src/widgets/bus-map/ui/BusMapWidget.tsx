@@ -153,7 +153,7 @@ export const BusMapWidget = ({ location, selectedStation, busRoutes = [], bottom
     }
 
     const position = new naver.maps.LatLng(selectedStation.lat, selectedStation.lng);
-    const icon = createBusStopMarkerIcon({ name: selectedStation.name });
+    const icon = createBusStopMarkerIcon({ name: selectedStation.name, selected: true });
 
     if (!selectedMarkerRef.current) {
       selectedMarkerRef.current = new naver.maps.Marker({
