@@ -44,7 +44,11 @@ export const MapPage = () => {
 
   const selectedRouteIds = selectedRoutes.map((route) => route.busRouteId);
 
-  const { data: nearbyStations = [], isError: hasNearbyStationsError } = useQuery({
+  const {
+    data: nearbyStations = [],
+    isError: hasNearbyStationsError,
+    isSuccess: hasNearbyStationsLoaded,
+  } = useQuery({
     ...nearbyStopsQueryOptions(location.lat, location.lng),
     enabled: !isLocating,
   });
@@ -62,6 +66,9 @@ export const MapPage = () => {
       toast.error(locationError);
     }
   }, [locationError]);
+
+  // 조회는 성공했는데 0개인 경우. 실패(토스트)와 구분해 보여준다.
+  const hasNoNearbyStations = hasNearbyStationsLoaded && nearbyStations.length === 0;
 
   // 선택한 노선이 있는데 줌이 낮아 버스 마커가 안 보이면(=버스 없음과 구분 불가) 확대를 안내한다.
   const shouldShowBusZoomHint = selectedRoutes.length > 0 && !busesVisible;
@@ -179,6 +186,7 @@ export const MapPage = () => {
         </button>
         <SelectedRouteTagList routes={selectedRoutes} onRemove={handleToggleRoute} onReopen={handleReopenStation} />
         {isLocating && <MapHint>현재 위치를 확인하는 중입니다</MapHint>}
+        {hasNoNearbyStations && <MapHint>주변에 정류소가 없습니다</MapHint>}
         {shouldShowBusZoomHint && <BusZoomHint />}
       </div>
 
