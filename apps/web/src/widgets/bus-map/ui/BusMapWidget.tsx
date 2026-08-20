@@ -11,29 +11,31 @@ import {
   TARGET_LAG_MS,
 } from '../lib/busInterpolation';
 import type { Sample } from '../lib/busInterpolation';
+import { diffBusStopMarkers } from '../lib/busStopMarkers';
 
 import type { BusPosition, RoutePathPoint } from '@entities/bus';
 import { getRouteTypeColor } from '@entities/bus';
-import { buildRoutePolyline, pointAtDistance, projectToPolyline } from '@shared/lib';
+import type { BusStop } from '@entities/bus-stop';
+import { buildRoutePolyline, parseCoord, pointAtDistance, projectToPolyline } from '@shared/lib';
 import type { LatLng, RoutePolyline } from '@shared/lib';
 import { BUS_ARROW_SELECTOR, createBusMarkerIcon, createBusStopMarkerIcon, createUserMarkerIcon, NaverMap } from '@shared/ui/naver';
 
-/** 버스 마커가 노출되는 최소 줌 레벨 (정류장 아이콘과 동일) */
+/** 버스 마커가 노출되는 최소 줌 레벨 */
 const BUS_MARKER_MIN_ZOOM = 17;
+
+/** 정류장 마커 기준 레벨. 미만이면 점으로 표시 */
+const STATION_DETAIL_MIN_ZOOM = 17;
+
+/** 부동소수 비교를 위한 오차 범위 */
+const PROGRAMMATIC_CENTER_EPS = 1e-9;
 
 /**
  * raw GPS를 노선에 투영했을 때 허용하는 최대 이탈(m). 이보다 벗어나면(우회·U턴·GPS 노이즈)
- * 투영을 버리고 raw GPS 위치를 그대로 쓴다 — 도로선 위 엉뚱한 지점에 스냅되는 것을 막는다.
+ * 투영을 버리고 raw GPS 위치를 그대로 사용 — 도로선 위 엉뚱한 지점에 스냅되는 것을 방지
  */
 const MAX_SNAP_ERROR_M = 60;
 
-/** gpsX/gpsY 문자열을 좌표로 파싱한다. NaN·0(GPS 미확보)은 무효로 보고 null을 반환. */
-const parseCoord = (value: string): number | null => {
-  const parsed = parseFloat(value);
-  return Number.isNaN(parsed) || parsed === 0 ? null : parsed;
-};
-
-/** 노선 경로 점들을 유효 좌표(LatLng)만 파싱한다. 투영용 폴리라인·렌더 폴리라인의 단일 출처. */
+/** 노선 경로를 유효 좌표만 남겨 파싱. 투영·렌더 폴리라인의 단일 출처 */
 const parseRoutePath = (path: RoutePathPoint[]): LatLng[] =>
   path.reduce<LatLng[]>((acc, point) => {
     const lat = parseCoord(point.gpsY);
@@ -47,7 +49,14 @@ interface Location {
   lng: number;
 }
 
+/** `marker.setMap(null)`은 리스너를 제거하지 않음 */
+interface StationMarkerEntry {
+  marker: naver.maps.Marker;
+  listener: ReturnType<typeof naver.maps.Event.addListener>;
+}
+
 interface SelectedStation {
+  stationId: string;
   lat: number;
   lng: number;
   name: string;
@@ -56,9 +65,9 @@ interface SelectedStation {
 /** 차량별 재생 상태: 노선 폴리라인 + 관측 샘플 버퍼 */
 interface BusAnimState {
   poly: RoutePolyline;
-  /** 관측 {s,t} 버퍼. renderTime을 사이에 두는 두 샘플을 보간한다. */
+  /** 관측 {s,t} 버퍼. renderTime을 사이에 두는 두 샘플을 보간 */
   buffer: Sample[];
-  /** 마커 내 화살표 DOM 핸들 캐시(해석되면 이후 프레임의 querySelector를 생략). */
+  /** 마커 내 화살표 DOM 핸들 캐시(해석되면 이후 프레임의 querySelector 생략) */
   arrowEl?: HTMLElement;
 }
 
@@ -78,30 +87,48 @@ interface BusMapWidgetProps {
   selectedStation?: SelectedStation | null;
   /** 선택된 노선들의 실시간 버스 위치 */
   busRoutes?: BusRouteWithPositions[];
-  /** 하단 오버레이(바텀시트 등)가 가리는 높이(px). 선택 정류장을 가려지지 않은 영역 중앙에 배치하기 위해 사용 */
+  /** 줌이 임계 미만이면 렌더하지 않음 */
+  stations?: BusStop[];
+  onStationSelect?: (station: BusStop) => void;
+  /** 하단 오버레이가 가리는 높이(px). 선택 정류장을 남은 영역 중앙에 배치 */
   bottomInset?: number;
-  /** 버스 마커 노출 여부(줌 임계 이상) 변화를 상위에 알린다. 안 보일 때 위치 폴링을 끄기 위함. */
+  /** 버스 마커 노출 여부 변화 알림. 안 보이면 상위가 폴링을 끔 */
   onBusVisibilityChange?: (visible: boolean) => void;
+  /** 지도가 멈출 때마다 호출. movedByUser는 앱이 옮긴 경우 false */
+  onMapIdle?: (center: Location, movedByUser: boolean) => void;
 }
 
-export const BusMapWidget = ({ location, selectedStation, busRoutes = [], bottomInset = 0, onBusVisibilityChange }: BusMapWidgetProps) => {
+export const BusMapWidget = ({
+  location,
+  selectedStation,
+  busRoutes = [],
+  stations = [],
+  onStationSelect,
+  bottomInset = 0,
+  onBusVisibilityChange,
+  onMapIdle,
+}: BusMapWidgetProps) => {
   const mapRef = useRef<naver.maps.Map | null>(null);
   const userMarkerRef = useRef<naver.maps.Marker | null>(null);
   const selectedMarkerRef = useRef<naver.maps.Marker | null>(null);
   const busMarkersRef = useRef<Map<string, naver.maps.Marker>>(new Map());
+  const stationMarkersRef = useRef<Map<string, StationMarkerEntry>>(new Map());
+  const prevSelectedStationIdRef = useRef<string | null>(null);
+  // 켰다 끄는 방식은 멈춤 신호가 없을 때 켜진 채 남아 다음 이동을 놓침
+  const lastProgrammaticCenterRef = useRef<Location>(location);
   const routePathsRef = useRef<Map<string, naver.maps.Polyline>>(new Map());
 
   // 차량별 재생 상태. 폴(5초)마다 관측을 버퍼에 쌓고, rAF 루프가 renderTime(=now−지연)을
-  // 사이에 두는 두 실측을 보간해 위치를 연속적으로 재생한다(예측 없음 → 백트래킹 없음).
+  // 사이에 두는 두 실측을 보간해 위치를 연속적으로 재생. 예측이 없어 되돌아가지 않음
   const busAnimRef = useRef<Map<string, BusAnimState>>(new Map());
   const rafRef = useRef<number | null>(null);
-  // 재생 클럭: 모든 버스가 공유. t=현재 재생 시각(performance.now 도메인), last=직전 프레임 시각.
+  // 재생 클럭: 모든 버스가 공유. t=현재 재생 시각(performance.now 도메인), last=직전 프레임 시각
   const playClockRef = useRef<{ t: number | null; last: number }>({
     t: null,
     last: 0,
   });
   // 모든 버스의 최신 실측 시각(performance.now 도메인). 관측 push 시 갱신하며,
-  // rAF 루프가 재생 클럭 상한(clamp)으로 쓴다 — 프레임마다 anims 전체를 훑지 않기 위한 유지값.
+  // rAF 루프가 재생 클럭 상한(clamp)으로 사용 — 프레임마다 anims 전체를 훑지 않기 위한 유지값
   const newestSampleRef = useRef(-Infinity);
 
   const [mapReady, setMapReady] = useState(false);
@@ -111,6 +138,12 @@ export const BusMapWidget = ({ location, selectedStation, busRoutes = [], bottom
   useEffect(() => {
     bottomInsetRef.current = bottomInset;
   }, [bottomInset]);
+
+  // 콜백을 의존성에 넣으면 매 렌더 리스너가 다시 붙어 탭 한 번에 N번 불림
+  const onStationSelectRef = useRef(onStationSelect);
+  useEffect(() => {
+    onStationSelectRef.current = onStationSelect;
+  }, [onStationSelect]);
 
   const handleMapReady = useCallback((map: naver.maps.Map) => {
     mapRef.current = map;
@@ -143,45 +176,132 @@ export const BusMapWidget = ({ location, selectedStation, busRoutes = [], bottom
     }
   }, [mapReady, location]);
 
+  const onMapIdleRef = useRef(onMapIdle);
+  useEffect(() => {
+    onMapIdleRef.current = onMapIdle;
+  }, [onMapIdle]);
+
+  // 내 위치가 바뀌면 NaverMap이 지도를 옮김
+  useEffect(() => {
+    lastProgrammaticCenterRef.current = location;
+  }, [location]);
+
+  const handleIdle = useCallback((center: Location) => {
+    const last = lastProgrammaticCenterRef.current;
+    const isProgrammatic =
+      Math.abs(center.lat - last.lat) < PROGRAMMATIC_CENTER_EPS && Math.abs(center.lng - last.lng) < PROGRAMMATIC_CENTER_EPS;
+
+    onMapIdleRef.current?.(center, !isProgrammatic);
+  }, []);
+
+  const selectedStationId = selectedStation?.stationId ?? null;
+
+  useEffect(() => {
+    if (!mapReady || !mapRef.current || !selectedStation) return;
+
+    const position = new naver.maps.LatLng(selectedStation.lat, selectedStation.lng);
+
+    const inset = bottomInsetRef.current;
+    if (inset > 0) {
+      // 바텀시트가 가리는 만큼 목표 중심을 아래로 inset/2 밀어 보정
+      const projection = mapRef.current.getProjection();
+      const offset = projection.fromCoordToOffset(position);
+      const target = projection.fromOffsetToCoord(new naver.maps.Point(offset.x, offset.y + inset / 2)) as naver.maps.LatLng;
+      lastProgrammaticCenterRef.current = { lat: target.lat(), lng: target.lng() };
+      mapRef.current.panTo(target);
+    } else {
+      lastProgrammaticCenterRef.current = { lat: position.lat(), lng: position.lng() };
+      mapRef.current.panTo(position);
+    }
+  }, [mapReady, selectedStation]);
+
+  const detailedStations = zoom >= STATION_DETAIL_MIN_ZOOM;
+  const prevDetailedStationsRef = useRef(detailedStations);
+
   useEffect(() => {
     if (!mapReady || !mapRef.current) return;
 
-    if (!selectedStation) {
+    const map = mapRef.current;
+    const markers = stationMarkersRef.current;
+    const buildIcon = (station: BusStop) => {
+      if (station.stationId === selectedStationId) return createBusStopMarkerIcon({ name: station.name, variant: 'selected' });
+
+      return createBusStopMarkerIcon({ name: station.name, variant: detailedStations ? 'default' : 'dot' });
+    };
+
+    const { added, removed, reiconed } = diffBusStopMarkers({
+      stops: stations,
+      existingIds: markers.keys(),
+      selectedStationId,
+      prevSelectedStationId: prevSelectedStationIdRef.current,
+      detailed: detailedStations,
+      prevDetailed: prevDetailedStationsRef.current,
+    });
+
+    for (const stationId of removed) {
+      const entry = markers.get(stationId);
+      if (!entry) continue;
+      naver.maps.Event.removeListener(entry.listener);
+      entry.marker.setMap(null);
+      markers.delete(stationId);
+    }
+
+    for (const station of added) {
+      const marker = new naver.maps.Marker({
+        map,
+        position: new naver.maps.LatLng(station.lat, station.lng),
+        icon: buildIcon(station),
+      });
+      const listener = naver.maps.Event.addListener(marker, 'click', () => onStationSelectRef.current?.(station));
+
+      markers.set(station.stationId, { marker, listener });
+    }
+
+    for (const station of reiconed) {
+      markers.get(station.stationId)?.marker.setIcon(buildIcon(station));
+    }
+
+    prevSelectedStationIdRef.current = selectedStationId;
+    prevDetailedStationsRef.current = detailedStations;
+  }, [mapReady, stations, selectedStationId, detailedStations]);
+
+  // 주변 마커가 이미 선택 모양을 그리므로 여기서 겹쳐 그리면 마커가 둘이 됨
+  useEffect(() => {
+    if (!mapReady || !mapRef.current) return;
+
+    const drawnAsNearbyStation = stations.some((station) => station.stationId === selectedStationId);
+
+    if (!selectedStation || drawnAsNearbyStation) {
       selectedMarkerRef.current?.setMap(null);
       selectedMarkerRef.current = null;
       return;
     }
 
     const position = new naver.maps.LatLng(selectedStation.lat, selectedStation.lng);
-    const icon = createBusStopMarkerIcon({ name: selectedStation.name });
+    const icon = createBusStopMarkerIcon({ name: selectedStation.name, variant: 'selected' });
 
     if (!selectedMarkerRef.current) {
-      selectedMarkerRef.current = new naver.maps.Marker({
-        map: mapRef.current,
-        position,
-        icon,
-      });
+      selectedMarkerRef.current = new naver.maps.Marker({ map: mapRef.current, position, icon });
     } else {
       selectedMarkerRef.current.setPosition(position);
       selectedMarkerRef.current.setIcon(icon);
       selectedMarkerRef.current.setMap(mapRef.current);
     }
+  }, [mapReady, selectedStation, selectedStationId, stations]);
 
-    const inset = bottomInsetRef.current;
-    if (inset > 0) {
-      // 바텀시트가 하단을 가리므로, 가려지지 않은 영역의 중앙에 정류장이 오도록
-      // 화면 투영 좌표에서 목표 중심을 아래로 inset/2만큼 밀어 보정한다.
-      const projection = mapRef.current.getProjection();
-      const offset = projection.fromCoordToOffset(position);
-      const target = projection.fromOffsetToCoord(new naver.maps.Point(offset.x, offset.y + inset / 2));
-      mapRef.current.panTo(target);
-    } else {
-      mapRef.current.panTo(position);
-    }
-  }, [mapReady, selectedStation]);
+  useEffect(() => {
+    const markers = stationMarkersRef.current;
+    return () => {
+      for (const { marker, listener } of markers.values()) {
+        naver.maps.Event.removeListener(listener);
+        marker.setMap(null);
+      }
+      markers.clear();
+    };
+  }, []);
 
   // 노선 경로는 24h 캐시·불변이므로 위치 폴링(5s)마다 폴리라인을 재생성하지 않도록,
-  // 노선 구성·경로 길이가 바뀔 때만 갱신되는 목록으로 분리한다(P1: 위치 갱신과 경로 렌더 디커플).
+  // 노선 구성·경로 길이가 바뀔 때만 갱신되는 목록으로 분리(P1: 위치 갱신과 경로 렌더 디커플)
   const pathSignature = busRoutes.map((route) => `${route.busRouteId}:${route.path?.length ?? 0}`).join(',');
   const routePaths = useMemo(
     () =>
@@ -190,7 +310,7 @@ export const BusMapWidget = ({ location, selectedStation, busRoutes = [], bottom
         .map((route) => ({
           busRouteId: route.busRouteId,
           routeType: route.routeType,
-          // API 응답이 순번(no)대로 온다는 보장이 없어, 폴리라인이 지그재그가 되지 않도록 정렬한다.
+          // API 응답이 순번(no)대로 온다는 보장이 없어, 폴리라인이 지그재그가 되지 않도록 정렬
           path: [...(route.path as RoutePathPoint[])].sort((a, b) => Number(a.no) - Number(b.no)),
         })),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -198,7 +318,7 @@ export const BusMapWidget = ({ location, selectedStation, busRoutes = [], bottom
   );
 
   // 노선별 투영용 폴리라인 캐시(누적거리 사전계산). 버스 raw GPS를 노선 위로 투영해
-  // heading(진행 방향)을 안정적으로 얻는 데 쓴다. routePaths가 바뀔 때만 재구성된다.
+  // heading(진행 방향)을 안정적으로 얻는 데 씀. routePaths가 바뀔 때만 재구성
   const routePolylines = useMemo(() => {
     const polylines = new Map<string, RoutePolyline>();
     for (const route of routePaths) {
@@ -210,9 +330,9 @@ export const BusMapWidget = ({ location, selectedStation, busRoutes = [], bottom
     return polylines;
   }, [routePaths]);
 
-  // 선택된 노선의 전체 경로를 폴리라인으로 렌더링한다.
-  // 노선선은 줌아웃 시 전체 경로 파악에 쓰이므로 줌과 무관하게 항상 표시하고, busRouteId 기준으로 diff 한다.
-  // (줌에 의존하지 않으므로 줌 변경 시 경로를 재파싱하지 않는다.)
+  // 선택된 노선의 전체 경로를 폴리라인으로 렌더링.
+  // 노선선은 줌아웃 시 전체 경로 파악에 쓰이므로 줌과 무관하게 항상 표시하고, busRouteId 기준으로 diff.
+  // (줌에 의존하지 않으므로 줌 변경 시 경로를 재파싱하지 않음)
   useEffect(() => {
     if (!mapReady || !mapRef.current) return;
 
@@ -270,14 +390,14 @@ export const BusMapWidget = ({ location, selectedStation, busRoutes = [], bottom
     };
   }, []);
 
-  // 누적거리 s 위치의 좌표·heading을 마커에 반영한다(위치 이동 + 화살표 회전).
+  // 누적거리 s 위치의 좌표·heading을 마커에 반영(위치 이동 + 화살표 회전).
   // 화살표 DOM 핸들은 캐시해 프레임당 querySelector를 피하되, 네이버가 마커 DOM을
-  // 재생성하면 캐시가 detached 노드를 가리킬 수 있으므로 isConnected로 확인해 재해석한다.
+  // 재생성하면 캐시가 detached 노드를 가리킬 수 있으므로 isConnected로 확인해 재해석
   const applyBusAnim = useCallback((marker: naver.maps.Marker, anim: BusAnimState, s: number) => {
     const { lat, lng, heading } = pointAtDistance(anim.poly, s);
     marker.setPosition(new naver.maps.LatLng(lat, lng));
     if (anim.arrowEl === undefined || !anim.arrowEl.isConnected) {
-      // 아직 안 그려졌거나(다음 프레임 재시도) 노드가 끊겼으면 다시 해석한다.
+      // 아직 그려지지 않았거나(다음 프레임 재시도) 노드가 끊겼으면 다시 해석
       anim.arrowEl = marker.getElement()?.querySelector<HTMLElement>(BUS_ARROW_SELECTOR) ?? undefined;
     }
     if (anim.arrowEl) {
@@ -286,25 +406,25 @@ export const BusMapWidget = ({ location, selectedStation, busRoutes = [], bottom
     }
   }, []);
 
-  // rAF 루프: 적응형 재생 클럭(playTime)을 사이에 두는 두 실측을 보간해 위치를 재생한다.
-  // 클럭은 목표 지연을 유지하되, 초과 지연이 쌓이면 잠깐 >1배속으로 부드럽게 회수(캐치업)한다.
-  // 최신 실측을 절대 앞지르지 않으므로(clamp) 예측·되돌아감이 없고, 재생 구간이 없으면 멈춘다.
+  // rAF 루프: 적응형 재생 클럭(playTime)을 사이에 두는 두 실측을 보간해 위치를 재생.
+  // 클럭은 목표 지연을 유지하되, 초과 지연이 쌓이면 잠깐 >1배속으로 부드럽게 회수(캐치업).
+  // 최신 실측을 절대 앞지르지 않으므로(clamp) 예측·되돌아감이 없고, 재생 구간이 없으면 멈춤
   const runAnimation = useCallback(
     function frame(now: number) {
       const markers = busMarkersRef.current;
       const anims = busAnimRef.current;
       const clock = playClockRef.current;
 
-      // 재생할 버스가 없으면 멈춘다.
+      // 재생할 버스가 없으면 멈춤
       if (anims.size === 0) {
         rafRef.current = null;
         clock.last = 0;
         return;
       }
-      // 최신 실측 시각 → 재생 클럭이 넘지 못하는 상한. push 때 유지해둔 값을 쓴다.
+      // 최신 실측 시각 → 재생 클럭이 넘지 못하는 상한. push 때 유지해둔 값을 씀
       const newest = newestSampleRef.current;
 
-      // 클럭 초기화/재동기화: 최초이거나 오래 멈춰 클럭이 낡았으면 목표 지연 위치로 리셋.
+      // 클럭 초기화/재동기화: 최초이거나 오래 멈춰 클럭이 낡았으면 목표 지연 위치로 리셋
       if (clock.t === null || now - clock.t > TARGET_LAG_MS * 3) {
         clock.t = now - TARGET_LAG_MS;
         clock.last = now;
@@ -340,13 +460,13 @@ export const BusMapWidget = ({ location, selectedStation, busRoutes = [], bottom
     }
   }, [runAnimation]);
 
-  // 선택된 노선의 실시간 버스 위치를 마커로 렌더링한다.
-  // 줌이 임계값 미만이면 모두 숨기고, 그 이상이면 vehId 기준으로 add/update/remove 한다.
+  // 선택된 노선의 실시간 버스 위치를 마커로 렌더링.
+  // 줌이 임계값 미만이면 모두 숨기고, 그 이상이면 vehId 기준으로 add/update/remove.
   // 폴리라인이 있는 차량은 관측을 버퍼에 쌓고 rAF 루프가 지연 재생 보간으로 이동시키며,
-  // 폴리라인이 없는 차량(경로 미로드)은 종전처럼 raw GPS로 즉시 배치한다.
+  // 폴리라인이 없는 차량(경로 미로드)은 종전처럼 raw GPS로 즉시 배치
   const showBuses = zoom >= BUS_MARKER_MIN_ZOOM;
 
-  // 마커 노출 여부가 바뀌면 상위에 알린다(안 보일 때 위치 폴링을 꺼 쿼터를 아끼기 위함).
+  // 노출 여부 변화 알림. 안 보일 때 폴링을 꺼 쿼터 절약
   useEffect(() => {
     onBusVisibilityChange?.(showBuses);
   }, [showBuses, onBusVisibilityChange]);
@@ -385,9 +505,9 @@ export const BusMapWidget = ({ location, selectedStation, busRoutes = [], bottom
             color: getRouteTypeColor(route.routeType),
             poly,
           };
-          // 폴리라인이 있으면 raw GPS를 투영해 관측 누적거리를 얻는다(지터에 강함).
+          // 폴리라인이 있으면 raw GPS를 투영해 관측 누적거리를 계산(지터에 강함).
           // 직전 관측 위치를 힌트로 줘 순환·왕복 노선에서 반대편 다리 락온을 막고,
-          // 노선에서 너무 벗어난 관측은 투영을 버리고 raw GPS를 쓴다.
+          // 노선에서 너무 벗어난 관측은 투영을 버리고 raw GPS를 씀
           if (poly) {
             const hint = anims.get(bus.vehId)?.buffer.at(-1)?.s;
             const proj = projectToPolyline(poly, { lat, lng }, { nearDistance: hint });
@@ -410,7 +530,7 @@ export const BusMapWidget = ({ location, selectedStation, busRoutes = [], bottom
 
     let hasPlayback = false;
     for (const [vehId, d] of next) {
-      // 폴리라인이 있으면 관측을 버퍼에 쌓고, 없으면 재생 대상에서 제외한다.
+      // 폴리라인이 있으면 관측을 버퍼에 쌓고, 없으면 재생 대상에서 제외
       let anim: BusAnimState | undefined;
       if (d.poly && d.sObs !== undefined) {
         anim = anims.get(vehId);
@@ -426,10 +546,10 @@ export const BusMapWidget = ({ location, selectedStation, busRoutes = [], bottom
 
       const existing = markers.get(vehId);
       if (existing) {
-        // 위치 갱신은 rAF 루프(지연 재생)가 담당한다. 폴리라인 없는 차량만 raw GPS로 즉시 배치.
+        // 위치 갱신은 rAF 루프(지연 재생)가 담당. 폴리라인 없는 차량만 raw GPS로 즉시 배치
         if (!anim) existing.setPosition(new naver.maps.LatLng(d.lat, d.lng));
       } else {
-        // 신규 마커: 폴리라인이 있으면 첫 재생 지점(도로 위)과 heading으로, 아니면 raw GPS로 생성.
+        // 신규 마커: 폴리라인이 있으면 첫 재생 지점(도로 위)과 heading으로, 아니면 raw GPS로 생성
         const playTime = playClockRef.current.t ?? now - TARGET_LAG_MS;
         const s = anim ? sampleAt(anim.buffer, playTime) : null;
         const start =
@@ -455,8 +575,8 @@ export const BusMapWidget = ({ location, selectedStation, busRoutes = [], bottom
       }
     }
 
-    // 재생할 버퍼가 있으면 최신 실측 시각을 갱신하고 rAF 루프를 기동한다(멈춰 있었다면 다시 시작).
-    // 이번 run에서 push된 관측은 모두 now 시각이므로 남아있는 anim들의 최신 시각 = now.
+    // 재생할 버퍼가 있으면 최신 실측 시각을 갱신하고 rAF 루프를 기동(멈춰 있었다면 다시 시작).
+    // 이번 run에서 push된 관측은 모두 now 시각이므로 남아있는 anim들의 최신 시각 = now
     if (hasPlayback) {
       newestSampleRef.current = now;
       startAnimation();
@@ -480,5 +600,5 @@ export const BusMapWidget = ({ location, selectedStation, busRoutes = [], bottom
     };
   }, []);
 
-  return <NaverMap center={location} onReady={handleMapReady} onZoomChanged={setZoom} />;
+  return <NaverMap center={location} onReady={handleMapReady} onZoomChanged={setZoom} onIdle={handleIdle} />;
 };

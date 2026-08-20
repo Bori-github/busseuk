@@ -67,6 +67,7 @@ import { getBusPositions } from '@entities/bus';
 | 변수·함수·훅   | camelCase (훅은 `use` 접두사)              | `busClient`, `useUserLocation`             |
 | 상수           | 상황에 맞게 (모듈 상수는 UPPER_SNAKE 허용) | `DEFAULT_ZOOM`                             |
 | API fetch 함수 | `get<리소스>`                              | `getBusPositions`, `getStationInformation` |
+| 디렉터리       | 다단어는 kebab-case                        | `bus-stop`, `user-location`                |
 | 파일           | 컴포넌트는 PascalCase, 그 외 camelCase     | `NaverMap.tsx`, `polyline.ts`              |
 
 ## 순수 함수 우선

@@ -1,13 +1,3 @@
-export interface Station {
-  stationId: string;
-  stationNm: string;
-  arsId: string;
-  gpsX: string;
-  gpsY: string;
-  dist: string;
-  stationTp: string;
-}
-
 export interface StationSearchResult {
   stId: string;
   stNm: string;

@@ -91,7 +91,7 @@ describe('StationInformationBottomSheet', () => {
       expect(getStationInformation).toHaveBeenCalledTimes(2);
     });
 
-    // 폴링 실패 후에도 기존 목록은 그대로 유지되고, 전체 에러 화면으로 교체되지 않는다.
+    // 폴링 실패 후에도 기존 목록은 그대로 유지되고, 전체 에러 화면으로 교체되지 않음
     expect(screen.getByText('753')).toBeTruthy();
     expect(screen.queryByText('실시간 도착 정보를 불러오지 못했습니다')).toBeNull();
     expect(screen.getByText(/최신 정보를 불러오지 못했어요/)).toBeTruthy();
@@ -113,7 +113,7 @@ describe('StationInformationBottomSheet', () => {
     renderSheet({ arsId: '99999' });
 
     await waitFor(() => {
-      expect(screen.getByText('정류장 또는 노선 정보를 찾을 수 없습니다')).toBeTruthy();
+      expect(screen.getByText('정류소 또는 노선 정보를 찾을 수 없습니다')).toBeTruthy();
     });
     expect(screen.getByRole('button', { name: '다시 시도' })).toBeTruthy();
     expect(screen.queryByText('도착 정보가 없습니다')).toBeNull();

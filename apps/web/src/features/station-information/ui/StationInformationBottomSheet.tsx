@@ -17,7 +17,7 @@ const hasArrival = (msg: string) => msg && msg !== '-';
 const getStationInformationErrorMessage = (error: unknown) => {
   if (error instanceof BusApiError) {
     if (error.isNotFound) {
-      return '정류장 또는 노선 정보를 찾을 수 없습니다';
+      return '정류소 또는 노선 정보를 찾을 수 없습니다';
     }
     if (error.isRetryable) {
       return '실시간 도착 정보를 불러오지 못했습니다';
@@ -58,8 +58,8 @@ export const StationInformationBottomSheet = ({
     ...getStationInformationQueryOptions(arsId),
     enabled: open && Boolean(arsId),
     refetchInterval: (query) => {
-      // 초기 로드 실패(데이터 없음)면 자동 폴링을 멈추고 수동 재시도에 맡긴다.
-      // 데이터가 있는 상태의 백그라운드 실패는 일시적일 수 있으므로 폴링을 유지해 자동 회복시킨다.
+      // 초기 로드 실패면 폴링을 멈추고 수동 재시도에 맡김.
+      // 데이터가 있는 상태의 실패는 일시적일 수 있어 폴링 유지
       const hasData = (query.state.data?.length ?? 0) > 0;
       if (query.state.status === 'error' && !hasData) return false;
       return 15_000;
@@ -74,8 +74,8 @@ export const StationInformationBottomSheet = ({
     onToggleRoute(route);
   };
 
-  // 선택 상한은 전역이라, 다른 정류장에서 이미 5개를 채웠으면 이 정류장의 미선택 노선도 고를 수 없다.
-  // 체크박스를 비활성화하고 안내를 노출해 "체크박스가 고장난 것처럼" 보이지 않게 한다.
+  // 선택 상한은 전역. 다른 정류장에서 5개를 채웠으면 여기서도 고를 수 없음.
+  // 비활성화 + 안내로 고장난 것처럼 보이지 않게 함
   const isAtMaxRoutes = selectedRouteIds.length >= MAX_SELECTED_ROUTES;
 
   return (
@@ -132,9 +132,9 @@ export const StationInformationBottomSheet = ({
                 최대 {MAX_SELECTED_ROUTES}개까지 선택할 수 있어요. 다른 노선을 해제한 뒤 선택하세요.
               </p>
             )}
-            {/* stagger는 컨테이너가 hidden→visible로 전이할 때만 재생된다.
+            {/* stagger는 컨테이너가 hidden→visible로 전이할 때만 재생.
                 15초 폴링(refetchInterval)으로 data가 갱신돼도 이 ul은 마운트된 채라
-                목록 전체가 다시 등장하지 않는다. */}
+                목록 전체가 다시 등장하지 않음. */}
             <m.ul variants={listVariants(data.length)} initial="hidden" animate="visible" className="divide-y divide-white/10">
               {data.map((item) => {
                 const routeTypeLabel = getRouteTypeLabel(item.routeType);
