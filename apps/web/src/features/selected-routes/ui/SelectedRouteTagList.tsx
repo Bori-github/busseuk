@@ -9,10 +9,8 @@ interface SelectedRouteTagListProps {
 }
 
 /**
- * 선택된 노선을 검색창 하단에 태그(노선번호 + 제거 버튼)로 노출한다.
- * 바텀시트가 닫혀도 선택 상태를 유지·해제할 수 있는 단일 진입점.
- * 노선번호를 누르면 그 노선을 고른 정류장의 도착정보 시트를 다시 연다.
- * 선택된 노선이 없으면 아무것도 렌더링하지 않는다.
+ * 선택 노선을 검색창 하단에 태그로 노출. 시트가 닫혀도 해제할 수 있는 단일 진입점.
+ * 노선번호 탭 → 그 노선을 고른 정류장 시트 재오픈. 선택이 없으면 렌더하지 않음.
  */
 export const SelectedRouteTagList = ({ routes, onRemove, onReopen }: SelectedRouteTagListProps) => {
   if (routes.length === 0) return null;

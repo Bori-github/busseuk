@@ -157,7 +157,7 @@ describe('MapPage station information', () => {
       screen.getByRole('button', { name: /A 정류장/ }).click();
     });
 
-    // 검색 오버레이가 다시 뜨고, 정보 시트는 닫힌다
+    // 검색 오버레이가 다시 뜨고, 정보 시트는 닫힘
     expect(screen.getByRole('button', { name: 'select-station-a' })).toBeTruthy();
     expect(screen.getByRole('dialog', { hidden: true }).getAttribute('aria-hidden')).toBe('true');
   });

@@ -3,7 +3,7 @@ import { toMeasuredHtmlIcon } from './htmlIcon';
 const NEARBY_SIZE = 24;
 const SELECTED_SIZE = 32;
 
-/** 선택 마커 꼬리. 좌표를 집어주는 뾰족한 끝을 만든다 */
+/** 선택 마커 꼬리. 좌표를 집는 뾰족한 끝 */
 const TIP_HEIGHT = 8;
 const TIP_WIDTH = 12;
 /** 꼬리를 원에 겹쳐 이어 보이게 하는 양 */
@@ -78,8 +78,8 @@ const createLabel = (name: string): HTMLElement => {
 };
 
 /**
- * 선택 마커는 꼬리 끝이, 주변 마커는 원 중심이 좌표에 놓인다.
- * 기준이 서로 달라 앵커를 크기에서 곧바로 유도할 수 없다.
+ * 선택 마커는 꼬리 끝, 나머지는 원 중심이 좌표에 놓임.
+ * 기준이 달라 크기에서 앵커를 곧바로 유도할 수 없음.
  */
 const resolveAnchorY = (selected: boolean): number => (selected ? SELECTED_SIZE + TIP_HEIGHT - TIP_OVERLAP : NEARBY_SIZE / 2);
 

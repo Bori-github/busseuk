@@ -72,7 +72,7 @@ describe('diffBusStopMarkers', () => {
   });
 
   it('새로 추가되는 정류장은 아이콘 대상에서 뺀다', () => {
-    // 생성 시 선택 아이콘을 받으므로, 넣으면 같은 마커에 setIcon이 두 번 돈다.
+    // 생성 시 선택 아이콘을 받으므로, 넣으면 같은 마커에 setIcon이 두 번 돎
     const result = diff({
       stops: [stop('A')],
       existingIds: [],

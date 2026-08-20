@@ -1,7 +1,7 @@
 import type { BusStop } from '@entities/bus-stop';
 
 interface BusStopMarkerDiffInput {
-  /** 지도에 있어야 할 정류장. 줌이 임계 미만이면 빈 배열을 넘겨 전부 제거한다 */
+  /** 지도에 있어야 할 정류장. 줌이 임계 미만이면 빈 배열을 넘겨 전부 제거 */
   stops: BusStop[];
   /** 지도에 이미 올라간 마커의 stationId */
   existingIds: Iterable<string>;
@@ -17,9 +17,9 @@ interface BusStopMarkerDiff {
 }
 
 /**
- * 마커를 전부 다시 만들지 않고 재사용하기 위한 diff. SDK 객체는 만들지 않는다.
+ * 마커를 전부 다시 만들지 않고 재사용하기 위한 diff. SDK 객체는 만들지 않음.
  *
- * 키는 `arsId`가 아니라 `stationId`다. `arsId`는 응답 내에서 유일하지 않아 마커가 서로 덮인다.
+ * 키로 `stationId`를 씀. `arsId`는 응답 내에서 유일하지 않아 마커가 서로 덮임.
  */
 export const diffBusStopMarkers = ({
   stops,

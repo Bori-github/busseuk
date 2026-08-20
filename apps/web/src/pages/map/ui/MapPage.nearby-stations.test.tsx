@@ -47,7 +47,7 @@ const station: BusStop = {
   distanceMeters: 84,
 };
 
-/** 위치를 즉시 확정시킨다. 넘기지 않으면 isLocating이 true로 남는다. */
+/** 위치를 즉시 확정. 넘기지 않으면 isLocating이 true로 남음 */
 const stubGeolocation = (resolve = true) => {
   Object.defineProperty(navigator, 'geolocation', {
     value: {

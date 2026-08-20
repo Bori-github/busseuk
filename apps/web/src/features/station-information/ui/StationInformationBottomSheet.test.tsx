@@ -91,7 +91,7 @@ describe('StationInformationBottomSheet', () => {
       expect(getStationInformation).toHaveBeenCalledTimes(2);
     });
 
-    // 폴링 실패 후에도 기존 목록은 그대로 유지되고, 전체 에러 화면으로 교체되지 않는다.
+    // 폴링 실패 후에도 기존 목록은 그대로 유지되고, 전체 에러 화면으로 교체되지 않음
     expect(screen.getByText('753')).toBeTruthy();
     expect(screen.queryByText('실시간 도착 정보를 불러오지 못했습니다')).toBeNull();
     expect(screen.getByText(/최신 정보를 불러오지 못했어요/)).toBeTruthy();

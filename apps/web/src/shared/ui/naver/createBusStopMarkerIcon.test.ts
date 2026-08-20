@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { createBusStopMarkerIcon, BUS_STOP_PIN_TIP_SELECTOR } from './createBusStopMarkerIcon';
 
-// toMeasuredHtmlIcon은 window.naver.maps.Size/Point를 사용하므로 최소 스텁을 둔다.
+// toMeasuredHtmlIcon은 window.naver.maps.Size/Point를 사용하므로 최소 스텁을 둠
 beforeEach(() => {
   vi.stubGlobal('naver', {
     maps: {

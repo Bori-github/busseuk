@@ -18,7 +18,7 @@ import type { StationSearchResult } from '@entities/station';
 import { ArrowRotateRightIcon, SearchIcon } from '@shared/icons';
 import { MapHint, PEEK_HEIGHT_RATIO } from '@shared/ui';
 
-/** 검색 결과와 지도 마커가 공통으로 쓰는 정류장 형태. 두 출처의 필드명이 달라 여기서 맞춘다. */
+/** 검색·마커 공통 정류장 형태. 두 출처의 필드명이 달라 여기서 맞춤 */
 interface Location {
   lat: number;
   lng: number;
@@ -32,7 +32,7 @@ interface SelectedStation {
   lng: number;
 }
 
-/** 선택 노선 + 그 노선을 고른 정류장. 태그에서 그 정류장 시트를 다시 열기 위해 함께 저장한다. */
+/** 선택 노선 + 고른 정류장. 태그에서 시트를 다시 열 때 사용 */
 interface SelectedRouteItem extends SelectedRoute {
   station: SelectedStation;
 }
@@ -44,7 +44,7 @@ export const MapPage = () => {
   const [isStationInformationSheetOpen, setIsStationInformationSheetOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [selectedRoutes, setSelectedRoutes] = useState<SelectedRouteItem[]>([]);
-  // 버스 마커가 실제로 보일 때(줌 임계 이상)만 위치를 폴링해 공공데이터 호출을 아낀다.
+  // 버스 마커가 보일 때만 폴링. 공공데이터 호출 쿼터 절약
   const [busesVisible, setBusesVisible] = useState(false);
   // 초기값을 내 위치로 주면 임시 좌표가 그대로 굳음
   const [searchCenter, setSearchCenter] = useState<Location | null>(null);
@@ -65,24 +65,24 @@ export const MapPage = () => {
     enabled: !isLocating,
   });
 
-  // 조회 실패가 빈 배열로 대체돼 "주변에 정류소가 없음"과 구분되지 않으므로 토스트로 알린다.
+  // 실패가 빈 배열로 대체돼 "정류소 없음"과 구분 불가. 토스트로 알림
   useEffect(() => {
     if (hasNearbyStationsError) {
       toast.error('주변 정류소를 불러오지 못했습니다');
     }
   }, [hasNearbyStationsError]);
 
-  // 훅이 서울 시청으로 폴백하므로, 알리지 않으면 사용자가 그 위치를 자기 위치로 오해한다.
+  // 실패 시 서울 시청으로 폴백. 알리지 않으면 자기 위치로 오해
   useEffect(() => {
     if (locationError) {
       toast.error(locationError);
     }
   }, [locationError]);
 
-  // 조회는 성공했는데 0개인 경우. 실패(토스트)와 구분해 보여준다.
+  // 조회는 성공했는데 0개인 경우. 실패(토스트)와 구분해 보여줌
   const hasNoNearbyStations = hasNearbyStationsLoaded && nearbyStations.length === 0;
 
-  // 선택한 노선이 있는데 줌이 낮아 버스 마커가 보이지 않으면(=버스 없음과 구분 불가) 확대를 안내한다.
+  // 노선은 골랐는데 마커가 안 보이면 "버스 없음"과 구분 불가. 확대를 안내
   const shouldShowBusZoomHint = selectedRoutes.length > 0 && !busesVisible;
 
   const busPositionQueries = useQueries({
@@ -93,7 +93,7 @@ export const MapPage = () => {
     queries: selectedRoutes.map((route) => routePathQueryOptions(route.busRouteId)),
   });
 
-  // data는 react-query가 참조 안정성을 보장하므로, 갱신 시각으로 재계산 시점을 잡는다.
+  // data 참조는 react-query가 고정. 갱신 시각을 재계산 기준으로 사용
   const positionsUpdatedAt = busPositionQueries.map((query) => query.dataUpdatedAt).join(',');
   const pathsUpdatedAt = routePathQueries.map((query) => query.dataUpdatedAt).join(',');
 
@@ -110,8 +110,8 @@ export const MapPage = () => {
     [selectedRoutes, positionsUpdatedAt, pathsUpdatedAt],
   );
 
-  // 위치/경로 조회 실패는 빈 배열로 대체돼 지도에 조용히 묻히므로(=버스 없음과 구분 불가),
-  // 에러 상태로 전환될 때 토스트로 알린다. 폴링은 일시 장애 자동 회복을 위해 유지한다.
+  // 실패가 빈 배열로 대체돼 "버스 없음"과 구분 불가. 토스트로 알림
+  // 폴링은 일시 장애 자동 회복을 위해 유지
   const hasBusDataError = busPositionQueries.some((query) => query.isError) || routePathQueries.some((query) => query.isError);
   useEffect(() => {
     if (hasBusDataError) {
@@ -119,7 +119,7 @@ export const MapPage = () => {
     }
   }, [hasBusDataError]);
 
-  // 앱이 옮긴 경우도 좌표는 갱신. 빠뜨리면 보정 패닝 뒤 화면과 다른 지점을 조회함
+  // 앱이 옮긴 경우도 좌표는 갱신. 빠뜨리면 보정 패닝 뒤 화면과 다른 지점을 조회
   const handleMapIdle = useCallback(
     (center: Location, movedByUser: boolean) => {
       mapCenterRef.current = center;
@@ -129,7 +129,7 @@ export const MapPage = () => {
     [queryCenter],
   );
 
-  // 재조회만 하고 지도는 그대로.
+  // 재조회만 하고 지도는 움직이지 않음
   // 로딩 여부로 숨기면, 조금만 움직였을 때 요청이 없어 버튼이 사라지지 않음
   const handleSearchHere = () => {
     if (mapCenterRef.current) {
@@ -177,13 +177,13 @@ export const MapPage = () => {
       if (prev.some((selected) => selected.busRouteId === route.busRouteId)) {
         return prev.filter((selected) => selected.busRouteId !== route.busRouteId);
       }
-      // 추가(체크)는 정류장 시트가 열린 상태에서만 일어나므로 selectedStation이 존재한다.
+      // 추가(체크)는 정류장 시트가 열린 상태에서만 일어나므로 selectedStation이 존재
       if (!selectedStation) return prev;
       return [...prev, { ...route, station: selectedStation }];
     });
   };
 
-  // 태그의 노선명을 누르면 그 노선을 고른 정류장의 도착정보 시트를 다시 연다.
+  // 태그의 노선명을 누르면 그 노선을 고른 정류장의 도착정보 시트를 다시 엶
   const handleReopenStation = (route: SelectedRoute) => {
     const item = selectedRoutes.find((selected) => selected.busRouteId === route.busRouteId);
     if (!item) return;
@@ -203,8 +203,8 @@ export const MapPage = () => {
         bottomInset={isStationInformationSheetOpen ? window.innerHeight * PEEK_HEIGHT_RATIO : 0}
       />
 
-      {/* 오버레이가 페이드로 덮으므로(z-20 불투명) 이 블록은 조건부로 숨기지 않는다.
-          숨기면 페이드 도중 지도가 드러나 레이아웃이 튄다. */}
+      {/* 오버레이가 페이드로 덮으므로(z-20 불투명) 이 블록은 조건부로 숨기지 않음.
+          숨기면 페이드 도중 지도가 드러나 레이아웃이 튐 */}
       <div className="absolute top-4 left-4 right-4 z-10 flex flex-col gap-2">
         <button
           type="button"
