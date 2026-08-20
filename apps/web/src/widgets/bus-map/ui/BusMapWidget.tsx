@@ -23,6 +23,9 @@ import { BUS_ARROW_SELECTOR, createBusMarkerIcon, createBusStopMarkerIcon, creat
 /** 버스 마커가 노출되는 최소 줌 레벨 */
 const BUS_MARKER_MIN_ZOOM = 17;
 
+/** 정류장 마커 기준 레벨. 미만이면 점으로 표시 */
+const STATION_DETAIL_MIN_ZOOM = 17;
+
 /** 부동소수 비교를 위한 오차 범위 */
 const PROGRAMMATIC_CENTER_EPS = 1e-9;
 
@@ -212,21 +215,27 @@ export const BusMapWidget = ({
     }
   }, [mapReady, selectedStation]);
 
-  const showStations = zoom >= BUS_MARKER_MIN_ZOOM;
+  const detailedStations = zoom >= STATION_DETAIL_MIN_ZOOM;
+  const prevDetailedStationsRef = useRef(detailedStations);
 
   useEffect(() => {
     if (!mapReady || !mapRef.current) return;
 
     const map = mapRef.current;
     const markers = stationMarkersRef.current;
-    const buildIcon = (station: BusStop) =>
-      createBusStopMarkerIcon({ name: station.name, selected: station.stationId === selectedStationId });
+    const buildIcon = (station: BusStop) => {
+      if (station.stationId === selectedStationId) return createBusStopMarkerIcon({ name: station.name, variant: 'selected' });
+
+      return createBusStopMarkerIcon({ name: station.name, variant: detailedStations ? 'default' : 'dot' });
+    };
 
     const { added, removed, reiconed } = diffBusStopMarkers({
-      stops: showStations ? stations : [],
+      stops: stations,
       existingIds: markers.keys(),
       selectedStationId,
       prevSelectedStationId: prevSelectedStationIdRef.current,
+      detailed: detailedStations,
+      prevDetailed: prevDetailedStationsRef.current,
     });
 
     for (const stationId of removed) {
@@ -253,13 +262,14 @@ export const BusMapWidget = ({
     }
 
     prevSelectedStationIdRef.current = selectedStationId;
-  }, [mapReady, stations, selectedStationId, showStations]);
+    prevDetailedStationsRef.current = detailedStations;
+  }, [mapReady, stations, selectedStationId, detailedStations]);
 
   // 주변 마커가 이미 선택 모양을 그리므로 여기서 겹쳐 그리면 마커가 둘이 됨
   useEffect(() => {
     if (!mapReady || !mapRef.current) return;
 
-    const drawnAsNearbyStation = showStations && stations.some((station) => station.stationId === selectedStationId);
+    const drawnAsNearbyStation = stations.some((station) => station.stationId === selectedStationId);
 
     if (!selectedStation || drawnAsNearbyStation) {
       selectedMarkerRef.current?.setMap(null);
@@ -268,7 +278,7 @@ export const BusMapWidget = ({
     }
 
     const position = new naver.maps.LatLng(selectedStation.lat, selectedStation.lng);
-    const icon = createBusStopMarkerIcon({ name: selectedStation.name, selected: true });
+    const icon = createBusStopMarkerIcon({ name: selectedStation.name, variant: 'selected' });
 
     if (!selectedMarkerRef.current) {
       selectedMarkerRef.current = new naver.maps.Marker({ map: mapRef.current, position, icon });
@@ -277,7 +287,7 @@ export const BusMapWidget = ({
       selectedMarkerRef.current.setIcon(icon);
       selectedMarkerRef.current.setMap(mapRef.current);
     }
-  }, [mapReady, selectedStation, selectedStationId, stations, showStations]);
+  }, [mapReady, selectedStation, selectedStationId, stations]);
 
   useEffect(() => {
     const markers = stationMarkersRef.current;

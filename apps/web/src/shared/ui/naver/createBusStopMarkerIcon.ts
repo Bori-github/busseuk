@@ -1,5 +1,6 @@
 import { toMeasuredHtmlIcon } from './htmlIcon';
 
+const DOT_SIZE = 10;
 const NEARBY_SIZE = 24;
 const SELECTED_SIZE = 32;
 
@@ -16,12 +17,20 @@ const STROKE = '#DC2626';
 
 export const BUS_STOP_PIN_TIP_SELECTOR = '[data-bus-stop-pin-tip]';
 
+export type BusStopMarkerVariant = 'selected' | 'default' | 'dot';
+
+const SIZE: Record<BusStopMarkerVariant, number> = {
+  selected: SELECTED_SIZE,
+  default: NEARBY_SIZE,
+  dot: DOT_SIZE,
+};
+
 interface CreateBusStopMarkerIconOptions {
   name: string;
-  selected?: boolean;
+  variant?: BusStopMarkerVariant;
 }
 
-const createCircle = (size: number): HTMLElement => {
+const createCircle = (size: number, withGlyph: boolean): HTMLElement => {
   const circle = document.createElement('div');
   Object.assign(circle.style, {
     width: `${size}px`,
@@ -30,11 +39,13 @@ const createCircle = (size: number): HTMLElement => {
     alignItems: 'center',
     justifyContent: 'center',
     background: FILL,
-    border: `2px solid ${STROKE}`,
+    border: `${withGlyph ? 2 : 1.5}px solid ${STROKE}`,
     borderRadius: '50%',
     boxShadow: '0 2px 6px rgba(0,0,0,0.35)',
     flexShrink: '0',
   });
+
+  if (!withGlyph) return circle;
 
   const glyph = Math.round(size * 0.58);
   circle.innerHTML = `
@@ -81,9 +92,12 @@ const createLabel = (name: string): HTMLElement => {
  * 선택 마커는 꼬리 끝, 나머지는 원 중심이 좌표에 놓임.
  * 기준이 달라 크기에서 앵커를 곧바로 유도할 수 없음.
  */
-const resolveAnchorY = (selected: boolean): number => (selected ? SELECTED_SIZE + TIP_HEIGHT - TIP_OVERLAP : NEARBY_SIZE / 2);
+const resolveAnchorY = (variant: BusStopMarkerVariant): number =>
+  variant === 'selected' ? SELECTED_SIZE + TIP_HEIGHT - TIP_OVERLAP : SIZE[variant] / 2;
 
-export const createBusStopMarkerIcon = ({ name, selected = false }: CreateBusStopMarkerIconOptions): naver.maps.HtmlIcon => {
+export const createBusStopMarkerIcon = ({ name, variant = 'default' }: CreateBusStopMarkerIconOptions): naver.maps.HtmlIcon => {
+  const selected = variant === 'selected';
+
   const wrapper = document.createElement('div');
   Object.assign(wrapper.style, {
     display: 'flex',
@@ -91,7 +105,7 @@ export const createBusStopMarkerIcon = ({ name, selected = false }: CreateBusSto
     alignItems: 'center',
   });
 
-  wrapper.appendChild(createCircle(selected ? SELECTED_SIZE : NEARBY_SIZE));
+  wrapper.appendChild(createCircle(SIZE[variant], variant !== 'dot'));
 
   if (selected) {
     wrapper.appendChild(createTip());
@@ -100,6 +114,6 @@ export const createBusStopMarkerIcon = ({ name, selected = false }: CreateBusSto
 
   return toMeasuredHtmlIcon(wrapper, ({ width }) => ({
     x: width / 2,
-    y: resolveAnchorY(selected),
+    y: resolveAnchorY(variant),
   }));
 };

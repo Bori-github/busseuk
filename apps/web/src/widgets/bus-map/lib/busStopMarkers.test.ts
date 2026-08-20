@@ -21,6 +21,8 @@ const diff = (input: Partial<Parameters<typeof diffBusStopMarkers>[0]> = {}) =>
     existingIds: [],
     selectedStationId: null,
     prevSelectedStationId: null,
+    detailed: true,
+    prevDetailed: true,
     ...input,
   });
 
@@ -82,6 +84,30 @@ describe('diffBusStopMarkers', () => {
 
     expect(ids(result.added)).toEqual(['A']);
     expect(result.reiconed).toEqual([]);
+  });
+
+  it('줌이 임계를 넘나들면 기존 마커 전부 아이콘을 다시 씌운다', () => {
+    const result = diff({
+      stops: [stop('A'), stop('B')],
+      existingIds: ['A', 'B'],
+      detailed: false,
+      prevDetailed: true,
+    });
+
+    expect(ids(result.reiconed)).toEqual(['A', 'B']);
+  });
+
+  it('줌 상세도가 그대로면 선택 변경분만 다시 씌운다', () => {
+    const result = diff({
+      stops: [stop('A'), stop('B')],
+      existingIds: ['A', 'B'],
+      prevSelectedStationId: 'A',
+      selectedStationId: 'B',
+      detailed: false,
+      prevDetailed: false,
+    });
+
+    expect(ids(result.reiconed)).toEqual(['A', 'B']);
   });
 
   it('제거되는 정류장은 아이콘 대상에서 뺀다', () => {

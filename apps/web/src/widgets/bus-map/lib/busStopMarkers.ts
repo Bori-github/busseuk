@@ -7,6 +7,9 @@ interface BusStopMarkerDiffInput {
   existingIds: Iterable<string>;
   selectedStationId: string | null;
   prevSelectedStationId: string | null;
+  /** 줌이 임계를 넘나들면 아이콘 모양이 달라지므로 기존 마커 전부 다시 씌움 */
+  detailed: boolean;
+  prevDetailed: boolean;
 }
 
 interface BusStopMarkerDiff {
@@ -26,6 +29,8 @@ export const diffBusStopMarkers = ({
   existingIds,
   selectedStationId,
   prevSelectedStationId,
+  detailed,
+  prevDetailed,
 }: BusStopMarkerDiffInput): BusStopMarkerDiff => {
   const existing = new Set(existingIds);
   const next = new Map(stops.map((stop) => [stop.stationId, stop]));
@@ -36,8 +41,10 @@ export const diffBusStopMarkers = ({
 
   const selectionChanged = prevSelectedStationId === selectedStationId ? [] : [prevSelectedStationId, selectedStationId];
 
-  // 새로 만드는 마커는 생성 시 아이콘을 받으므로 다시 씌우지 않는다.
-  const reiconed = selectionChanged.flatMap((id) => {
+  const reiconTargets = detailed === prevDetailed ? selectionChanged : [...existing];
+
+  // 새로 만드는 마커는 생성 시 아이콘을 받으므로 다시 씌우지 않음
+  const reiconed = reiconTargets.flatMap((id) => {
     if (id === null || addedIds.has(id)) return [];
     const stop = next.get(id);
 
