@@ -16,7 +16,7 @@ import { diffBusStopMarkers } from '../lib/busStopMarkers';
 import type { BusPosition, RoutePathPoint } from '@entities/bus';
 import { getRouteTypeColor } from '@entities/bus';
 import type { BusStop } from '@entities/bus-stop';
-import { buildRoutePolyline, pointAtDistance, projectToPolyline } from '@shared/lib';
+import { buildRoutePolyline, parseCoord, pointAtDistance, projectToPolyline } from '@shared/lib';
 import type { LatLng, RoutePolyline } from '@shared/lib';
 import { BUS_ARROW_SELECTOR, createBusMarkerIcon, createBusStopMarkerIcon, createUserMarkerIcon, NaverMap } from '@shared/ui/naver';
 
@@ -31,12 +31,6 @@ const PROGRAMMATIC_CENTER_EPS = 1e-9;
  * 투영을 버리고 raw GPS 위치를 그대로 쓴다 — 도로선 위 엉뚱한 지점에 스냅되는 것을 막는다.
  */
 const MAX_SNAP_ERROR_M = 60;
-
-/** gpsX/gpsY 문자열을 좌표로 파싱한다. NaN·0(GPS 미확보)은 무효로 보고 null을 반환. */
-const parseCoord = (value: string): number | null => {
-  const parsed = parseFloat(value);
-  return Number.isNaN(parsed) || parsed === 0 ? null : parsed;
-};
 
 /** 노선 경로 점들을 유효 좌표(LatLng)만 파싱한다. 투영용 폴리라인·렌더 폴리라인의 단일 출처. */
 const parseRoutePath = (path: RoutePathPoint[]): LatLng[] =>
