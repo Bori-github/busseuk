@@ -50,7 +50,7 @@ interface Location {
 }
 
 /** `marker.setMap(null)`은 리스너를 지우지 않는다. */
-interface StopMarkerEntry {
+interface StationMarkerEntry {
   marker: naver.maps.Marker;
   listener: ReturnType<typeof naver.maps.Event.addListener>;
 }
@@ -88,8 +88,8 @@ interface BusMapWidgetProps {
   /** 선택된 노선들의 실시간 버스 위치 */
   busRoutes?: BusRouteWithPositions[];
   /** 줌이 임계 미만이면 렌더하지 않는다 */
-  stops?: BusStop[];
-  onStopSelect?: (stop: BusStop) => void;
+  stations?: BusStop[];
+  onStationSelect?: (station: BusStop) => void;
   /** 하단 오버레이(바텀시트 등)가 가리는 높이(px). 선택 정류장을 가려지지 않은 영역 중앙에 배치하기 위해 사용 */
   bottomInset?: number;
   /** 버스 마커 노출 여부(줌 임계 이상) 변화를 상위에 알린다. 안 보일 때 위치 폴링을 끄기 위함. */
@@ -100,8 +100,8 @@ export const BusMapWidget = ({
   location,
   selectedStation,
   busRoutes = [],
-  stops = [],
-  onStopSelect,
+  stations = [],
+  onStationSelect,
   bottomInset = 0,
   onBusVisibilityChange,
 }: BusMapWidgetProps) => {
@@ -109,7 +109,7 @@ export const BusMapWidget = ({
   const userMarkerRef = useRef<naver.maps.Marker | null>(null);
   const selectedMarkerRef = useRef<naver.maps.Marker | null>(null);
   const busMarkersRef = useRef<Map<string, naver.maps.Marker>>(new Map());
-  const stopMarkersRef = useRef<Map<string, StopMarkerEntry>>(new Map());
+  const stationMarkersRef = useRef<Map<string, StationMarkerEntry>>(new Map());
   const prevSelectedStationIdRef = useRef<string | null>(null);
   const routePathsRef = useRef<Map<string, naver.maps.Polyline>>(new Map());
 
@@ -135,10 +135,10 @@ export const BusMapWidget = ({
   }, [bottomInset]);
 
   // 콜백을 의존성에 넣으면 매 렌더 리스너가 다시 붙어 탭 한 번에 N번 불린다.
-  const onStopSelectRef = useRef(onStopSelect);
+  const onStationSelectRef = useRef(onStationSelect);
   useEffect(() => {
-    onStopSelectRef.current = onStopSelect;
-  }, [onStopSelect]);
+    onStationSelectRef.current = onStationSelect;
+  }, [onStationSelect]);
 
   const handleMapReady = useCallback((map: naver.maps.Map) => {
     mapRef.current = map;
@@ -191,17 +191,18 @@ export const BusMapWidget = ({
     }
   }, [mapReady, selectedStation]);
 
-  const showStops = zoom >= BUS_MARKER_MIN_ZOOM;
+  const showStations = zoom >= BUS_MARKER_MIN_ZOOM;
 
   useEffect(() => {
     if (!mapReady || !mapRef.current) return;
 
     const map = mapRef.current;
-    const markers = stopMarkersRef.current;
-    const buildIcon = (stop: BusStop) => createBusStopMarkerIcon({ name: stop.name, selected: stop.stationId === selectedStationId });
+    const markers = stationMarkersRef.current;
+    const buildIcon = (station: BusStop) =>
+      createBusStopMarkerIcon({ name: station.name, selected: station.stationId === selectedStationId });
 
     const { added, removed, reiconed } = diffBusStopMarkers({
-      stops: showStops ? stops : [],
+      stops: showStations ? stations : [],
       existingIds: markers.keys(),
       selectedStationId,
       prevSelectedStationId: prevSelectedStationIdRef.current,
@@ -215,31 +216,31 @@ export const BusMapWidget = ({
       markers.delete(stationId);
     }
 
-    for (const stop of added) {
+    for (const station of added) {
       const marker = new naver.maps.Marker({
         map,
-        position: new naver.maps.LatLng(stop.lat, stop.lng),
-        icon: buildIcon(stop),
+        position: new naver.maps.LatLng(station.lat, station.lng),
+        icon: buildIcon(station),
       });
-      const listener = naver.maps.Event.addListener(marker, 'click', () => onStopSelectRef.current?.(stop));
+      const listener = naver.maps.Event.addListener(marker, 'click', () => onStationSelectRef.current?.(station));
 
-      markers.set(stop.stationId, { marker, listener });
+      markers.set(station.stationId, { marker, listener });
     }
 
-    for (const stop of reiconed) {
-      markers.get(stop.stationId)?.marker.setIcon(buildIcon(stop));
+    for (const station of reiconed) {
+      markers.get(station.stationId)?.marker.setIcon(buildIcon(station));
     }
 
     prevSelectedStationIdRef.current = selectedStationId;
-  }, [mapReady, stops, selectedStationId, showStops]);
+  }, [mapReady, stations, selectedStationId, showStations]);
 
   // 주변 마커가 이미 선택 모양을 그리므로 여기서 겹쳐 그리면 마커가 둘이 된다.
   useEffect(() => {
     if (!mapReady || !mapRef.current) return;
 
-    const drawnAsNearbyStop = showStops && stops.some((stop) => stop.stationId === selectedStationId);
+    const drawnAsNearbyStation = showStations && stations.some((station) => station.stationId === selectedStationId);
 
-    if (!selectedStation || drawnAsNearbyStop) {
+    if (!selectedStation || drawnAsNearbyStation) {
       selectedMarkerRef.current?.setMap(null);
       selectedMarkerRef.current = null;
       return;
@@ -255,10 +256,10 @@ export const BusMapWidget = ({
       selectedMarkerRef.current.setIcon(icon);
       selectedMarkerRef.current.setMap(mapRef.current);
     }
-  }, [mapReady, selectedStation, selectedStationId, stops, showStops]);
+  }, [mapReady, selectedStation, selectedStationId, stations, showStations]);
 
   useEffect(() => {
-    const markers = stopMarkersRef.current;
+    const markers = stationMarkersRef.current;
     return () => {
       for (const { marker, listener } of markers.values()) {
         naver.maps.Event.removeListener(listener);

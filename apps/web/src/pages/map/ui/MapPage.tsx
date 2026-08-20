@@ -44,17 +44,17 @@ export const MapPage = () => {
 
   const selectedRouteIds = selectedRoutes.map((route) => route.busRouteId);
 
-  const { data: nearbyStops = [], isError: hasNearbyStopsError } = useQuery({
+  const { data: nearbyStations = [], isError: hasNearbyStationsError } = useQuery({
     ...nearbyStopsQueryOptions(location.lat, location.lng),
     enabled: !isLocating,
   });
 
   // 조회 실패가 빈 배열로 대체돼 "주변에 정류장이 없음"과 구분되지 않으므로 토스트로 알린다.
   useEffect(() => {
-    if (hasNearbyStopsError) {
+    if (hasNearbyStationsError) {
       toast.error('주변 정류장을 불러오지 못했습니다');
     }
-  }, [hasNearbyStopsError]);
+  }, [hasNearbyStationsError]);
 
   // 선택한 노선이 있는데 줌이 낮아 버스 마커가 안 보이면(=버스 없음과 구분 불가) 확대를 안내한다.
   const shouldShowBusZoomHint = selectedRoutes.length > 0 && !busesVisible;
@@ -104,7 +104,7 @@ export const MapPage = () => {
     setIsSearchOpen(false);
   };
 
-  const handleSelectStation = (station: StationSearchResult) =>
+  const handleSelectFromSearch = (station: StationSearchResult) =>
     openStation({
       stationId: station.stId,
       arsId: station.arsId,
@@ -113,13 +113,13 @@ export const MapPage = () => {
       lng: parseFloat(station.tmX),
     });
 
-  const handleSelectStop = (stop: BusStop) =>
+  const handleSelectFromMarker = (station: BusStop) =>
     openStation({
-      stationId: stop.stationId,
-      arsId: stop.arsId,
-      name: stop.name,
-      lat: stop.lat,
-      lng: stop.lng,
+      stationId: station.stationId,
+      arsId: station.arsId,
+      name: station.name,
+      lat: station.lat,
+      lng: station.lng,
     });
 
   const handleStationInformationSheetClose = () => {
@@ -151,8 +151,8 @@ export const MapPage = () => {
         location={location}
         selectedStation={selectedStation}
         busRoutes={busRoutes}
-        stops={nearbyStops}
-        onStopSelect={handleSelectStop}
+        stations={nearbyStations}
+        onStationSelect={handleSelectFromMarker}
         onBusVisibilityChange={setBusesVisible}
         bottomInset={isStationInformationSheetOpen ? window.innerHeight * PEEK_HEIGHT_RATIO : 0}
       />
@@ -175,7 +175,7 @@ export const MapPage = () => {
       </div>
 
       <AnimatePresence>
-        {isSearchOpen && <SearchOverlay key="search-overlay" onClose={() => setIsSearchOpen(false)} onSelect={handleSelectStation} />}
+        {isSearchOpen && <SearchOverlay key="search-overlay" onClose={() => setIsSearchOpen(false)} onSelect={handleSelectFromSearch} />}
       </AnimatePresence>
 
       <StationInformationBottomSheet
