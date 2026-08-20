@@ -15,7 +15,7 @@ import { busPositionsQueryOptions, routePathQueryOptions } from '@entities/bus';
 import type { BusStop } from '@entities/bus-stop';
 import { isSameNearbyQueryPoint, nearbyStopsQueryOptions } from '@entities/bus-stop';
 import type { StationSearchResult } from '@entities/station';
-import { SearchIcon } from '@shared/icons';
+import { ArrowRotateRightIcon, SearchIcon } from '@shared/icons';
 import { MapHint, PEEK_HEIGHT_RATIO } from '@shared/ui';
 
 /** 검색 결과와 지도 마커가 공통으로 쓰는 정류장 형태. 두 출처의 필드명이 달라 여기서 맞춘다. */
@@ -223,9 +223,9 @@ export const MapPage = () => {
           <button
             type="button"
             onClick={handleSearchHere}
-            className="self-center rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-black shadow-md"
+            className="flex items-center gap-1.5 self-center rounded-full bg-black px-4 py-2 text-xs font-semibold text-white shadow-lg"
           >
-            현 지도에서 검색
+            <ArrowRotateRightIcon className="h-4 w-4 shrink-0" />현 지도에서 검색
           </button>
         )}
       </div>
