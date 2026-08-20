@@ -13,7 +13,7 @@ interface NaverMapProps {
   onReady?: (map: naver.maps.Map) => void;
   /** 줌 레벨 변경 시 호출되는 콜백. 생성 직후 초기 줌으로 1회 호출 */
   onZoomChanged?: (zoom: number) => void;
-  /** 지도가 완전히 멈춘 뒤 호출. 미끄러지는 동안에는 호출 안 함 */
+  /** 지도가 완전히 멈춘 뒤 호출. 미끄러지는 동안에는 호출하지 않음 */
   onIdle?: (center: { lat: number; lng: number }) => void;
   /** 지도 컨테이너 className. 기본값: 'w-full h-full' */
   className?: string;

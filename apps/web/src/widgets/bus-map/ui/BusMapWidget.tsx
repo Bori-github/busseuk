@@ -95,7 +95,7 @@ interface BusMapWidgetProps {
   onStationSelect?: (station: BusStop) => void;
   /** 하단 오버레이(바텀시트 등)가 가리는 높이(px). 선택 정류장을 가려지지 않은 영역 중앙에 배치하기 위해 사용 */
   bottomInset?: number;
-  /** 버스 마커 노출 여부(줌 임계 이상) 변화를 상위에 알린다. 안 보일 때 위치 폴링을 끄기 위함. */
+  /** 버스 마커 노출 여부(줌 임계 이상) 변화를 상위에 알린다. 보이지 않을 때 위치 폴링을 끄기 위함. */
   onBusVisibilityChange?: (visible: boolean) => void;
   /** 지도가 멈출 때마다. movedByUser는 앱이 옮긴 경우 false */
   onMapIdle?: (center: Location, movedByUser: boolean) => void;
@@ -394,7 +394,7 @@ export const BusMapWidget = ({
     const { lat, lng, heading } = pointAtDistance(anim.poly, s);
     marker.setPosition(new naver.maps.LatLng(lat, lng));
     if (anim.arrowEl === undefined || !anim.arrowEl.isConnected) {
-      // 아직 안 그려졌거나(다음 프레임 재시도) 노드가 끊겼으면 다시 해석한다.
+      // 아직 그려지지 않았거나(다음 프레임 재시도) 노드가 끊겼으면 다시 해석한다.
       anim.arrowEl = marker.getElement()?.querySelector<HTMLElement>(BUS_ARROW_SELECTOR) ?? undefined;
     }
     if (anim.arrowEl) {
@@ -463,7 +463,7 @@ export const BusMapWidget = ({
   // 폴리라인이 없는 차량(경로 미로드)은 종전처럼 raw GPS로 즉시 배치한다.
   const showBuses = zoom >= BUS_MARKER_MIN_ZOOM;
 
-  // 마커 노출 여부가 바뀌면 상위에 알린다(안 보일 때 위치 폴링을 꺼 쿼터를 아끼기 위함).
+  // 마커 노출 여부가 바뀌면 상위에 알린다(보이지 않을 때 위치 폴링을 꺼 쿼터를 아끼기 위함).
   useEffect(() => {
     onBusVisibilityChange?.(showBuses);
   }, [showBuses, onBusVisibilityChange]);

@@ -32,7 +32,7 @@ interface SelectedStation {
   lng: number;
 }
 
-/** 선택 노선 + 그 노선을 고른 정류장. 태그에서 해당 정류장 시트를 다시 열기 위해 함께 저장한다. */
+/** 선택 노선 + 그 노선을 고른 정류장. 태그에서 그 정류장 시트를 다시 열기 위해 함께 저장한다. */
 interface SelectedRouteItem extends SelectedRoute {
   station: SelectedStation;
 }
@@ -82,7 +82,7 @@ export const MapPage = () => {
   // 조회는 성공했는데 0개인 경우. 실패(토스트)와 구분해 보여준다.
   const hasNoNearbyStations = hasNearbyStationsLoaded && nearbyStations.length === 0;
 
-  // 선택한 노선이 있는데 줌이 낮아 버스 마커가 안 보이면(=버스 없음과 구분 불가) 확대를 안내한다.
+  // 선택한 노선이 있는데 줌이 낮아 버스 마커가 보이지 않으면(=버스 없음과 구분 불가) 확대를 안내한다.
   const shouldShowBusZoomHint = selectedRoutes.length > 0 && !busesVisible;
 
   const busPositionQueries = useQueries({
@@ -123,14 +123,14 @@ export const MapPage = () => {
   const handleMapIdle = useCallback(
     (center: Location, movedByUser: boolean) => {
       mapCenterRef.current = center;
-      // 확대·축소만으로는 지도 중심이 안 바뀌므로 재조회 불필요
+      // 확대·축소만으로는 지도 중심이 바뀌지 않으므로 재조회 불필요
       if (movedByUser) setCanSearchHere(!isSameNearbyQueryPoint(center, queryCenter));
     },
     [queryCenter],
   );
 
   // 재조회만 하고 지도는 그대로.
-  // 로딩 여부로 숨기면, 조금만 움직였을 때 요청이 없어 버튼이 안 사라짐
+  // 로딩 여부로 숨기면, 조금만 움직였을 때 요청이 없어 버튼이 사라지지 않음
   const handleSearchHere = () => {
     if (mapCenterRef.current) {
       setSearchCenter(mapCenterRef.current);
