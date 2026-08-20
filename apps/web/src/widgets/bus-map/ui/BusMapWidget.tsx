@@ -23,6 +23,9 @@ import { BUS_ARROW_SELECTOR, createBusMarkerIcon, createBusStopMarkerIcon, creat
 /** 버스 마커가 노출되는 최소 줌 레벨 (정류장 아이콘과 동일) */
 const BUS_MARKER_MIN_ZOOM = 17;
 
+/** 부동소수 비교를 위한 오차 범위 */
+const PROGRAMMATIC_CENTER_EPS = 1e-9;
+
 /**
  * raw GPS를 노선에 투영했을 때 허용하는 최대 이탈(m). 이보다 벗어나면(우회·U턴·GPS 노이즈)
  * 투영을 버리고 raw GPS 위치를 그대로 쓴다 — 도로선 위 엉뚱한 지점에 스냅되는 것을 막는다.
@@ -94,6 +97,8 @@ interface BusMapWidgetProps {
   bottomInset?: number;
   /** 버스 마커 노출 여부(줌 임계 이상) 변화를 상위에 알린다. 안 보일 때 위치 폴링을 끄기 위함. */
   onBusVisibilityChange?: (visible: boolean) => void;
+  /** 앱이 옮긴 경우는 제외 */
+  onUserMoveEnd?: (center: Location) => void;
 }
 
 export const BusMapWidget = ({
@@ -104,6 +109,7 @@ export const BusMapWidget = ({
   onStationSelect,
   bottomInset = 0,
   onBusVisibilityChange,
+  onUserMoveEnd,
 }: BusMapWidgetProps) => {
   const mapRef = useRef<naver.maps.Map | null>(null);
   const userMarkerRef = useRef<naver.maps.Marker | null>(null);
@@ -111,6 +117,8 @@ export const BusMapWidget = ({
   const busMarkersRef = useRef<Map<string, naver.maps.Marker>>(new Map());
   const stationMarkersRef = useRef<Map<string, StationMarkerEntry>>(new Map());
   const prevSelectedStationIdRef = useRef<string | null>(null);
+  // 켰다 끄는 방식은 멈춤 신호가 없을 때 켜진 채 남아 다음 이동을 놓침
+  const lastProgrammaticCenterRef = useRef<Location>(location);
   const routePathsRef = useRef<Map<string, naver.maps.Polyline>>(new Map());
 
   // 차량별 재생 상태. 폴(5초)마다 관측을 버퍼에 쌓고, rAF 루프가 renderTime(=now−지연)을
@@ -171,6 +179,25 @@ export const BusMapWidget = ({
     }
   }, [mapReady, location]);
 
+  const onUserMoveEndRef = useRef(onUserMoveEnd);
+  useEffect(() => {
+    onUserMoveEndRef.current = onUserMoveEnd;
+  }, [onUserMoveEnd]);
+
+  // 내 위치가 바뀌면 NaverMap이 지도를 옮김
+  useEffect(() => {
+    lastProgrammaticCenterRef.current = location;
+  }, [location]);
+
+  const handleIdle = useCallback((center: Location) => {
+    const last = lastProgrammaticCenterRef.current;
+    const isProgrammatic =
+      Math.abs(center.lat - last.lat) < PROGRAMMATIC_CENTER_EPS && Math.abs(center.lng - last.lng) < PROGRAMMATIC_CENTER_EPS;
+    if (isProgrammatic) return;
+
+    onUserMoveEndRef.current?.(center);
+  }, []);
+
   const selectedStationId = selectedStation?.stationId ?? null;
 
   useEffect(() => {
@@ -184,9 +211,11 @@ export const BusMapWidget = ({
       // 화면 투영 좌표에서 목표 중심을 아래로 inset/2만큼 밀어 보정한다.
       const projection = mapRef.current.getProjection();
       const offset = projection.fromCoordToOffset(position);
-      const target = projection.fromOffsetToCoord(new naver.maps.Point(offset.x, offset.y + inset / 2));
+      const target = projection.fromOffsetToCoord(new naver.maps.Point(offset.x, offset.y + inset / 2)) as naver.maps.LatLng;
+      lastProgrammaticCenterRef.current = { lat: target.lat(), lng: target.lng() };
       mapRef.current.panTo(target);
     } else {
+      lastProgrammaticCenterRef.current = { lat: position.lat(), lng: position.lng() };
       mapRef.current.panTo(position);
     }
   }, [mapReady, selectedStation]);
@@ -569,5 +598,5 @@ export const BusMapWidget = ({
     };
   }, []);
 
-  return <NaverMap center={location} onReady={handleMapReady} onZoomChanged={setZoom} />;
+  return <NaverMap center={location} onReady={handleMapReady} onZoomChanged={setZoom} onIdle={handleIdle} />;
 };

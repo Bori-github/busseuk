@@ -6,6 +6,10 @@ import { busStopQueryKeys } from './queryKeys';
 /** 약 11m 격자 */
 const roundCoord = (value: number) => Math.round(value * 1e4) / 1e4;
 
+/** 같은 지점이면 결과도 같음 */
+export const isSameNearbyQueryPoint = (a: { lat: number; lng: number }, b: { lat: number; lng: number }) =>
+  roundCoord(a.lat) === roundCoord(b.lat) && roundCoord(a.lng) === roundCoord(b.lng);
+
 export const nearbyStopsQueryOptions = (lat: number, lng: number) => {
   const roundedLat = roundCoord(lat);
   const roundedLng = roundCoord(lng);

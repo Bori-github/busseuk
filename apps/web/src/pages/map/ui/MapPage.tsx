@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useQueries, useQuery } from '@tanstack/react-query';
 import { AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
@@ -13,12 +13,17 @@ import { useUserLocation } from '@features/user-location';
 import type { SelectedRoute } from '@entities/bus';
 import { busPositionsQueryOptions, routePathQueryOptions } from '@entities/bus';
 import type { BusStop } from '@entities/bus-stop';
-import { nearbyStopsQueryOptions } from '@entities/bus-stop';
+import { isSameNearbyQueryPoint, nearbyStopsQueryOptions } from '@entities/bus-stop';
 import type { StationSearchResult } from '@entities/station';
 import { SearchIcon } from '@shared/icons';
 import { MapHint, PEEK_HEIGHT_RATIO } from '@shared/ui';
 
 /** 검색 결과와 지도 마커가 공통으로 쓰는 정류장 형태. 두 출처의 필드명이 달라 여기서 맞춘다. */
+interface Location {
+  lat: number;
+  lng: number;
+}
+
 interface SelectedStation {
   stationId: string;
   arsId: string;
@@ -41,15 +46,22 @@ export const MapPage = () => {
   const [selectedRoutes, setSelectedRoutes] = useState<SelectedRouteItem[]>([]);
   // 버스 마커가 실제로 보일 때(줌 임계 이상)만 위치를 폴링해 공공데이터 호출을 아낀다.
   const [busesVisible, setBusesVisible] = useState(false);
+  // 초기값을 내 위치로 주면 임시 좌표가 그대로 굳음
+  const [searchCenter, setSearchCenter] = useState<Location | null>(null);
+  const [canSearchHere, setCanSearchHere] = useState(false);
+  // 상태로 두면 지도가 멈출 때마다 화면이 다시 그려짐
+  const movedCenterRef = useRef<Location | null>(null);
 
   const selectedRouteIds = selectedRoutes.map((route) => route.busRouteId);
+
+  const queryCenter = searchCenter ?? location;
 
   const {
     data: nearbyStations = [],
     isError: hasNearbyStationsError,
     isSuccess: hasNearbyStationsLoaded,
   } = useQuery({
-    ...nearbyStopsQueryOptions(location.lat, location.lng),
+    ...nearbyStopsQueryOptions(queryCenter.lat, queryCenter.lng),
     enabled: !isLocating,
   });
 
@@ -106,6 +118,24 @@ export const MapPage = () => {
       toast.error('실시간 버스 정보를 불러오지 못했습니다');
     }
   }, [hasBusDataError]);
+
+  // 확대·축소만으로는 지도 중심이 안 바뀌므로 재조회 불필요
+  const handleUserMoveEnd = useCallback(
+    (center: Location) => {
+      movedCenterRef.current = center;
+      setCanSearchHere(!isSameNearbyQueryPoint(center, queryCenter));
+    },
+    [queryCenter],
+  );
+
+  // 재조회만 하고 지도는 그대로.
+  // 로딩 여부로 숨기면, 조금만 움직였을 때 요청이 없어 버튼이 안 사라짐
+  const handleSearchHere = () => {
+    if (movedCenterRef.current) {
+      setSearchCenter(movedCenterRef.current);
+    }
+    setCanSearchHere(false);
+  };
 
   const handleOpenSearch = () => {
     setIsSearchOpen(true);
@@ -168,6 +198,7 @@ export const MapPage = () => {
         stations={nearbyStations}
         onStationSelect={handleSelectFromMarker}
         onBusVisibilityChange={setBusesVisible}
+        onUserMoveEnd={handleUserMoveEnd}
         bottomInset={isStationInformationSheetOpen ? window.innerHeight * PEEK_HEIGHT_RATIO : 0}
       />
 
@@ -188,6 +219,15 @@ export const MapPage = () => {
         {isLocating && <MapHint>현재 위치를 확인하는 중입니다</MapHint>}
         {hasNoNearbyStations && <MapHint>주변에 정류소가 없습니다</MapHint>}
         {shouldShowBusZoomHint && <BusZoomHint />}
+        {canSearchHere && (
+          <button
+            type="button"
+            onClick={handleSearchHere}
+            className="self-center rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-black shadow-md"
+          >
+            현 지도에서 검색
+          </button>
+        )}
       </div>
 
       <AnimatePresence>
