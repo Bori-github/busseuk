@@ -18,15 +18,24 @@ import type { StationSearchResult } from '@entities/station';
 import { SearchIcon } from '@shared/icons';
 import { PEEK_HEIGHT_RATIO } from '@shared/ui';
 
+/** 검색 결과와 지도 마커가 공통으로 쓰는 정류장 형태. 두 출처의 필드명이 달라 여기서 맞춘다. */
+interface SelectedStation {
+  stationId: string;
+  arsId: string;
+  name: string;
+  lat: number;
+  lng: number;
+}
+
 /** 선택 노선 + 그 노선을 고른 정류장. 태그에서 해당 정류장 시트를 다시 열기 위해 함께 저장한다. */
 interface SelectedRouteItem extends SelectedRoute {
-  station: StationSearchResult;
+  station: SelectedStation;
 }
 
 export const MapPage = () => {
   const { location, isLocating } = useUserLocation();
 
-  const [selectedStation, setSelectedStation] = useState<StationSearchResult | null>(null);
+  const [selectedStation, setSelectedStation] = useState<SelectedStation | null>(null);
   const [isStationInformationSheetOpen, setIsStationInformationSheetOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [selectedRoutes, setSelectedRoutes] = useState<SelectedRouteItem[]>([]);
@@ -84,45 +93,34 @@ export const MapPage = () => {
     }
   }, [hasBusDataError]);
 
-  // 지도용 정류장 객체를 안정 참조로 메모이즈한다.
-  // 매 렌더 새 객체로 넘기면 BusMapWidget의 패닝 effect가 폴링 리렌더마다 재실행돼
-  // 사용자가 이동시킨 지도를 정류장으로 되돌리는 문제가 생긴다. (지도 센터 이동 정책 참고)
-  const selectedStationForMap = useMemo(
-    () =>
-      selectedStation
-        ? {
-            stationId: selectedStation.stId,
-            lat: parseFloat(selectedStation.tmY),
-            lng: parseFloat(selectedStation.tmX),
-            name: selectedStation.stNm,
-          }
-        : null,
-    [selectedStation],
-  );
-
   const handleOpenSearch = () => {
     setIsSearchOpen(true);
     setIsStationInformationSheetOpen(false);
   };
 
-  const handleSelectStation = (station: StationSearchResult) => {
+  const openStation = (station: SelectedStation) => {
     setSelectedStation(station);
     setIsStationInformationSheetOpen(true);
     setIsSearchOpen(false);
   };
 
-  // 임시. 상태를 정류장 공통 타입으로 정리하면 이 변환은 사라진다.
-  const handleSelectStop = (stop: BusStop) => {
-    setSelectedStation({
-      stId: stop.stationId,
-      stNm: stop.name,
-      arsId: stop.arsId,
-      tmX: String(stop.lng),
-      tmY: String(stop.lat),
+  const handleSelectStation = (station: StationSearchResult) =>
+    openStation({
+      stationId: station.stId,
+      arsId: station.arsId,
+      name: station.stNm,
+      lat: parseFloat(station.tmY),
+      lng: parseFloat(station.tmX),
     });
-    setIsStationInformationSheetOpen(true);
-    setIsSearchOpen(false);
-  };
+
+  const handleSelectStop = (stop: BusStop) =>
+    openStation({
+      stationId: stop.stationId,
+      arsId: stop.arsId,
+      name: stop.name,
+      lat: stop.lat,
+      lng: stop.lng,
+    });
 
   const handleStationInformationSheetClose = () => {
     setSelectedStation(null);
@@ -144,16 +142,14 @@ export const MapPage = () => {
   const handleReopenStation = (route: SelectedRoute) => {
     const item = selectedRoutes.find((selected) => selected.busRouteId === route.busRouteId);
     if (!item) return;
-    setSelectedStation(item.station);
-    setIsStationInformationSheetOpen(true);
-    setIsSearchOpen(false);
+    openStation(item.station);
   };
 
   return (
     <div className="relative w-full h-full">
       <BusMapWidget
         location={location}
-        selectedStation={selectedStationForMap}
+        selectedStation={selectedStation}
         busRoutes={busRoutes}
         stops={nearbyStops}
         onStopSelect={handleSelectStop}
@@ -171,7 +167,7 @@ export const MapPage = () => {
         >
           <SearchIcon className="h-4 w-4 shrink-0 text-gray-400" />
           <span className={`flex-1 text-sm text-left ${selectedStation ? 'text-white' : 'text-gray-400'}`}>
-            {selectedStation ? selectedStation.stNm : '정류소 검색'}
+            {selectedStation ? selectedStation.name : '정류소 검색'}
           </span>
         </button>
         <SelectedRouteTagList routes={selectedRoutes} onRemove={handleToggleRoute} onReopen={handleReopenStation} />
@@ -187,7 +183,7 @@ export const MapPage = () => {
         onOpenChange={setIsStationInformationSheetOpen}
         onClose={handleStationInformationSheetClose}
         arsId={selectedStation?.arsId ?? ''}
-        stationName={selectedStation?.stNm ?? ''}
+        stationName={selectedStation?.name ?? ''}
         selectedRouteIds={selectedRouteIds}
         onToggleRoute={handleToggleRoute}
       />
