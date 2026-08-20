@@ -97,8 +97,8 @@ interface BusMapWidgetProps {
   bottomInset?: number;
   /** 버스 마커 노출 여부(줌 임계 이상) 변화를 상위에 알린다. 안 보일 때 위치 폴링을 끄기 위함. */
   onBusVisibilityChange?: (visible: boolean) => void;
-  /** 앱이 옮긴 경우는 제외 */
-  onUserMoveEnd?: (center: Location) => void;
+  /** 지도가 멈출 때마다. movedByUser는 앱이 옮긴 경우 false */
+  onMapIdle?: (center: Location, movedByUser: boolean) => void;
 }
 
 export const BusMapWidget = ({
@@ -109,7 +109,7 @@ export const BusMapWidget = ({
   onStationSelect,
   bottomInset = 0,
   onBusVisibilityChange,
-  onUserMoveEnd,
+  onMapIdle,
 }: BusMapWidgetProps) => {
   const mapRef = useRef<naver.maps.Map | null>(null);
   const userMarkerRef = useRef<naver.maps.Marker | null>(null);
@@ -179,10 +179,10 @@ export const BusMapWidget = ({
     }
   }, [mapReady, location]);
 
-  const onUserMoveEndRef = useRef(onUserMoveEnd);
+  const onMapIdleRef = useRef(onMapIdle);
   useEffect(() => {
-    onUserMoveEndRef.current = onUserMoveEnd;
-  }, [onUserMoveEnd]);
+    onMapIdleRef.current = onMapIdle;
+  }, [onMapIdle]);
 
   // 내 위치가 바뀌면 NaverMap이 지도를 옮김
   useEffect(() => {
@@ -193,9 +193,8 @@ export const BusMapWidget = ({
     const last = lastProgrammaticCenterRef.current;
     const isProgrammatic =
       Math.abs(center.lat - last.lat) < PROGRAMMATIC_CENTER_EPS && Math.abs(center.lng - last.lng) < PROGRAMMATIC_CENTER_EPS;
-    if (isProgrammatic) return;
 
-    onUserMoveEndRef.current?.(center);
+    onMapIdleRef.current?.(center, !isProgrammatic);
   }, []);
 
   const selectedStationId = selectedStation?.stationId ?? null;

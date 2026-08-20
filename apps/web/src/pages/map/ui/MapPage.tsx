@@ -50,7 +50,7 @@ export const MapPage = () => {
   const [searchCenter, setSearchCenter] = useState<Location | null>(null);
   const [canSearchHere, setCanSearchHere] = useState(false);
   // 상태로 두면 지도가 멈출 때마다 화면이 다시 그려짐
-  const movedCenterRef = useRef<Location | null>(null);
+  const mapCenterRef = useRef<Location | null>(null);
 
   const selectedRouteIds = selectedRoutes.map((route) => route.busRouteId);
 
@@ -119,11 +119,12 @@ export const MapPage = () => {
     }
   }, [hasBusDataError]);
 
-  // 확대·축소만으로는 지도 중심이 안 바뀌므로 재조회 불필요
-  const handleUserMoveEnd = useCallback(
-    (center: Location) => {
-      movedCenterRef.current = center;
-      setCanSearchHere(!isSameNearbyQueryPoint(center, queryCenter));
+  // 앱이 옮긴 경우도 좌표는 갱신. 빠뜨리면 보정 패닝 뒤 화면과 다른 지점을 조회함
+  const handleMapIdle = useCallback(
+    (center: Location, movedByUser: boolean) => {
+      mapCenterRef.current = center;
+      // 확대·축소만으로는 지도 중심이 안 바뀌므로 재조회 불필요
+      if (movedByUser) setCanSearchHere(!isSameNearbyQueryPoint(center, queryCenter));
     },
     [queryCenter],
   );
@@ -131,8 +132,8 @@ export const MapPage = () => {
   // 재조회만 하고 지도는 그대로.
   // 로딩 여부로 숨기면, 조금만 움직였을 때 요청이 없어 버튼이 안 사라짐
   const handleSearchHere = () => {
-    if (movedCenterRef.current) {
-      setSearchCenter(movedCenterRef.current);
+    if (mapCenterRef.current) {
+      setSearchCenter(mapCenterRef.current);
     }
     setCanSearchHere(false);
   };
@@ -198,7 +199,7 @@ export const MapPage = () => {
         stations={nearbyStations}
         onStationSelect={handleSelectFromMarker}
         onBusVisibilityChange={setBusesVisible}
-        onUserMoveEnd={handleUserMoveEnd}
+        onMapIdle={handleMapIdle}
         bottomInset={isStationInformationSheetOpen ? window.innerHeight * PEEK_HEIGHT_RATIO : 0}
       />
 
