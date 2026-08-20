@@ -16,7 +16,7 @@ import type { BusStop } from '@entities/bus-stop';
 import { nearbyStopsQueryOptions } from '@entities/bus-stop';
 import type { StationSearchResult } from '@entities/station';
 import { SearchIcon } from '@shared/icons';
-import { PEEK_HEIGHT_RATIO } from '@shared/ui';
+import { MapHint, PEEK_HEIGHT_RATIO } from '@shared/ui';
 
 /** 검색 결과와 지도 마커가 공통으로 쓰는 정류장 형태. 두 출처의 필드명이 달라 여기서 맞춘다. */
 interface SelectedStation {
@@ -33,7 +33,7 @@ interface SelectedRouteItem extends SelectedRoute {
 }
 
 export const MapPage = () => {
-  const { location, isLocating } = useUserLocation();
+  const { location, isLocating, error: locationError } = useUserLocation();
 
   const [selectedStation, setSelectedStation] = useState<SelectedStation | null>(null);
   const [isStationInformationSheetOpen, setIsStationInformationSheetOpen] = useState(false);
@@ -55,6 +55,13 @@ export const MapPage = () => {
       toast.error('주변 정류소를 불러오지 못했습니다');
     }
   }, [hasNearbyStationsError]);
+
+  // 훅이 서울 시청으로 폴백하므로, 알리지 않으면 사용자가 그 위치를 자기 위치로 오해한다.
+  useEffect(() => {
+    if (locationError) {
+      toast.error(locationError);
+    }
+  }, [locationError]);
 
   // 선택한 노선이 있는데 줌이 낮아 버스 마커가 안 보이면(=버스 없음과 구분 불가) 확대를 안내한다.
   const shouldShowBusZoomHint = selectedRoutes.length > 0 && !busesVisible;
@@ -171,6 +178,7 @@ export const MapPage = () => {
           </span>
         </button>
         <SelectedRouteTagList routes={selectedRoutes} onRemove={handleToggleRoute} onReopen={handleReopenStation} />
+        {isLocating && <MapHint>현재 위치를 확인하는 중입니다</MapHint>}
         {shouldShowBusZoomHint && <BusZoomHint />}
       </div>
 
