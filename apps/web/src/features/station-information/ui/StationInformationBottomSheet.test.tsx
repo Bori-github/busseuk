@@ -113,7 +113,7 @@ describe('StationInformationBottomSheet', () => {
     renderSheet({ arsId: '99999' });
 
     await waitFor(() => {
-      expect(screen.getByText('정류장 또는 노선 정보를 찾을 수 없습니다')).toBeTruthy();
+      expect(screen.getByText('정류소 또는 노선 정보를 찾을 수 없습니다')).toBeTruthy();
     });
     expect(screen.getByRole('button', { name: '다시 시도' })).toBeTruthy();
     expect(screen.queryByText('도착 정보가 없습니다')).toBeNull();

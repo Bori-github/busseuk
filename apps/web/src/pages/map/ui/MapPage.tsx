@@ -49,10 +49,10 @@ export const MapPage = () => {
     enabled: !isLocating,
   });
 
-  // 조회 실패가 빈 배열로 대체돼 "주변에 정류장이 없음"과 구분되지 않으므로 토스트로 알린다.
+  // 조회 실패가 빈 배열로 대체돼 "주변에 정류소가 없음"과 구분되지 않으므로 토스트로 알린다.
   useEffect(() => {
     if (hasNearbyStationsError) {
-      toast.error('주변 정류장을 불러오지 못했습니다');
+      toast.error('주변 정류소를 불러오지 못했습니다');
     }
   }, [hasNearbyStationsError]);
 

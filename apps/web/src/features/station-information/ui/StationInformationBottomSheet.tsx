@@ -17,7 +17,7 @@ const hasArrival = (msg: string) => msg && msg !== '-';
 const getStationInformationErrorMessage = (error: unknown) => {
   if (error instanceof BusApiError) {
     if (error.isNotFound) {
-      return '정류장 또는 노선 정보를 찾을 수 없습니다';
+      return '정류소 또는 노선 정보를 찾을 수 없습니다';
     }
     if (error.isRetryable) {
       return '실시간 도착 정보를 불러오지 못했습니다';

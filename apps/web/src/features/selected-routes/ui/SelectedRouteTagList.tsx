@@ -25,7 +25,7 @@ export const SelectedRouteTagList = ({ routes, onRemove, onReopen }: SelectedRou
           className="flex shrink-0 items-center gap-1 rounded-full py-1 pl-2.5 pr-1.5 text-xs font-bold text-white shadow-md"
           style={{ backgroundColor: getRouteTypeColor(route.routeType) }}
         >
-          <button type="button" onClick={() => onReopen(route)} aria-label={`${route.busRouteAbrv} 정류장 도착정보 다시 보기`}>
+          <button type="button" onClick={() => onReopen(route)} aria-label={`${route.busRouteAbrv} 정류소 도착정보 다시 보기`}>
             {route.busRouteAbrv}
           </button>
           <button
