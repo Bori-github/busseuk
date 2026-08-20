@@ -1,20 +1,27 @@
 import type { BusStop, NearbyStopItem } from '../model/types';
 
 import { busGet, BusApiError } from '@shared/api';
+import { parseCoord } from '@shared/lib';
 
 /** 500m면 도심에서 50개 넘게 잡혀 과밀해짐 */
 export const NEARBY_RADIUS_METERS = 300;
 
 const hasArrivalInfo = (item: NearbyStopItem) => item.arsId !== '0' && item.arsId !== '';
 
-const toBusStop = (item: NearbyStopItem): BusStop => ({
-  stationId: item.stationId,
-  arsId: item.arsId,
-  name: item.stationNm,
-  lat: parseFloat(item.gpsY),
-  lng: parseFloat(item.gpsX),
-  distanceMeters: Number(item.dist),
-});
+const toBusStop = (item: NearbyStopItem): BusStop | null => {
+  const lat = parseCoord(item.gpsY);
+  const lng = parseCoord(item.gpsX);
+  if (lat === null || lng === null) return null;
+
+  return {
+    stationId: item.stationId,
+    arsId: item.arsId,
+    name: item.stationNm,
+    lat,
+    lng,
+    distanceMeters: Number(item.dist),
+  };
+};
 
 export const getNearbyStops = async (lat: number, lng: number): Promise<BusStop[]> => {
   try {
@@ -24,7 +31,8 @@ export const getNearbyStops = async (lat: number, lng: number): Promise<BusStop[
       radius: String(NEARBY_RADIUS_METERS),
     });
 
-    return items.filter(hasArrivalInfo).map(toBusStop);
+    // 좌표를 읽지 못한 정류장은 지도에 표시할 수 없으므로 제외
+    return items.filter(hasArrivalInfo).flatMap((item) => toBusStop(item) ?? []);
   } catch (error) {
     if (error instanceof BusApiError && error.isNotFound) return [];
     throw error;

@@ -71,6 +71,26 @@ describe('getNearbyStops', () => {
     expect(stops.map((stop) => stop.stationId)).toEqual(['102900092']);
   });
 
+  it('좌표가 숫자가 아닌 정류장은 제외한다', async () => {
+    vi.mocked(busGet).mockResolvedValue([
+      createItem({ stationId: '1', gpsY: '', gpsX: '126.9' }),
+      createItem({ stationId: '2', gpsY: 'N/A', gpsX: '126.9' }),
+      createItem({ stationId: '3' }),
+    ]);
+
+    const stops = await getNearbyStops(37.5, 127);
+
+    expect(stops.map((stop) => stop.stationId)).toEqual(['3']);
+  });
+
+  it('좌표가 0인 정류장은 제외한다', async () => {
+    vi.mocked(busGet).mockResolvedValue([createItem({ stationId: '1', gpsY: '0', gpsX: '0' }), createItem({ stationId: '2' })]);
+
+    const stops = await getNearbyStops(37.5, 127);
+
+    expect(stops.map((stop) => stop.stationId)).toEqual(['2']);
+  });
+
   it('주변에 정류장이 없으면(headerCd 4) 빈 목록을 돌려준다', async () => {
     vi.mocked(busGet).mockRejectedValue(new BusApiError('4', '결과가 없습니다.'));
 
