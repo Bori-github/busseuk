@@ -61,9 +61,11 @@ argument-hint: '[base 브랜치 — 생략 시 main]'
 
 ### 6. 라벨
 
-변경 유형은 본문이 아니라 **라벨**로 표시한다. 커밋 prefix와 라벨은 **이름이 다르므로**
-[`pr-checklist.md`의 매핑표](../docs/pr-checklist.md#커밋-prefix--github-라벨)를 따른다
-(`feat` → `feature`, `docs` → `documentation` 등).
+변경 유형은 본문이 아니라 **라벨**로 표시한다. 라벨 이름은 커밋 prefix와 같다
+(`feat`·`fix`·`docs`·`refactor`·`perf`·`test`·`build`·`ci`·`chore`).
+
+`style`·`hotfix` 는 prefix 없이 라벨로만 쓴다(포맷은 Prettier가 자동 처리하고,
+긴급 수정은 `fix`로 커밋하되 라벨로 구분한다).
 
 ### 7. 검증 — 실제로 돌리고 값으로 적는다
 

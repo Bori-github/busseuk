@@ -27,25 +27,6 @@ PR은 CI 게이트를 통과해야 한다. 게이트의 단일 출처는 [검증
 - 브랜치 이름은 `type/kebab-설명`. 접두사는 커밋 type 어휘를 그대로 쓴다
   (예: `feat/station-arrival-sheet`, `refactor/merge-station-slices`).
 
-### 커밋 prefix ↔ GitHub 라벨
-
-**이름이 다르다.** 변경 유형은 PR 본문이 아니라 라벨로 표시하므로, 제목의 prefix를 라벨로
-옮길 때 아래 대응을 쓴다.
-
-| 커밋 prefix | GitHub 라벨     |
-| ----------- | --------------- |
-| `feat`      | `feature`       |
-| `fix`       | `fix`           |
-| `docs`      | `documentation` |
-| `refactor`  | `refactor`      |
-| `perf`      | `performance`   |
-| `test`      | `test`          |
-| `ci`        | `ci`            |
-| `chore`     | `chore`         |
-
-`style`·`hotfix` 라벨도 있으나 커밋 prefix로는 쓰지 않는다(포맷은 Prettier가 자동 처리하고,
-긴급 수정은 `fix`로 커밋하되 라벨로 구분한다).
-
 ## 전략 영향 평가
 
 PR 설명에는 다음 질문에 대한 답이 있어야 한다.

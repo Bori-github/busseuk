@@ -2,7 +2,7 @@
 name: 기능 구현
 about: 새로운 기능 구현 계획
 title: 'feat: '
-labels: feature
+labels: feat
 ---
 
 ## 개요
