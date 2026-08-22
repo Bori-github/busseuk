@@ -28,20 +28,6 @@ busseuk의 각 영역이 **무엇으로 검증되는지**를 추적하는 표다
 CI 워크플로(`.github/workflows/test.yml`)는 PR→main에서 Install → Lint → Build → Run tests를
 순서대로 강제한다. **품질의 권위 있는 게이트는 CI**이고, 훅·husky는 그 앞단의 빠른 보조다.
 
-### 테스트 커버리지 현황
-
-vitest는 검증 대상 파일 옆에 co-locate 한다([project-structure.md](project-structure.md)).
-현재 자동 테스트가 있는 영역:
-
-- `shared/lib/polyline` — 노선 폴리라인 투영·누적거리 보간
-- `shared/api/busClient` — API 클라이언트
-- `shared/ui/naver/createBusMarkerIcon` — 마커 아이콘 생성
-- `entities/station/api/getStationInformation` — 정류장 정보 조회
-- `features/station-information`·`features/search` — 컴포넌트(jsdom)
-- `features/user-location/hooks/useUserLocation` — 위치 훅
-- `widgets/bus-map/lib/busInterpolation` — 버스 위치 보간
-- `pages/map` — 정류장 정보 통합 흐름
-
 ## 반자동/수동 검증 영역
 
 불가 이유는 다음 의미로 쓴다.
