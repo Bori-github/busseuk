@@ -68,7 +68,7 @@ describe('getNearbyStations', () => {
 
     const stations = await getNearbyStations(37.4979, 127.0276);
 
-    expect(stations.map((stop) => stop.stationId)).toEqual(['102900092']);
+    expect(stations.map((station) => station.stationId)).toEqual(['102900092']);
   });
 
   it('좌표가 숫자가 아닌 정류장은 제외한다', async () => {
@@ -80,7 +80,7 @@ describe('getNearbyStations', () => {
 
     const stations = await getNearbyStations(37.5, 127);
 
-    expect(stations.map((stop) => stop.stationId)).toEqual(['3']);
+    expect(stations.map((station) => station.stationId)).toEqual(['3']);
   });
 
   it('좌표가 0인 정류장은 제외한다', async () => {
@@ -88,7 +88,7 @@ describe('getNearbyStations', () => {
 
     const stations = await getNearbyStations(37.5, 127);
 
-    expect(stations.map((stop) => stop.stationId)).toEqual(['2']);
+    expect(stations.map((station) => station.stationId)).toEqual(['2']);
   });
 
   it('주변에 정류장이 없으면(headerCd 4) 빈 목록을 돌려준다', async () => {

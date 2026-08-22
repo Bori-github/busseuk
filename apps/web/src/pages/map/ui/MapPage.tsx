@@ -12,9 +12,8 @@ import { useUserLocation } from '@features/user-location';
 
 import type { SelectedRoute } from '@entities/bus';
 import { busPositionsQueryOptions, routePathQueryOptions } from '@entities/bus';
-import type { NearbyStation } from '@entities/station';
+import type { NearbyStation, StationSearchResult } from '@entities/station';
 import { isSameNearbyQueryPoint, nearbyStationsQueryOptions } from '@entities/station';
-import type { StationSearchResult } from '@entities/station';
 import { ArrowRotateRightIcon, SearchIcon } from '@shared/icons';
 import { MapHint, PEEK_HEIGHT_RATIO } from '@shared/ui';
 

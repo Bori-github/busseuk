@@ -33,11 +33,11 @@ export const diffStationMarkers = ({
   prevDetailed,
 }: StationMarkerDiffInput): StationMarkerDiff => {
   const existing = new Set(existingIds);
-  const next = new Map(stations.map((stop) => [stop.stationId, stop]));
+  const next = new Map(stations.map((station) => [station.stationId, station]));
 
-  const added = stations.filter((stop) => !existing.has(stop.stationId));
+  const added = stations.filter((station) => !existing.has(station.stationId));
   const removed = [...existing].filter((id) => !next.has(id));
-  const addedIds = new Set(added.map((stop) => stop.stationId));
+  const addedIds = new Set(added.map((station) => station.stationId));
 
   const selectionChanged = prevSelectedStationId === selectedStationId ? [] : [prevSelectedStationId, selectedStationId];
 
@@ -46,9 +46,9 @@ export const diffStationMarkers = ({
   // 새로 만드는 마커는 생성 시 아이콘을 받으므로 다시 씌우지 않음
   const reiconed = reiconTargets.flatMap((id) => {
     if (id === null || addedIds.has(id)) return [];
-    const stop = next.get(id);
+    const station = next.get(id);
 
-    return stop ? [stop] : [];
+    return station ? [station] : [];
   });
 
   return { added, removed, reiconed };
