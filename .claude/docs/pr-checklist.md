@@ -23,11 +23,9 @@ PR은 CI 게이트를 통과해야 한다. 게이트의 단일 출처는 [검증
 ## 브랜치·커밋 규칙
 
 - `main`에 직접 푸시하지 않는다. 항상 브랜치와 PR을 사용한다.
-- 커밋 메시지는 conventional-commit prefix(`feat`/`fix`/`docs`/`test`/`refactor`/`perf`/`build`/`ci`/`chore`)를 쓴다.
-- 브랜치 이름은 `type/kebab-설명` 형식을 쓴다(예: `feat/station-arrival-sheet`).
-- PR 제목은 커밋과 동일한 형식을 쓴다. squash 병합 시 이 제목이 `main`의 커밋 메시지가 된다.
-- 변경은 논리적으로 완결되는 가장 작은 단위로 나눈다. 단, 중간 상태가 깨지는 분할은 하지 않는다
-  ([Working Style](dev-workflow.md#working-style)).
+- PR 제목은 커밋 제목과 같은 형식을 쓴다. squash 병합 시 이 제목이 `main`의 커밋 메시지가 된다.
+- 브랜치 이름은 `type/kebab-설명`. 접두사는 커밋 type 어휘를 그대로 쓴다
+  (예: `feat/station-arrival-sheet`, `refactor/merge-station-slices`).
 
 ### 커밋 prefix ↔ GitHub 라벨
 
