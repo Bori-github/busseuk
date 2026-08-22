@@ -52,7 +52,7 @@ apps/web/src/
     user-location/       현재 위치 (hooks)
   entities/            도메인 모델·API
     bus/                 버스 위치 (api·model)
-    station/             정류장/노선 (api·model)
+    station/             정류장 검색·도착정보·주변 조회 (api·model)
   shared/              레이어 무관 공용 코드
     api/                 API 클라이언트(axios 기반 busClient 등)
     config/              환경/상수
