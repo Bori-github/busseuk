@@ -48,14 +48,15 @@
 - 본문: `.github/ISSUE_TEMPLATE/feature.md` 형식에 맞춰 작성
 - 어사이니: `--assignee` 옵션이 있으면 해당 username, 없으면 기본값 `Bori-github`
 - 라벨: 기능 설명에 맞는 라벨을 아래 목록에서 선택해 지정한다
-  - `feature` — 새 기능 구현
+  - `feat` — 새 기능 구현
   - `fix` — 버그 수정
   - `refactor` — 동작 변경 없는 코드 개선
   - `test` — 테스트 추가·수정
   - `chore` — 의존성·설정 등 유지보수
-  - `documentation` — 문서 변경
+  - `docs` — 문서 변경
   - `ci` — CI/CD 설정 변경
-  - `performance` — 성능 개선
+  - `build` — 빌드 설정·의존성·번들러
+  - `perf` — 성능 개선
   - `style` — 코드 스타일·포맷 변경
   - `hotfix` — 긴급 프로덕션 수정
 - 생성 후 이슈 URL을 사용자에게 전달한다

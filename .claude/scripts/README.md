@@ -31,7 +31,7 @@
 
 ## PR 데모 (record → verify → upload)
 
-동작이 바뀐 PR에 붙일 데모를 만드는 3단계. 절차는 [`/pr` 9단계](../commands/pr.md)가 호출한다.
+동작이 바뀐 PR에 붙일 데모를 만드는 3단계.
 
 ```bash
 pnpm --filter web dev &                                            # 개발 서버
