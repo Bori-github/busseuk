@@ -11,14 +11,14 @@ import {
   TARGET_LAG_MS,
 } from '../lib/busInterpolation';
 import type { Sample } from '../lib/busInterpolation';
-import { diffBusStopMarkers } from '../lib/busStopMarkers';
+import { diffStationMarkers } from '../lib/stationMarkers';
 
 import type { BusPosition, RoutePathPoint } from '@entities/bus';
 import { getRouteTypeColor } from '@entities/bus';
-import type { BusStop } from '@entities/bus-stop';
+import type { NearbyStation } from '@entities/station';
 import { buildRoutePolyline, parseCoord, pointAtDistance, projectToPolyline } from '@shared/lib';
 import type { LatLng, RoutePolyline } from '@shared/lib';
-import { BUS_ARROW_SELECTOR, createBusMarkerIcon, createBusStopMarkerIcon, createUserMarkerIcon, NaverMap } from '@shared/ui/naver';
+import { BUS_ARROW_SELECTOR, createBusMarkerIcon, createStationMarkerIcon, createUserMarkerIcon, NaverMap } from '@shared/ui/naver';
 
 /** 버스 마커가 노출되는 최소 줌 레벨 */
 const BUS_MARKER_MIN_ZOOM = 17;
@@ -88,8 +88,8 @@ interface BusMapWidgetProps {
   /** 선택된 노선들의 실시간 버스 위치 */
   busRoutes?: BusRouteWithPositions[];
   /** 줌이 임계 미만이면 렌더하지 않음 */
-  stations?: BusStop[];
-  onStationSelect?: (station: BusStop) => void;
+  stations?: NearbyStation[];
+  onStationSelect?: (station: NearbyStation) => void;
   /** 하단 오버레이가 가리는 높이(px). 선택 정류장을 남은 영역 중앙에 배치 */
   bottomInset?: number;
   /** 버스 마커 노출 여부 변화 알림. 안 보이면 상위가 폴링을 끔 */
@@ -223,14 +223,14 @@ export const BusMapWidget = ({
 
     const map = mapRef.current;
     const markers = stationMarkersRef.current;
-    const buildIcon = (station: BusStop) => {
-      if (station.stationId === selectedStationId) return createBusStopMarkerIcon({ name: station.name, variant: 'selected' });
+    const buildIcon = (station: NearbyStation) => {
+      if (station.stationId === selectedStationId) return createStationMarkerIcon({ name: station.name, variant: 'selected' });
 
-      return createBusStopMarkerIcon({ name: station.name, variant: detailedStations ? 'default' : 'dot' });
+      return createStationMarkerIcon({ name: station.name, variant: detailedStations ? 'default' : 'dot' });
     };
 
-    const { added, removed, reiconed } = diffBusStopMarkers({
-      stops: stations,
+    const { added, removed, reiconed } = diffStationMarkers({
+      stations: stations,
       existingIds: markers.keys(),
       selectedStationId,
       prevSelectedStationId: prevSelectedStationIdRef.current,
@@ -278,7 +278,7 @@ export const BusMapWidget = ({
     }
 
     const position = new naver.maps.LatLng(selectedStation.lat, selectedStation.lng);
-    const icon = createBusStopMarkerIcon({ name: selectedStation.name, variant: 'selected' });
+    const icon = createStationMarkerIcon({ name: selectedStation.name, variant: 'selected' });
 
     if (!selectedMarkerRef.current) {
       selectedMarkerRef.current = new naver.maps.Marker({ map: mapRef.current, position, icon });

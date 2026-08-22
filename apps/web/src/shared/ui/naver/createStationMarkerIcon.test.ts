@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { createBusStopMarkerIcon, BUS_STOP_PIN_TIP_SELECTOR } from './createBusStopMarkerIcon';
+import { createStationMarkerIcon, STATION_PIN_TIP_SELECTOR } from './createStationMarkerIcon';
 
 // toMeasuredHtmlIcon은 window.naver.maps.Size/Point를 사용하므로 최소 스텁을 둠
 beforeEach(() => {
@@ -23,7 +23,7 @@ afterEach(() => {
 });
 
 const render = (variant: 'selected' | 'default' | 'dot'): HTMLElement => {
-  const icon = createBusStopMarkerIcon({ name: '불광역', variant });
+  const icon = createStationMarkerIcon({ name: '불광역', variant });
   const host = document.createElement('div');
   host.innerHTML = icon.content as string;
 
@@ -31,20 +31,20 @@ const render = (variant: 'selected' | 'default' | 'dot'): HTMLElement => {
 };
 
 const anchorY = (variant: 'selected' | 'default' | 'dot'): number => {
-  const icon = createBusStopMarkerIcon({ name: '불광역', variant });
+  const icon = createStationMarkerIcon({ name: '불광역', variant });
 
   return (icon.anchor as naver.maps.Point).y;
 };
 
-describe('createBusStopMarkerIcon', () => {
+describe('createStationMarkerIcon', () => {
   it('주변 정류장은 이름표를 붙이지 않는다', () => {
     expect(render('default').textContent?.trim()).toBe('');
     expect(render('selected').textContent).toContain('불광역');
   });
 
   it('꼬리는 선택된 정류장에만 붙인다', () => {
-    expect(render('default').querySelector(BUS_STOP_PIN_TIP_SELECTOR)).toBeNull();
-    expect(render('selected').querySelector(BUS_STOP_PIN_TIP_SELECTOR)).not.toBeNull();
+    expect(render('default').querySelector(STATION_PIN_TIP_SELECTOR)).toBeNull();
+    expect(render('selected').querySelector(STATION_PIN_TIP_SELECTOR)).not.toBeNull();
   });
 
   it('선택된 정류장의 원을 더 크게 그린다', () => {
