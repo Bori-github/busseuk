@@ -15,7 +15,7 @@ import { diffBusStopMarkers } from '../lib/busStopMarkers';
 
 import type { BusPosition, RoutePathPoint } from '@entities/bus';
 import { getRouteTypeColor } from '@entities/bus';
-import type { BusStop } from '@entities/bus-stop';
+import type { NearbyStation } from '@entities/station';
 import { buildRoutePolyline, parseCoord, pointAtDistance, projectToPolyline } from '@shared/lib';
 import type { LatLng, RoutePolyline } from '@shared/lib';
 import { BUS_ARROW_SELECTOR, createBusMarkerIcon, createBusStopMarkerIcon, createUserMarkerIcon, NaverMap } from '@shared/ui/naver';
@@ -88,8 +88,8 @@ interface BusMapWidgetProps {
   /** 선택된 노선들의 실시간 버스 위치 */
   busRoutes?: BusRouteWithPositions[];
   /** 줌이 임계 미만이면 렌더하지 않음 */
-  stations?: BusStop[];
-  onStationSelect?: (station: BusStop) => void;
+  stations?: NearbyStation[];
+  onStationSelect?: (station: NearbyStation) => void;
   /** 하단 오버레이가 가리는 높이(px). 선택 정류장을 남은 영역 중앙에 배치 */
   bottomInset?: number;
   /** 버스 마커 노출 여부 변화 알림. 안 보이면 상위가 폴링을 끔 */
@@ -223,14 +223,14 @@ export const BusMapWidget = ({
 
     const map = mapRef.current;
     const markers = stationMarkersRef.current;
-    const buildIcon = (station: BusStop) => {
+    const buildIcon = (station: NearbyStation) => {
       if (station.stationId === selectedStationId) return createBusStopMarkerIcon({ name: station.name, variant: 'selected' });
 
       return createBusStopMarkerIcon({ name: station.name, variant: detailedStations ? 'default' : 'dot' });
     };
 
     const { added, removed, reiconed } = diffBusStopMarkers({
-      stops: stations,
+      stations: stations,
       existingIds: markers.keys(),
       selectedStationId,
       prevSelectedStationId: prevSelectedStationIdRef.current,

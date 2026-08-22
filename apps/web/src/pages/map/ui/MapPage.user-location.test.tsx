@@ -4,11 +4,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { MapPage } from './MapPage';
 
-import { getNearbyStops } from '@entities/bus-stop/api/getNearbyStops';
+import { getNearbyStations } from '@entities/station/api/getNearbyStations';
 import { createQueryWrapper } from '@shared/test/queryWrapper';
 
-vi.mock('@entities/bus-stop/api/getNearbyStops', () => ({
-  getNearbyStops: vi.fn(),
+vi.mock('@entities/station/api/getNearbyStations', () => ({
+  getNearbyStations: vi.fn(),
   NEARBY_RADIUS_METERS: 300,
 }));
 
@@ -77,7 +77,7 @@ describe('MapPage 위치 상태', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     stubGeolocation();
-    vi.mocked(getNearbyStops).mockResolvedValue([]);
+    vi.mocked(getNearbyStations).mockResolvedValue([]);
   });
 
   it('위치를 확인하는 동안 안내를 띄운다', () => {
@@ -86,7 +86,7 @@ describe('MapPage 위치 상태', () => {
     renderMapPage();
 
     expect(screen.getByText('현재 위치를 확인하는 중입니다')).toBeTruthy();
-    expect(getNearbyStops).not.toHaveBeenCalled();
+    expect(getNearbyStations).not.toHaveBeenCalled();
   });
 
   it('위치를 못 가져오면 폴백 기준을 알린다', async () => {

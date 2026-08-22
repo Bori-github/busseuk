@@ -4,12 +4,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { MapPage } from './MapPage';
 
-import type { BusStop } from '@entities/bus-stop';
-import { getNearbyStops } from '@entities/bus-stop/api/getNearbyStops';
+import type { NearbyStation } from '@entities/station';
+import { getNearbyStations } from '@entities/station/api/getNearbyStations';
 import { createQueryWrapper } from '@shared/test/queryWrapper';
 
-vi.mock('@entities/bus-stop/api/getNearbyStops', () => ({
-  getNearbyStops: vi.fn(),
+vi.mock('@entities/station/api/getNearbyStations', () => ({
+  getNearbyStations: vi.fn(),
   NEARBY_RADIUS_METERS: 300,
 }));
 
@@ -38,7 +38,7 @@ vi.mock('sonner', () => ({
   toast: { error: vi.fn() },
 }));
 
-const station: BusStop = {
+const station: NearbyStation = {
   stationId: '101900011',
   arsId: '02503',
   name: '시청역',
@@ -81,7 +81,7 @@ describe('MapPage 주변 정류소', () => {
   });
 
   it('주변에 정류소가 없으면 안내를 띄운다', async () => {
-    vi.mocked(getNearbyStops).mockResolvedValue([]);
+    vi.mocked(getNearbyStations).mockResolvedValue([]);
 
     renderMapPage();
 
@@ -89,16 +89,16 @@ describe('MapPage 주변 정류소', () => {
   });
 
   it('정류소가 있으면 없음 안내를 띄우지 않는다', async () => {
-    vi.mocked(getNearbyStops).mockResolvedValue([station]);
+    vi.mocked(getNearbyStations).mockResolvedValue([station]);
 
     renderMapPage();
 
-    await waitFor(() => expect(getNearbyStops).toHaveBeenCalled());
+    await waitFor(() => expect(getNearbyStations).toHaveBeenCalled());
     expect(screen.queryByText('주변에 정류소가 없습니다')).toBeNull();
   });
 
   it('조회에 실패하면 없음 안내 대신 토스트로 알린다', async () => {
-    vi.mocked(getNearbyStops).mockRejectedValue(new Error('네트워크 오류'));
+    vi.mocked(getNearbyStations).mockRejectedValue(new Error('네트워크 오류'));
 
     renderMapPage();
 
