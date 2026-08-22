@@ -15,19 +15,19 @@ const LABEL_GAP = 4;
 const FILL = '#EF4444';
 const STROKE = '#DC2626';
 
-export const BUS_STOP_PIN_TIP_SELECTOR = '[data-bus-stop-pin-tip]';
+export const STATION_PIN_TIP_SELECTOR = '[data-station-pin-tip]';
 
-export type BusStopMarkerVariant = 'selected' | 'default' | 'dot';
+export type StationMarkerVariant = 'selected' | 'default' | 'dot';
 
-const SIZE: Record<BusStopMarkerVariant, number> = {
+const SIZE: Record<StationMarkerVariant, number> = {
   selected: SELECTED_SIZE,
   default: NEARBY_SIZE,
   dot: DOT_SIZE,
 };
 
-interface CreateBusStopMarkerIconOptions {
+interface CreateStationMarkerIconOptions {
   name: string;
-  variant?: BusStopMarkerVariant;
+  variant?: StationMarkerVariant;
 }
 
 const createCircle = (size: number, withGlyph: boolean): HTMLElement => {
@@ -59,7 +59,7 @@ const createCircle = (size: number, withGlyph: boolean): HTMLElement => {
 
 const createTip = (): HTMLElement => {
   const tip = document.createElement('div');
-  tip.dataset.busStopPinTip = '';
+  tip.dataset.stationPinTip = '';
   Object.assign(tip.style, {
     width: '0',
     height: '0',
@@ -92,10 +92,10 @@ const createLabel = (name: string): HTMLElement => {
  * 선택 마커는 꼬리 끝, 나머지는 원 중심이 좌표에 놓임.
  * 기준이 달라 크기에서 앵커를 곧바로 유도할 수 없음.
  */
-const resolveAnchorY = (variant: BusStopMarkerVariant): number =>
+const resolveAnchorY = (variant: StationMarkerVariant): number =>
   variant === 'selected' ? SELECTED_SIZE + TIP_HEIGHT - TIP_OVERLAP : SIZE[variant] / 2;
 
-export const createBusStopMarkerIcon = ({ name, variant = 'default' }: CreateBusStopMarkerIconOptions): naver.maps.HtmlIcon => {
+export const createStationMarkerIcon = ({ name, variant = 'default' }: CreateStationMarkerIconOptions): naver.maps.HtmlIcon => {
   const selected = variant === 'selected';
 
   const wrapper = document.createElement('div');

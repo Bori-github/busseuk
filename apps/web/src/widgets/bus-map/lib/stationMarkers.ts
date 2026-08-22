@@ -1,6 +1,6 @@
 import type { NearbyStation } from '@entities/station';
 
-interface BusStopMarkerDiffInput {
+interface StationMarkerDiffInput {
   /** 지도에 있어야 할 정류장. 줌이 임계 미만이면 빈 배열을 넘겨 전부 제거 */
   stations: NearbyStation[];
   /** 지도에 이미 올라간 마커의 stationId */
@@ -12,7 +12,7 @@ interface BusStopMarkerDiffInput {
   prevDetailed: boolean;
 }
 
-interface BusStopMarkerDiff {
+interface StationMarkerDiff {
   added: NearbyStation[];
   removed: string[];
   /** 선택 여부가 바뀌어 아이콘만 새로 씌울 정류장 */
@@ -24,14 +24,14 @@ interface BusStopMarkerDiff {
  *
  * 키로 `stationId`를 씀. `arsId`는 응답 내에서 유일하지 않아 마커가 서로 덮임.
  */
-export const diffBusStopMarkers = ({
+export const diffStationMarkers = ({
   stations,
   existingIds,
   selectedStationId,
   prevSelectedStationId,
   detailed,
   prevDetailed,
-}: BusStopMarkerDiffInput): BusStopMarkerDiff => {
+}: StationMarkerDiffInput): StationMarkerDiff => {
   const existing = new Set(existingIds);
   const next = new Map(stations.map((stop) => [stop.stationId, stop]));
 
